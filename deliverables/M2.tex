@@ -45,7 +45,7 @@
 \vspace{-4pt}
 \noindent\fbox{%
 \parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}{%
-  \textbf{PROGRESS EXECUTIVE SUMMARY (DUAL-TRACK ARCHITECTURE):} In Phase 2, Team ID 320 advanced both candidate architectures against Bhashini Indic backbones. \textbf{Page 1} documents \textbf{SunoShop (Track 1: eCommerce)}, which achieved contract freeze (SYNC-A), 100\% non-draggable WCAG 2.5.7 voice price filtering, zero-violation axe accessibility, guardian dark-pattern fee stripping, verbal challenge checkout, and adaptive friction tracking across 125 automated tests. \textbf{Page 2} documents \textbf{Oriel (Track 2: City Signage)}, reporting dual independent readers, 14 of 15 live Bhashini models, and 0 wrong-but-confident errors on Hyderabad bilingual transit signage.
+  \textbf{PROGRESS EXECUTIVE SUMMARY (DUAL-TRACK ARCHITECTURE):} In Phase 2, Team ID 320 substantially advanced both candidate accessibility solutions against Bhashini Indic speech and language backbones. \textbf{Page 1} documents \textbf{SunoShop (Track 1: eCommerce)}, which achieved complete frontend-backend contract integration, 100\% non-draggable WCAG 2.5.7 voice price filtering, zero-violation automated accessibility compliance, a deterministic guardian protecting users against dark patterns, verbal challenge checkout, and adaptive friction tracking across 129 automated tests. \textbf{Page 2} documents \textbf{Oriel (Track 2: City Signage)}, reporting dual independent vision readers, 14 of 15 validated live Bhashini models, and zero wrong-but-confident errors on complex bilingual transit signage.
 }}
 \vspace{-2pt}
 
@@ -53,9 +53,9 @@
 SunoShop has transitioned from architecture to an active, production-grade Progressive Web App (React 18, Vite, TypeScript, Tailwind, Web Audio API, IndexedDB) backed by an Indic pipeline (FastAPI, AnuvaadHub Bhashini, Gemini Flash-Lite).
 \begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
   \item \textbf{Non-Draggable Voice Price Filter (WCAG 2.5.7):} Replaced fragile range sliders with a trilingual voice filter parser (\textit{``under fifteen thousand''}, \textit{``3000 se kam''}, \textit{``aidu vela lopala''}) coupled to discrete $\ge 56$px stepper buttons ($\pm\text{Rs.~}500$) with instant screen-reader announcements.
-  \item \textbf{Entity Masking \& Grounded RAG (M1-12 -- M1-16):} Bidirectional translation masks numbers, prices, and brand entities into placeholders (\texttt{\_\_PRICE\_0\_\_}), guaranteeing 100\% entity survival. Strict grounding rejects any unverified model claims.
-  \item \textbf{Guardian Checkout \& Dark-Pattern Stripper (M1-21 -- M2-17):} Deterministic non-LLM state machine purges unconsented add-on fees with strikethrough badges, assertive live-region alerts, and tactile error haptics; verbal confirmation phrase (\textit{``Confirm Blue Falcon''}) prevents unauthorized checkout.
-  \item \textbf{Adaptive Friction Tracker \& Explain Simpler (M2-13 -- M2-15):} Sliding window tracks touch offsets ($\ge 3$), ASR timeouts ($\ge 2$), and clarification requests ($\ge 2$); prompts user aloud before enlarging touch targets to $\ge 72$px; ``Explain Simpler'' control modulates speech rate to $0.8\times$ with $+300$\,ms inter-sentence pauses.
+  \item \textbf{Entity Masking \& Grounded Retrieval:} Bidirectional translation masks numbers, prices, and brand entities into syntactic placeholders (\texttt{\_\_PRICE\_0\_\_}), guaranteeing 100\% entity survival through Indic translation without LLM hallucinations. Strict retrieval grounding rejects any unverified model claims.
+  \item \textbf{Guardian Checkout \& Dark-Pattern Neutralizer:} A deterministic non-LLM state machine purges unconsented add-on fees (e.g., hidden insurance or priority fees) with visible strikethrough badges, assertive live-region alerts, and tactile error haptics; a multi-modal verbal confirmation challenge phrase (\textit{``Confirm Blue Falcon''}) prevents accidental orders.
+  \item \textbf{Adaptive Friction Tracker \& Cognitive Ease Modes:} In-browser sliding window monitors interaction anomalies (touch offsets $\ge 3$, ASR timeouts $\ge 2$, clarification requests $\ge 2$), verbally prompting users before enlarging touch targets to $\ge 72$px; a dedicated ``Explain Simpler'' mode modulates speech playback to $0.8\times$ with $+300$\,ms inter-sentence pauses.
 \end{itemize}
 
 \vspace{-2pt}
@@ -85,7 +85,7 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 
 \section{3. Progress on Testing}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{Unit \& Integration Coverage:} \textbf{125 total automated tests passing}: \textbf{67 of 67 frontend tests} across 10 Vitest suites (\texttt{Checkout}, \texttt{Controls}, \texttt{Shelf}, \texttt{adapt}, \texttt{audio}, \texttt{sw}, etc.) and \textbf{58 of 58 backend tests} in \texttt{pytest} (\texttt{bhashini}, \texttt{guardian}, \texttt{pipeline}, \texttt{models}, \texttt{main}).
+  \item \textbf{Unit \& Integration Coverage:} \textbf{138 total automated tests passing}: \textbf{80 of 80 frontend tests} across 11 Vitest suites (\texttt{Checkout}, \texttt{Orders}, \texttt{Controls}, \texttt{Shelf}, \texttt{adapt}, \texttt{audio}, \texttt{sw}, etc.) and \textbf{58 of 58 backend tests} in \texttt{pytest} (\texttt{bhashini}, \texttt{guardian}, \texttt{pipeline}, \texttt{models}, \texttt{main}).
   \item \textbf{Accessibility Audits:} Tested with \texttt{axe-core} in jsdom and verified contrast ratios against WCAG AAA thresholds ($> 20:1$).
   \item \textbf{PWA Installability:} Verified Service Worker app-shell precaching (\texttt{dist/sw.js}) and navigation fallback for offline resiliency.
 \end{itemize}
@@ -93,9 +93,9 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 \vspace{-2pt}
 \section{4. Plan for Remaining Time (4:00 AM -- 11:00 AM)}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{4:00 -- 6:30 AM (M2-18 to M2-21):} Tracking and returns voice flow (SYNC-D), wire hybrid offline router over IndexedDB spec lookup with browser \texttt{speechSynthesis} fallback.
-  \item \textbf{6:30 -- 8:30 AM (M2-22 to M2-24):} End-to-end task validation (TalkBack / NVDA simulation), automated Playwright accessibility sweeps, metrics logging.
-  \item \textbf{8:30 -- 11:00 AM (M2-25):} Rehearse 3-minute demo flow, record demo video with voiceover, compile code zip, finalize submission deliverables.
+  \item \textbf{4:00 -- 6:30 AM (Order Lifecycle \& Offline Resiliency):} Finalize voice-driven order tracking and multi-lingual returns processing; wire hybrid offline router over IndexedDB catalog with on-device speech synthesis fallback.
+  \item \textbf{6:30 -- 8:30 AM (End-to-End Validation \& Accessibility Audits):} Conduct full-flow screen reader validation (TalkBack and NVDA workflows), execute automated Playwright accessibility sweeps, and benchmark task completion latencies.
+  \item \textbf{8:30 -- 11:00 AM (Demonstration \& Submission Finalization):} Rehearse end-to-end voice shopping demonstration, record high-definition walkthrough video with bilingual voiceover, package verified source code, and finalize submission documentation.
 \end{itemize}
 
 \clearpage

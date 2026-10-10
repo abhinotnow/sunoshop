@@ -82,11 +82,39 @@ export interface CheckoutActionMessage {
   phrase?: string;
 }
 
+export interface OrderItem {
+  order_id: string;
+  parent_asin?: string;
+  title: string;
+  price_inr: number;
+  status: 'PROCESSING' | 'SHIPPED' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'RETURN_INITIATED';
+  next_step: string;
+  delivery_date: string;
+  return_eligible: boolean;
+  return_reason?: string;
+  return_seller_note?: string;
+  pickup_date?: string;
+}
+
+export interface OrderTrackActionMessage {
+  type: 'order.track';
+  order_id?: string;
+}
+
+export interface OrderReturnActionMessage {
+  type: 'order.return';
+  order_id: string;
+  reason: string;
+  lang?: string;
+}
+
 export type ClientMessage =
   | SessionStartMessage
   | AudioUtteranceMessage
   | UIEventMessage
-  | CheckoutActionMessage;
+  | CheckoutActionMessage
+  | OrderTrackActionMessage
+  | OrderReturnActionMessage;
 
 // Server -> Client (S->C) messages
 export interface AsrResultMessage {
@@ -148,6 +176,19 @@ export interface ErrorMessage {
   fallback: 'retry' | 'offline';
 }
 
+export interface OrderStatusMessage {
+  type: 'order.status';
+  orders: OrderItem[];
+}
+
+export interface OrderReturnResultMessage {
+  type: 'order.return_result';
+  order_id: string;
+  status: 'APPROVED' | 'INELIGIBLE';
+  seller_note_en: string;
+  pickup_date: string;
+}
+
 export type ServerMessage =
   | AsrResultMessage
   | CheckAgainMessage
@@ -157,5 +198,8 @@ export type ServerMessage =
   | CheckoutStateMessage
   | ConfirmChallengeMessage
   | AdaptOfferMessage
-  | ErrorMessage;
+  | ErrorMessage
+  | OrderStatusMessage
+  | OrderReturnResultMessage;
+
 

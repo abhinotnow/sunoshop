@@ -6,6 +6,7 @@ import {
   ServerMessage,
   ShelfProduct,
   CartItem,
+  OrderItem,
 } from './types';
 
 export type MessageHandler = (msg: ServerMessage) => void;
@@ -27,6 +28,28 @@ export class MockSunoServer {
       title: 'Comfort Walking Shoes',
       price_inr: 1999,
       qty: 1,
+    },
+  ];
+  private orders: OrderItem[] = [
+    {
+      order_id: 'ORD-320981',
+      parent_asin: 'p_001',
+      title: 'UltraCushion Pro Runner',
+      price_inr: 3499,
+      status: 'DELIVERED',
+      next_step: 'Delivered on 9th Oct. Return window open until 16th Oct.',
+      delivery_date: '9th October 2026',
+      return_eligible: true,
+    },
+    {
+      order_id: 'ORD-320982',
+      parent_asin: 'p_002',
+      title: 'AeroGrip Trail Walker',
+      price_inr: 2799,
+      status: 'OUT_FOR_DELIVERY',
+      next_step: 'Arriving today by 5:00 PM via Bluedart Express.',
+      delivery_date: '11th October 2026',
+      return_eligible: false,
     },
   ];
 
@@ -181,6 +204,60 @@ export class MockSunoServer {
             state: 'BROWSING',
             cart: this.cart,
             removed_fees: [],
+          });
+        }
+        break;
+      }
+
+      case 'order.track': {
+        this.emit({
+          type: 'order.status',
+          orders: this.orders,
+        });
+        break;
+      }
+
+      case 'order.return': {
+        const order = this.orders.find((o) => o.order_id === msg.order_id);
+        if (order && order.return_eligible) {
+          // Translate Indic reason into English seller note (M1-24 / M2-18 SYNC-D)
+          let sellerNote = 'Customer requested return.';
+          const lower = msg.reason.toLowerCase();
+          if (lower.includes('size') || lower.includes('pedda') || lower.includes('bada') || lower.includes('fit')) {
+            sellerNote = 'Size is too large; customer requests return for correct fitting.';
+          } else if (lower.includes('quality') || lower.includes('bagoledu') || lower.includes('kharab')) {
+            sellerNote = 'Product quality not matching customer expectations.';
+          } else if (lower.includes('damaged') || lower.includes('pagilindi') || lower.includes('toota')) {
+            sellerNote = 'Item arrived damaged or in defective state.';
+          } else {
+            sellerNote = `Customer stated reason: ${msg.reason}. Approved under standard 7-day policy.`;
+          }
+
+          order.status = 'RETURN_INITIATED';
+          order.return_eligible = false;
+          order.return_reason = msg.reason;
+          order.return_seller_note = sellerNote;
+          order.pickup_date = 'Tomorrow, 12th October 2026';
+
+          this.emit({
+            type: 'order.return_result',
+            order_id: msg.order_id,
+            status: 'APPROVED',
+            seller_note_en: sellerNote,
+            pickup_date: 'Tomorrow, 12th October 2026',
+          });
+
+          this.emit({
+            type: 'order.status',
+            orders: this.orders,
+          });
+        } else {
+          this.emit({
+            type: 'order.return_result',
+            order_id: msg.order_id,
+            status: 'INELIGIBLE',
+            seller_note_en: 'Order is past return eligibility window or not delivered yet.',
+            pickup_date: '',
           });
         }
         break;

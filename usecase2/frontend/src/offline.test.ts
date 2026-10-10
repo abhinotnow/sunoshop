@@ -9,6 +9,15 @@ import {
   clearCatalogCache,
   getCatalogVersion,
   getCachedCatalog,
+  saveCatalog,
+  getIsOffline,
+  setIsOffline,
+  subscribeOffline,
+  reportServerErrorOffline,
+  reportServerOnline,
+  withTimeout,
+  resetOfflineSignal,
+  queryOfflineCatalog,
 } from './offline';
 import { ProductKnowledgeObject } from './types';
 
@@ -192,3 +201,144 @@ describe('M2-08 IndexedDB Catalog Caching Tests', () => {
     expect(offlineResult.products[0].id).toBe('prod_101');
   });
 });
+
+describe('M2-19 Offline Signal Tests', () => {
+  beforeEach(() => {
+    resetOfflineSignal();
+  });
+
+  it('flips offline signal via setIsOffline and notifies subscribers', () => {
+    const states: boolean[] = [];
+    const unsubscribe = subscribeOffline((isOffline) => {
+      states.push(isOffline);
+    });
+
+    expect(getIsOffline()).toBe(false);
+    setIsOffline(true);
+    expect(getIsOffline()).toBe(true);
+    expect(states).toEqual([true]);
+
+    setIsOffline(false);
+    expect(getIsOffline()).toBe(false);
+    expect(states).toEqual([true, false]);
+
+    unsubscribe();
+  });
+
+  it('reportServerErrorOffline and reportServerOnline flip offline signal', () => {
+    expect(getIsOffline()).toBe(false);
+    reportServerErrorOffline();
+    expect(getIsOffline()).toBe(true);
+
+    reportServerOnline();
+    expect(getIsOffline()).toBe(false);
+  });
+
+  it('withTimeout flips offline signal to true when request exceeds timeout threshold', async () => {
+    expect(getIsOffline()).toBe(false);
+
+    const slowPromise = new Promise((resolve) => setTimeout(resolve, 500));
+
+    await expect(withTimeout(slowPromise, 100, 'Gateway Timeout')).rejects.toThrow(
+      'Gateway Timeout (100ms)'
+    );
+
+    // Timeout trigger flipped offline signal
+    expect(getIsOffline()).toBe(true);
+  });
+
+  it('withTimeout resolves successfully when promise completes before timeout', async () => {
+    expect(getIsOffline()).toBe(false);
+
+    const fastPromise = Promise.resolve('data_ok');
+    const result = await withTimeout(fastPromise, 500);
+
+    expect(result).toBe('data_ok');
+    expect(getIsOffline()).toBe(false);
+  });
+});
+
+describe('M2-20 Offline Answers Router Tests', () => {
+  const mockRedmiPhone: ProductKnowledgeObject = {
+    id: 'prod_redmi_13',
+    title: 'Redmi Note 13 5G',
+    brand: 'Redmi',
+    category: 'Electronics',
+    price_inr: 15499,
+    specs: {
+      battery: '5000mAh with 33W fast charge',
+      camera: '108MP triple camera system',
+      screen: '6.67 inch 120Hz AMOLED',
+      ram: '8GB',
+      storage: '256GB',
+    },
+    alt_texts: {
+      en: 'Prism blue smartphone with slim bezel and triple rear camera',
+      hi: 'प्रिज्म ब्लू स्मार्टफोन',
+      te: 'ప్రిజమ్ బ్లూ స్మార్ట్‌ఫోన్',
+    },
+    size_chart: [],
+    review_digest: {
+      pros: ['Great battery backup', 'Bright AMOLED display'],
+      cons: ['No stereo speakers'],
+      claims_checked: ['1.5 days battery life verified'],
+    },
+    review_chunks: ['The 5000mAh battery lasts nearly two days on normal usage.'],
+  };
+
+  beforeEach(async () => {
+    await clearCatalogCache();
+    await saveCatalog('2026.v1', [mockProduct1, mockProduct2, mockRedmiPhone]);
+  });
+
+  it('returns stored battery spec for "battery of Redmi" when network is off', async () => {
+    const result = await queryOfflineCatalog('battery of Redmi', 'en');
+
+    expect(result.matched).toBe(true);
+    expect(result.title).toBe('Redmi Note 13 5G');
+    expect(result.attribute).toBe('battery');
+    expect(result.value).toContain('5000mAh');
+    expect(result.answerText).toBe(
+      'The Redmi Note 13 5G has a battery of 5000mAh with 33W fast charge.'
+    );
+    expect(result.templated).toBe(true);
+  });
+
+  it('returns price spec for "price of CloudWalk" in English and Hindi', async () => {
+    const enResult = await queryOfflineCatalog('price of CloudWalk', 'en');
+    expect(enResult.matched).toBe(true);
+    expect(enResult.attribute).toBe('price');
+    expect(enResult.value).toBe('₹2999');
+    expect(enResult.answerText).toBe('The price of CloudWalk Running Shoes is ₹2999.');
+
+    const hiResult = await queryOfflineCatalog('CloudWalk ki kimat', 'hi');
+    expect(hiResult.matched).toBe(true);
+    expect(hiResult.answerText).toBe('CloudWalk Running Shoes की कीमत ₹2999 है।');
+  });
+
+  it('returns sole spec for "sole of CloudWalk"', async () => {
+    const result = await queryOfflineCatalog('what is the sole of CloudWalk?', 'en');
+    expect(result.matched).toBe(true);
+    expect(result.attribute).toBe('sole');
+    expect(result.value).toBe('EVA Foam');
+    expect(result.answerText).toBe('The CloudWalk Running Shoes has a sole of EVA Foam.');
+  });
+
+  it('returns verified pros when asked about best features', async () => {
+    const result = await queryOfflineCatalog('what are the pros of TrailGrip?', 'en');
+    expect(result.matched).toBe(true);
+    expect(result.attribute).toBe('pros');
+    expect(result.value).toBe('Excellent ankle support');
+    expect(result.answerText).toBe(
+      'Top verified advantage of TrailGrip Trekking Boot: Excellent ankle support.'
+    );
+  });
+
+  it('provides graceful fallback when catalog is empty', async () => {
+    await clearCatalogCache();
+    const result = await queryOfflineCatalog('battery of Redmi', 'en');
+    expect(result.matched).toBe(false);
+    expect(result.answerText).toContain('No product catalog is stored offline yet');
+  });
+});
+

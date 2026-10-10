@@ -9,6 +9,7 @@ import Controls from './components/Controls';
 import Logo from './components/Logo';
 import Shelf from './components/Shelf';
 import Checkout from './components/Checkout';
+import Orders from './components/Orders';
 import { ShelfProduct, CartItem } from './types';
 import { formatPriceINR } from './voiceFilter';
 
@@ -64,18 +65,21 @@ export default function App(): React.ReactElement {
     },
   ]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState<boolean>(false);
 
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  // Listen for dynamic shelf and checkout updates from API client
+  // Listen for dynamic shelf, checkout, and orders updates from API client
   useEffect(() => {
     const unsubscribe = apiClient.onMessage((msg) => {
       if (msg.type === 'shelf.results') {
         setProducts(msg.products);
       } else if (msg.type === 'checkout.state' || msg.type === 'confirm.challenge') {
         setIsCheckoutOpen(true);
+      } else if (msg.type === 'order.status' || msg.type === 'order.return_result') {
+        setIsOrdersOpen(true);
       }
     });
     return () => unsubscribe();
@@ -162,6 +166,17 @@ export default function App(): React.ReactElement {
             </span>
           </button>
 
+          {/* Orders & Returns Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsOrdersOpen((prev) => !prev)}
+            aria-label={`Orders and 7-day returns portal. Click to ${isOrdersOpen ? 'close' : 'open'}.`}
+            className="min-h-[48px] px-3.5 py-2 bg-brutal-card hover:bg-zinc-800 text-brutal-white border-2 border-brutal-border hover:border-coral-400 font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-brutalSm transition-all active:translate-x-0.5 active:translate-y-0.5"
+          >
+            <span aria-hidden="true">📦</span>
+            <span>ORDERS</span>
+          </button>
+
           <label htmlFor="language-select" className="sr-only">
             {t.languageSelectLabel}
           </label>
@@ -224,6 +239,17 @@ export default function App(): React.ReactElement {
             cart={cart}
             isOpen={isCheckoutOpen}
             onClose={() => setIsCheckoutOpen(false)}
+            onAnnounce={(msg, prio) => announce(msg, prio)}
+            currentLang={lang}
+          />
+        )}
+
+        {/* Accessible Orders & Returns Panel */}
+        {isOrdersOpen && (
+          <Orders
+            apiClient={apiClient}
+            isOpen={isOrdersOpen}
+            onClose={() => setIsOrdersOpen(false)}
             onAnnounce={(msg, prio) => announce(msg, prio)}
             currentLang={lang}
           />
