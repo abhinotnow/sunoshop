@@ -1,0 +1,180 @@
+\documentclass[10pt,a4paper]{article}
+
+% --- Core Packages (Standard LaTeX Distribution, 0 External Dependencies) ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.42in, top=0.46in, bottom=0.46in, headheight=10pt]{geometry}
+\usepackage{amsmath,amssymb}
+
+% --- High-Density Professional Typography ---
+\linespread{0.93}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.0pt plus 0.2pt minus 0.2pt}
+
+% Section Headers
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{\z@}%
+  {-2.0pt plus -0.4pt minus -0.2pt}{0.8pt plus 0.2pt}%
+  {\normalfont\footnotesize\bfseries\scshape}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
+  {-1.4pt plus -0.3pt minus -0.2pt}{0.5pt plus 0.2pt}%
+  {\normalfont\scriptsize\bfseries}}
+
+% Header & Footer (Team PPAP, ID: 320)
+\def\@oddhead{\scriptsize\textbf{MEGATHON X: SINGULARITY} \quad\textbar\quad M1: Approach (Dual-Track Submission) \hfill\textbf{Team: PPAP \textbar\ Team ID: 320}}
+\def\@evenhead{\@oddhead}
+\def\@oddfoot{\tiny Deliverables / M1.pdf \quad\textbar\quad Dual Submission: Page 1 = eCommerce \textbar\ Page 2 = City Signage\hfill Page \thepage\ of 2}
+\def\@evenfoot{\@oddfoot}
+\makeatother
+\pagestyle{myheadings}
+
+\begin{document}
+
+% =============================================================================
+% PAGE 1: SUNOSHOP (USE CASE 2: ECOMMERCE SHOPPING EXPERIENCE)
+% =============================================================================
+
+\begin{center}
+  {\normalsize\bfseries MEGATHON X: SINGULARITY \ -- \ M1 APPROACH (DUAL-TRACK SUBMISSION)}\\[0.5pt]
+  {\scriptsize\textbf{Team: PPAP} \quad\textbar\quad \textbf{Team ID: 320} \quad\textbar\quad \textbf{Problem Statement:} Accessible AI for All (Bhashini) \quad\textbar\quad Languages: English, Hindi, Telugu}\\[0.5pt]
+  \rule{\textwidth}{0.6pt}
+\end{center}
+
+\vspace{-4pt}
+\noindent\fbox{%
+\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}{%
+  \textbf{\textsc{Executive Summary (Dual-Track Submission):}} Team PPAP is submitting dual candidate architectures for the Bhashini challenge to address Indic input and output gaps across \textbf{Visual (Mandatory)}, \textbf{Ageing}, and \textbf{Hand-Motor} conditions: \textbf{Page 1} details \textbf{SunoShop (Use Case 2: eCommerce)}, a voice-first shopping proxy with offline review RAG and entity masking; \textbf{Page 2} details \textbf{Oriel (Use Case 3: City Signage)}, a zero-tap multimodal sign reader with multi-frame verification. Presenting both allows parallel Phase 1 empirical benchmarking before converging for M2.
+}}
+\vspace{-2pt}
+
+\section{1. Track 1: SunoShop (Use Case 2 -- eCommerce) \ -- \ Problem Statement \& Understanding}
+Standard AI assistants assume users can see, hear, type, and read English. Modern eCommerce breaks this across two critical dimensions:
+\begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
+  \item \textbf{Input Gap:} Blind and motor-impaired individuals cannot parse dense DOMs, hidden controls, or drag-and-drop sliders (WCAG 2.5.7). Screen readers force them to listen to hundreds of unlabelled elements in an exhaustive linear stream.
+  \item \textbf{Output Gap:} Assistants emit lengthy visual descriptions and hallucinate product specifications, while translation corrupts brand names and prices into phonetic gibberish. Users remain unprotected from dark patterns like hidden cart fees.
+  \item \textbf{Target Conditions:} Visual (Mandatory / blind-first), Ageing, and Hand-motor, with zero reliance on specialized hardware.
+\end{itemize}
+
+\vspace{-2pt}
+\section{2. Idea}
+SunoShop is a web application acting as an accessible voice-first shopping proxy built on a \textit{ground-then-speak} paradigm:
+\begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
+  \item Speaks only facts verified within an offline-cached Product Knowledge Object (PKO), strictly separating unstructured reviews from factual specs.
+  \item Asserts ``the specs state'' only for confirmed attributes, actively blocks checkout dark patterns, and communicates via Bhashini Indic models.
+  \item Confines operations strictly to shopping assistance, deliberately excluding ungrounded medical or financial advice.
+\end{itemize}
+
+\vspace{-2pt}
+\section{3. Approach and Architecture}
+Computation is tiered: repetitive tasks run offline on-device; cloud calls are reserved strictly for grounded reasoning.
+\begin{enumerate}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\parsep}{0pt}\setlength{\leftmargin}{1.1em}
+  \item \textbf{Offline Ingestion:} Catalogs are normalized into PKO JSONs. Gemini Flash Vision pre-computes image descriptions, and OCR structures size charts offline to eliminate live-vision latency.
+  \item \textbf{Triggering:} Voice activity detection (VAD) captures speech hands-free, with a massive push-to-talk button as an alternative.
+  \item \textbf{Fast-Path Routing \& Entity Masking (Rule-Based):} Intercepts simple commands (\textit{repeat, slower, simpler}). Brand names, prices, and numbers are masked with tokens prior to translation to prevent transliteration errors.
+  \item \textbf{Translation Pipeline:} Bhashini ASR transcribes voice to text, translated to English pivot text ($\le 50$ words).
+  \item \textbf{Grounded Reasoning:} Gemini Flash-Lite retrieves chunked reviews via aspect cosine-similarity (RAG) and exact specs via direct PKO lookup.
+  \item \textbf{Deterministic Verification:} A finite state machine (not an LLM) controls checkout, enforcing explicit spoken confirmation while stripping hidden fees.
+  \item \textbf{Synthesis \& Accessible Rendering:} Chained Bhashini Translation+TTS restores unmasked entities. Outputs spatial audio via Web Audio API alongside synchronized on-screen captions.
+\end{enumerate}
+
+\vspace{-2pt}
+\begin{center}
+\scriptsize
+\begin{tabular}{|l|p{5.8cm}|p{8.8cm}|}
+\hline
+\textbf{Condition} & \textbf{Input Gap Feature} & \textbf{Output Gap Feature} \\
+\hline
+\textbf{Visual} & Semantic headings; Bhashini voice commands; native TalkBack/NVDA coexistence & Key fact first; spatial audio (panning results left-to-right); VLM image alt-text; grounded PKO summaries \\
+\textbf{Ageing} & Large single button; explicit ``explain simpler'' voice trigger; generous timeouts & One fact per screen in large text; chunked speech with pauses; claim-vs-experience verification \\
+\textbf{Hand-motor} & Voice-driven slider bypass (WCAG 2.5.7); zero-touch speech auto-capture & High-contrast interface with massive auto-enlarged tap targets \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{-3pt}
+
+\textbf{Condition Inference \& Fallbacks:} Inferred from interaction friction in first 20--30s (repeated ASR timeouts, ``explain again'' requests) to suggest adaptations without unconsented context switches. \textbf{Fallback Ladder:} Bhashini $\rightarrow$ local IndexedDB PKO cache + device browser TTS. \textbf{Stack:} React + Vite PWA, FastAPI, Gemini API, Bhashini (ASR, NMT, TTS), Web Audio API, IndexedDB Service Worker.
+
+\vspace{-2pt}
+\section{4. Planned Testing}
+\textbf{Test Set:} 30--40 real products in PKO format in Telugu, Hindi, English, covering complex size charts, code-mixed reviews, and 15 planted prompt-injection reviews. \quad
+\textbf{Metrics:} Time-to-information; words listened; hallucination rate (0\%); prompt-injection bypasses (0); false-accept rate on checkout confirmation; brand/spec translation preservation. \quad
+\textbf{Baselines:} Raw eCommerce DOM via NVDA/TalkBack; plain LLM responses through Bhashini TTS. \quad
+\textbf{Validation:} 3--5 participants across five shopping tasks (including blindfolded teammates and native TalkBack/NVDA users). \quad
+\textbf{Boundaries:} Cached catalog snapshot, simulated checkout, heuristic condition inference.
+
+\clearpage
+
+% =============================================================================
+% PAGE 2: ORIEL (USE CASE 3: NAVIGATING CITY SIGNAGE)
+% =============================================================================
+
+\begin{center}
+  {\normalsize\bfseries MEGATHON X: SINGULARITY \ -- \ M1 APPROACH (DUAL-TRACK SUBMISSION)}\\[0.5pt]
+  {\scriptsize\textbf{Team: PPAP} \quad\textbar\quad \textbf{Team ID: 320} \quad\textbar\quad \textbf{Problem Statement:} Accessible AI for All (Bhashini) \quad\textbar\quad Languages: English, Telugu, Hindi}\\[0.5pt]
+  \rule{\textwidth}{0.6pt}
+\end{center}
+
+\vspace{-4pt}
+\noindent\fbox{%
+\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}{%
+  \textbf{\textsc{Dual-Track Submission Note (Track 2):}} Complementing Page 1's digital eCommerce layer, \textbf{Page 2} presents \textbf{Oriel}, addressing physical urban navigation under the same Bhashini multilingual backbone. Both tracks share on-device fast-path routing, zero-tap triggers, and offline fallbacks to maximize coverage across indoor commerce and outdoor mobility.
+}}
+\vspace{-2pt}
+
+\section{1. Track 2: Oriel (Use Case 3 -- City Signage) \ -- \ Problem Statement \& Understanding}
+Physical city streets amplify assistive failures across visual and linguistic boundaries:
+\begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
+  \item \textbf{Input Gap:} Blind and motor-impaired individuals must aim cameras at unseen targets and tap tiny buttons; 51.6\% of photos taken by blind users exhibit critical quality flaws, predominantly framing and motion blur (VizWiz, CVPR 2020).
+  \item \textbf{Output Gap:} Multimodal models emit ungrounded visual descriptions and struggle with small, stylized, or glared street text and Indian scripts (NetraLink, ICVGIP 2025). Street signs frequently mix Telugu, Hindi, and English, where a single misidentified route number misdirects the user.
+  \item \textbf{Target Conditions:} Visual (Mandatory / blind-first), Ageing, and Hand-motor, with zero reliance on specialized hardware.
+\end{itemize}
+
+\vspace{-2pt}
+\section{2. Idea}
+Oriel is a zero-tap web application reading city signs aloud based on an active \textit{verify-then-guide} paradigm:
+\begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
+  \item Speaks only facts verified across multiple sharp frames (route, destination, platform, arrow), marking unconfirmed text as uncertain.
+  \item Actively coaches aiming when a critical fact is obscured: \textit{``I can read Secunderabad but not the route number. Hold still, zooming in.''}
+  \item Asserts ``the sign says'' strictly for confirmed text via Bhashini Indian language models, restricting scope to sign reading (no ungrounded route planning).
+\end{itemize}
+
+\vspace{-2pt}
+\section{3. Approach and Architecture}
+Repetitive filtering executes locally on-device; cloud pipelines are engaged only for sharp, validated text frames.
+\begin{enumerate}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\parsep}{0pt}\setlength{\leftmargin}{1.1em}
+  \item \textbf{Continuous Monitoring (On-Device):} Streams low-resolution camera frames, tilt, and motion sensors; optional MediaPipe head tracking.
+  \item \textbf{Triggering:} Auto-captures upon steady, text-bearing frames; hands-free voice command (``read''); head dwell; or a single massive button.
+  \item \textbf{Quality Gate \& Active Guidance (Rule-Based):} Detects invalid tilt (facing ground/sky), blur, darkness, or glare. Spoken guidance runs in bounded 5-second sweeps (\textit{``Slowly turn left, I'll say stop''}); caps at 3 attempts before honest abstention.
+  \item \textbf{High-Resolution Burst:} Captures a 1-second burst, selects the 3 sharpest frames, and crops around text to defeat hand tremors.
+  \item \textbf{Multimodal Reading:} Gemini Flash-Lite parses structured JSON per frame (type, script, route, destination, arrows); validated against PaddleOCR.
+  \item \textbf{Multi-Frame Verification:} A field is confirmed only when 2 of 3 frames agree and Unicode script is valid; otherwise triggers re-read or abstains.
+  \item \textbf{Speech Synthesis \& Rendering:} Feeds condition-tailored views. Chained Bhashini Translation+TTS locks route numbers and place names against transliteration corruption; provides synchronized on-screen captions and a two-way speech relay (``Ask someone nearby'').
+\end{enumerate}
+
+\vspace{-2pt}
+\begin{center}
+\scriptsize
+\begin{tabular}{|l|p{5.8cm}|p{8.8cm}|}
+\hline
+\textbf{Condition} & \textbf{Input Gap Feature} & \textbf{Output Gap Feature} \\
+\hline
+\textbf{Visual} & Guided aiming; Bhashini voice commands; nod confirmation & Key fact first, ``more''/``spell it''; confirmed facts vs ``it looks like''; adjustable speech rate \\
+\textbf{Ageing} & Progressive help ladder; long timeouts; single large button & One fact per screen in large text; chunked speech with pauses; ``explain simpler'' option \\
+\textbf{Hand-motor} & Zero-tap auto-capture; burst against tremor; head-dwell targets & High-contrast interface with massive auto-enlarged dwell targets; full voice control \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{-3pt}
+
+\textbf{Condition Inference \& Fallbacks:} Inferred from initial 20--30 seconds of interaction friction to suggest adaptations without silent switching. On-device caching caps reads at 3 per sign. \textbf{Privacy \& Fallback:} Captured frames remain ephemeral with faces blurred; offline fallback via Tesseract.js. \textbf{Stack:} React + Vite PWA, FastAPI, Gemini API, Bhashini (ASR, NMT, TTS), MediaPipe Tasks Vision, IndexedDB Service Worker.
+
+\vspace{-2pt}
+\section{4. Planned Testing}
+\textbf{Test Set:} 30--40 real signs photographed in Hyderabad in Telugu, Hindi, and English (bus stops, metro, street, shops), spanning clear, blurry, far, cut-off, and glare conditions with 2--3 frames per sign and ground truth labels. \quad
+\textbf{Metrics:} Detection rate; key-fact accuracy; \textbf{wrong-but-confident rate} (headline safety metric); correct abstention rate; time-to-key-fact; taps per reading (target: 0); bad-aim recovery rate; route/place name translation preservation; end-to-end latency. \quad
+\textbf{Baselines:} Plain LLM response read via Bhashini TTS; single-frame baseline; generic ``try again'' feedback. \quad
+\textbf{Validation:} 3--5 participants across five sign tasks (including blindfolded teammates and simulated motor constraints); live outdoor bus stop testing. \quad
+\textbf{Boundaries:} Stationary use only (no dynamic route planning), reduced aiming dependency, mobile data dependency.
+
+\end{document}
