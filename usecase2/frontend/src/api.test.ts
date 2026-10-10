@@ -2,7 +2,7 @@
 // Exports test suite for api.ts
 // Depends on vitest, ./api, ./types
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createApiClient, MockSunoServer, SunoApiClient } from './api';
+import { createApiClient, MockSunoServer, SunoApiClient, MetricsLogger, metricsLogger } from './api';
 import {
   ServerMessage,
   AsrResultMessage,
@@ -107,5 +107,52 @@ describe('M2-03 API Client & Mock Server (Contract Verification)', () => {
     expect(errors.length).toBe(1);
     expect(errors[0].code).toBe('BHASHINI_TIMEOUT');
     expect(errors[0].fallback).toBe('offline');
+  });
+});
+
+describe('M2-23 Metrics Logging Tests', () => {
+  beforeEach(() => {
+    metricsLogger.clear();
+  });
+
+  it('tracks time-to-information and words-listened-before-action per scripted task', async () => {
+    metricsLogger.startTask('task_001', 'search');
+
+    // Simulate agent speaking initial recommendations
+    metricsLogger.recordSentence('We found three highly rated cushioned running shoes.');
+    metricsLogger.recordSentence('On your left is the UltraCushion Pro for ₹3499.');
+
+    // User listens and receives key information
+    metricsLogger.markInformationReceived();
+
+    // User takes action (e.g. adding to cart or asking to filter)
+    metricsLogger.recordAction('add_to_cart_p001');
+
+    const record = metricsLogger.endTask();
+
+    expect(record).toBeDefined();
+    expect(record?.taskId).toBe('task_001');
+    expect(record?.taskType).toBe('search');
+    expect(record?.completed).toBe(true);
+    expect(record?.wordsListenedBeforeAction).toBeGreaterThan(10);
+    expect(record?.actionTaken).toBe('add_to_cart_p001');
+    expect(typeof record?.timeToInfoMs).toBe('number');
+  });
+
+  it('exports task records as valid JSON format', () => {
+    const customLogger = new MetricsLogger();
+    customLogger.startTask('task_eval_1', 'offline_lookup');
+    customLogger.recordSentence('The Redmi Note 13 has a battery of 5000mAh.');
+    customLogger.recordAction('view_specs');
+    customLogger.endTask();
+
+    const json = customLogger.exportJSON();
+    expect(typeof json).toBe('string');
+
+    const parsed = JSON.parse(json);
+    expect(Array.isArray(parsed)).toBe(true);
+    expect(parsed.length).toBe(1);
+    expect(parsed[0].taskId).toBe('task_eval_1');
+    expect(parsed[0].actionTaken).toBe('view_specs');
   });
 });

@@ -10,6 +10,7 @@ import Logo from './components/Logo';
 import Shelf from './components/Shelf';
 import Checkout from './components/Checkout';
 import Orders from './components/Orders';
+import DemoWalkthrough from './components/DemoWalkthrough';
 import { ShelfProduct, CartItem } from './types';
 import { formatPriceINR } from './voiceFilter';
 
@@ -66,6 +67,7 @@ export default function App(): React.ReactElement {
   ]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState<boolean>(false);
+  const [isDemoOpen, setIsDemoOpen] = useState<boolean>(false);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -152,6 +154,17 @@ export default function App(): React.ReactElement {
 
         {/* 4. Navigation Landmark / Language Switcher & Cart */}
         <nav aria-label={t.navLabel} className="flex items-center gap-3">
+          {/* Demo Walkthrough Trigger (M2-25) */}
+          <button
+            type="button"
+            onClick={() => setIsDemoOpen(true)}
+            aria-label="Open rehearsed 3-minute judge demo walkthrough"
+            className="min-h-[48px] px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-brutal-black border-2 border-white font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-brutalSm transition-all active:translate-x-0.5 active:translate-y-0.5"
+          >
+            <span aria-hidden="true">⚡</span>
+            <span>DEMO</span>
+          </button>
+
           {/* Cart & Checkout Trigger */}
           <button
             type="button"
@@ -252,6 +265,20 @@ export default function App(): React.ReactElement {
             onClose={() => setIsOrdersOpen(false)}
             onAnnounce={(msg, prio) => announce(msg, prio)}
             currentLang={lang}
+          />
+        )}
+
+        {/* Rehearsed 3-Minute Demo Walkthrough (M2-25) */}
+        {isDemoOpen && (
+          <DemoWalkthrough
+            isOpen={isDemoOpen}
+            onClose={() => setIsDemoOpen(false)}
+            onAnnounce={(msg, prio) => announce(msg, prio)}
+            onUpdateShelf={(newProducts) => setProducts(newProducts)}
+            onOpenCheckout={() => setIsCheckoutOpen(true)}
+            onSimulateOffline={(_offline) => {
+              window.dispatchEvent(new Event('offline'));
+            }}
           />
         )}
 

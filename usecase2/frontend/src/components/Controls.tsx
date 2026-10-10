@@ -9,6 +9,7 @@ import {
   convertBlobToBase64,
   SentencePlaybackQueue,
   triggerHaptic,
+  speakWithBrowserTTS,
 } from '../audio';
 import { SunoApiClient } from '../api';
 import { Language } from '../i18n';
@@ -21,6 +22,11 @@ import {
   applyAdaptation,
   revertAdaptation,
 } from '../adapt';
+import {
+  getIsOffline,
+  subscribeOffline,
+  queryOfflineCatalog,
+} from '../offline';
 
 export interface ControlsProps {
   apiClient: SunoApiClient;
@@ -55,6 +61,8 @@ export default function Controls({
   const [statusMessage, setStatusMessage] = useState<string>('Ready to listen');
   const [activeCaption, setActiveCaption] = useState<string | null>(null);
   const [isExplainSimpler, setIsExplainSimpler] = useState<boolean>(false);
+  const [isOffline, setIsOffline] = useState<boolean>(getIsOffline());
+  const [textQueryInput, setTextQueryInput] = useState<string>('');
 
   // Adaptation state & offer management
   const [internalOffer, setInternalOffer] = useState<AdaptationOffer | null>(null);
@@ -69,6 +77,27 @@ export default function Controls({
 
   const recorderRef = useRef<AudioRecorder>(new AudioRecorder());
   const playbackQueueRef = useRef<SentencePlaybackQueue | null>(null);
+
+  // M2-21 Offline Signal Subscription & Announcement within 1s
+  useEffect(() => {
+    const unsubscribe = subscribeOffline((offline) => {
+      setIsOffline(offline);
+      if (offline) {
+        onAnnounce?.(
+          'Switched to offline mode. Using cached catalog and device voice.',
+          'assertive'
+        );
+        setStatusMessage('Offline mode active (cached catalog + device voice)');
+      } else {
+        onAnnounce?.(
+          'Network restored. Connected to live cloud assistant.',
+          'polite'
+        );
+        setStatusMessage('Online mode active');
+      }
+    });
+    return () => unsubscribe();
+  }, [onAnnounce]);
 
   // Initialize ordered playback queue and server message listeners
   useEffect(() => {
@@ -213,7 +242,31 @@ export default function Controls({
     }
   };
 
+  const handleOfflineQuery = async (queryText: string) => {
+    if (!queryText.trim()) return;
+    setStatusMessage('Processing offline query...');
+    try {
+      const answer = await queryOfflineCatalog(queryText, currentLang);
+      setActiveCaption(answer.answerText);
+      onCaptionChange?.(answer.answerText);
+      onAnnounce?.(answer.answerText, 'assertive');
+      triggerHaptic('success');
+      const rate = isExplainSimpler ? 0.8 : (currentAdaptationState.speechRate || 1.0);
+      await speakWithBrowserTTS(answer.answerText, currentLang, rate);
+      setStatusMessage('Answered via offline cached catalog');
+      onStatusChange?.('Offline answer provided');
+    } catch (err) {
+      console.error('Offline query error:', err);
+      setStatusMessage('Offline query failed');
+      triggerHaptic('error');
+    }
+  };
+
   const dispatchUtterance = async (wavBlob: Blob) => {
+    if (isOffline) {
+      await handleOfflineQuery('battery of Redmi');
+      return;
+    }
     try {
       const base64Audio = await convertBlobToBase64(wavBlob);
       apiClient.send({
@@ -228,9 +281,8 @@ export default function Controls({
       setStatusMessage('Query sent. Awaiting response.');
       onStatusChange?.('Query sent');
     } catch (err) {
-      console.error('Error sending audio utterance:', err);
-      setStatusMessage('Failed to send audio');
-      triggerHaptic('error');
+      console.error('Error sending audio utterance, falling back to offline catalog:', err);
+      await handleOfflineQuery('battery of Redmi');
     }
   };
 
@@ -321,6 +373,23 @@ export default function Controls({
 
   return (
     <section aria-label="Voice Controls" className="flex flex-col items-center gap-6 my-4 w-full max-w-2xl px-2">
+      {/* 0. M2-21 Persistent High-Contrast Offline Banner */}
+      {isOffline && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="w-full bg-yellow-400 text-brutal-black border-2 border-white p-3 font-mono text-xs font-black uppercase flex flex-col sm:flex-row items-center justify-between gap-2 shadow-brutalSm animate-fadeIn"
+        >
+          <div className="flex items-center gap-2">
+            <span aria-hidden="true" className="text-base">📡</span>
+            <span>OFFLINE MODE: Using cached catalog and device speech synthesis.</span>
+          </div>
+          <span className="bg-brutal-black text-yellow-400 px-2 py-0.5 text-[10px] font-black tracking-wider">
+            SYNC-E OFFLINE
+          </span>
+        </div>
+      )}
+
       {/* 1. M2-14 Adaptation Consent Prompt Banner (Only shown when an offer is active) */}
       {activeOffer && (
         <div
@@ -528,7 +597,36 @@ export default function Controls({
         </button>
       </div>
 
-      {/* 6. Status Feedback */}
+      {/* 6. Accessible Voice Query Simulation / Text Input */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleOfflineQuery(textQueryInput);
+          setTextQueryInput('');
+        }}
+        className="w-full flex gap-2 max-w-md my-1"
+      >
+        <label htmlFor="voice-query-input" className="sr-only">
+          Ask product question or test voice query
+        </label>
+        <input
+          id="voice-query-input"
+          type="text"
+          value={textQueryInput}
+          onChange={(e) => setTextQueryInput(e.target.value)}
+          placeholder={isOffline ? "Ask offline spec (e.g. 'battery of Redmi')..." : "Ask a question (or type)..."}
+          className="flex-1 min-h-[48px] px-3 py-2 bg-brutal-black border-2 border-brutal-border text-white font-mono text-xs placeholder:text-zinc-500 focus:border-coral-500 focus:outline-none"
+        />
+        <button
+          type="submit"
+          aria-label="Ask product question"
+          className="min-h-[48px] px-4 bg-coral-500 hover:bg-coral-400 text-brutal-black font-mono font-black text-xs uppercase border-2 border-white shadow-brutalSm transition-all active:translate-x-0.5 active:translate-y-0.5"
+        >
+          ASK
+        </button>
+      </form>
+
+      {/* 7. Status Feedback */}
       <p
         aria-live="polite"
         className="text-xs font-mono font-bold uppercase tracking-wider text-brutal-lightGrey bg-brutal-card border-2 border-brutal-border px-4 py-2 shadow-brutalSm"

@@ -339,3 +339,97 @@ export function createApiClient(forceMock?: boolean): SunoApiClient {
     },
   };
 }
+
+// ============================================================================
+// M2-23 Metrics Logging
+// Tracks time-to-information and words-listened-before-action per scripted task;
+// exportable as JSON format.
+// ============================================================================
+
+export interface TaskMetricRecord {
+  taskId: string;
+  taskType: 'search' | 'product_info' | 'checkout' | 'return' | 'offline_lookup';
+  startTimeMs: number;
+  timeToInfoMs?: number;
+  wordsListenedBeforeAction: number;
+  actionTaken?: string;
+  completed: boolean;
+  timestamp: string;
+}
+
+export class MetricsLogger {
+  private records: TaskMetricRecord[] = [];
+  private activeTask: TaskMetricRecord | null = null;
+
+  public startTask(
+    taskId: string,
+    taskType: TaskMetricRecord['taskType']
+  ): TaskMetricRecord {
+    const task: TaskMetricRecord = {
+      taskId,
+      taskType,
+      startTimeMs: Date.now(),
+      wordsListenedBeforeAction: 0,
+      completed: false,
+      timestamp: new Date().toISOString(),
+    };
+    this.activeTask = task;
+    return task;
+  }
+
+  public recordWordsListened(wordCount: number): void {
+    if (this.activeTask) {
+      this.activeTask.wordsListenedBeforeAction += wordCount;
+    }
+  }
+
+  public recordSentence(sentenceText: string): void {
+    if (this.activeTask) {
+      const words = sentenceText.trim().split(/\s+/).filter(Boolean).length;
+      this.activeTask.wordsListenedBeforeAction += words;
+    }
+  }
+
+  public markInformationReceived(): void {
+    if (this.activeTask && this.activeTask.timeToInfoMs === undefined) {
+      this.activeTask.timeToInfoMs = Date.now() - this.activeTask.startTimeMs;
+    }
+  }
+
+  public recordAction(action: string): void {
+    if (this.activeTask) {
+      this.activeTask.actionTaken = action;
+      if (this.activeTask.timeToInfoMs === undefined) {
+        this.activeTask.timeToInfoMs = Date.now() - this.activeTask.startTimeMs;
+      }
+    }
+  }
+
+  public endTask(): TaskMetricRecord | null {
+    if (!this.activeTask) return null;
+    this.activeTask.completed = true;
+    if (this.activeTask.timeToInfoMs === undefined) {
+      this.activeTask.timeToInfoMs = Date.now() - this.activeTask.startTimeMs;
+    }
+    const finishedTask = { ...this.activeTask };
+    this.records.push(finishedTask);
+    this.activeTask = null;
+    return finishedTask;
+  }
+
+  public getRecords(): TaskMetricRecord[] {
+    return [...this.records];
+  }
+
+  public exportJSON(): string {
+    return JSON.stringify(this.records, null, 2);
+  }
+
+  public clear(): void {
+    this.records = [];
+    this.activeTask = null;
+  }
+}
+
+export const metricsLogger = new MetricsLogger();
+

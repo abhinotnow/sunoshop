@@ -435,6 +435,37 @@ export class SentencePlaybackQueue {
   }
 }
 
+// Browser speech synthesis fallback for offline mode (M2-21)
+export function speakWithBrowserTTS(
+  text: string,
+  lang: 'en' | 'hi' | 'te' = 'en',
+  rate: number = 1.0
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      resolve(false);
+      return;
+    }
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = rate;
+      const langMap: Record<string, string> = {
+        en: 'en-IN',
+        hi: 'hi-IN',
+        te: 'te-IN',
+      };
+      utterance.lang = langMap[lang] || 'en-IN';
+      utterance.onend = () => resolve(true);
+      utterance.onerror = () => resolve(false);
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
 // WCAG Contrast Ratio Calculation Helper
 export function getRelativeLuminance(rgb: [number, number, number]): number {
   const [r, g, b] = rgb.map((c) => {
