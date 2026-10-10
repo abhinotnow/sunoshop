@@ -73,6 +73,7 @@ export class MockSunoServer {
         const mockProducts: ShelfProduct[] = [
           {
             id: 'p_001',
+            parent_asin: 'p_001',
             title: 'UltraCushion Pro Runner',
             price_inr: 3499,
             pan: -1.0, // Left
@@ -80,6 +81,7 @@ export class MockSunoServer {
           },
           {
             id: 'p_002',
+            parent_asin: 'p_002',
             title: 'AeroGrip Trail Walker',
             price_inr: 2799,
             pan: 0.0, // Center
@@ -87,6 +89,7 @@ export class MockSunoServer {
           },
           {
             id: 'p_003',
+            parent_asin: 'p_003',
             title: 'Slip-On Ortho Comfort',
             price_inr: 2199,
             pan: 1.0, // Right
@@ -104,6 +107,8 @@ export class MockSunoServer {
           type: 'reply.sentence',
           idx: 0,
           text: 'Found 3 cushioned shoes. The UltraCushion Pro on your left has highest support.',
+          audio_base64: 'UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=',
+          content_type: 'audio/wav',
           pause_ms: 300,
           rate: 1.0,
         });

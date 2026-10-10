@@ -1,6 +1,6 @@
-// Accessible voice controls, VAD auto-capture, captions, and haptic feedback cues
+// Accessible voice controls, VAD auto-capture, captions, haptic feedback cues, and M2-14 reversible adaptation prompt
 // Exports default Controls component and ControlsProps
-// Depends on react, ../audio, ../api, ../i18n
+// Depends on react, ../audio, ../api, ../i18n, ../adapt, ../types
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
@@ -13,12 +13,26 @@ import {
 import { SunoApiClient } from '../api';
 import { Language } from '../i18n';
 import { ReplySentenceMessage } from '../types';
+import {
+  AdaptationOffer,
+  AdaptationType,
+  AdaptationState,
+  DEFAULT_ADAPTATION_STATE,
+  applyAdaptation,
+  revertAdaptation,
+} from '../adapt';
 
 export interface ControlsProps {
   apiClient: SunoApiClient;
   currentLang: Language;
   onStatusChange?: (statusText: string) => void;
   onCaptionChange?: (caption: string | null) => void;
+  onAnnounce?: (message: string, priority?: 'polite' | 'assertive') => void;
+  activeOffer?: AdaptationOffer | null;
+  onAcceptOffer?: (adaptation: AdaptationType) => void;
+  onDeclineOffer?: () => void;
+  adaptationState?: AdaptationState;
+  onRevertAdaptation?: (adaptation: AdaptationType) => void;
 }
 
 export default function Controls({
@@ -26,12 +40,29 @@ export default function Controls({
   currentLang,
   onStatusChange,
   onCaptionChange,
+  onAnnounce,
+  activeOffer: controlledOffer,
+  onAcceptOffer,
+  onDeclineOffer,
+  adaptationState: controlledAdaptationState,
+  onRevertAdaptation,
 }: ControlsProps): React.ReactElement {
   const [mode, setMode] = useState<AudioMode>('push-to-talk');
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('Ready to listen');
   const [activeCaption, setActiveCaption] = useState<string | null>(null);
+
+  // Adaptation state & offer management
+  const [internalOffer, setInternalOffer] = useState<AdaptationOffer | null>(null);
+  const [internalAdaptationState, setInternalAdaptationState] =
+    useState<AdaptationState>(DEFAULT_ADAPTATION_STATE);
+
+  const activeOffer = controlledOffer !== undefined ? controlledOffer : internalOffer;
+  const currentAdaptationState =
+    controlledAdaptationState !== undefined
+      ? controlledAdaptationState
+      : internalAdaptationState;
 
   const recorderRef = useRef<AudioRecorder>(new AudioRecorder());
   const playbackQueueRef = useRef<SentencePlaybackQueue | null>(null);
@@ -62,6 +93,20 @@ export default function Controls({
         triggerHaptic('success');
       } else if (msg.type === 'check_again' || msg.type === 'error') {
         triggerHaptic('error');
+      } else if (msg.type === 'adapt.offer') {
+        // Capture incoming adaptation offer from server
+        const offer: AdaptationOffer = {
+          adaptation: msg.adaptation as AdaptationType,
+          reason: msg.reason,
+          triggerEvent: 'tap_miss',
+          thresholdReached: 3,
+          timestamp: Date.now(),
+        };
+        setInternalOffer(offer);
+        onAnnounce?.(
+          `Accessibility suggestion: ${msg.reason}. Tap Accept or Dismiss.`,
+          'assertive'
+        );
       }
     });
 
@@ -69,7 +114,60 @@ export default function Controls({
       unsubscribe();
       playbackQueueRef.current?.reset();
     };
-  }, [apiClient, onCaptionChange]);
+  }, [apiClient, onCaptionChange, onAnnounce]);
+
+  // Announce active offer when it appears
+  useEffect(() => {
+    if (activeOffer) {
+      onAnnounce?.(
+        `Accessibility proposal: ${activeOffer.reason}. Select Accept to apply, or Dismiss to keep standard settings.`,
+        'assertive'
+      );
+    }
+  }, [activeOffer, onAnnounce]);
+
+  const handleAcceptOffer = () => {
+    if (!activeOffer) return;
+    const type = activeOffer.adaptation;
+
+    if (onAcceptOffer) {
+      onAcceptOffer(type);
+    } else {
+      setInternalAdaptationState((prev) => applyAdaptation(type, prev));
+    }
+
+    setInternalOffer(null);
+
+    const confirmationMsg =
+      type === 'larger_targets'
+        ? 'Large target mode enabled. Buttons enlarged to 72px.'
+        : type === 'slower_speech'
+        ? 'Slower speech enabled. TTS playback slowed to 0.8x.'
+        : 'Adaptation applied.';
+
+    onAnnounce?.(
+      `${confirmationMsg} This setting is always reversible using the Revert button above.`,
+      'polite'
+    );
+  };
+
+  const handleDeclineOffer = () => {
+    if (onDeclineOffer) {
+      onDeclineOffer();
+    }
+    setInternalOffer(null);
+    onAnnounce?.('Suggestion dismissed. Keeping standard layout.', 'polite');
+  };
+
+  const handleRevert = (type: AdaptationType) => {
+    if (onRevertAdaptation) {
+      onRevertAdaptation(type);
+    } else {
+      setInternalAdaptationState((prev) => revertAdaptation(type, prev));
+    }
+
+    onAnnounce?.('Setting reverted to standard default.', 'polite');
+  };
 
   const dispatchUtterance = async (wavBlob: Blob) => {
     try {
@@ -77,6 +175,10 @@ export default function Controls({
       apiClient.send({
         type: 'audio.utterance',
         audio: base64Audio,
+        audio_base64: base64Audio,
+        content_type: 'audio/wav',
+        sample_rate_hz: 16000,
+        channels: 1,
         lang: currentLang,
       });
       setStatusMessage('Query sent. Awaiting response.');
@@ -171,9 +273,90 @@ export default function Controls({
     }
   };
 
+  const isLargeTargets = currentAdaptationState.largeTargets;
+
   return (
     <section aria-label="Voice Controls" className="flex flex-col items-center gap-6 my-4 w-full max-w-2xl px-2">
-      {/* High-Contrast Brutalist Caption Bar (Contrast Ratio 21:1, exceeds WCAG AAA 7:1) */}
+      {/* 1. M2-14 Adaptation Consent Prompt Banner (Only shown when an offer is active) */}
+      {activeOffer && (
+        <div
+          role="region"
+          aria-labelledby="adaptation-prompt-title"
+          className="w-full bg-brutal-surface border-4 border-coral-500 p-5 shadow-brutal text-left animate-fadeIn"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-3 h-3 bg-coral-500 inline-block" aria-hidden="true" />
+            <h3
+              id="adaptation-prompt-title"
+              className="text-base sm:text-lg font-black font-mono uppercase tracking-tight text-white"
+            >
+              Accessibility Adaptation Suggestion
+            </h3>
+          </div>
+
+          <p className="text-sm text-brutal-lightGrey font-sans mb-4 leading-relaxed">
+            {activeOffer.reason}
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={handleAcceptOffer}
+              aria-label={`Accept suggestion to enable ${activeOffer.adaptation.replace('_', ' ')}`}
+              className="min-h-[56px] px-6 py-3 bg-coral-500 hover:bg-coral-400 text-brutal-black font-mono font-black text-xs uppercase tracking-wider border-2 border-white shadow-brutalSm transition-all active:translate-x-0.5 active:translate-y-0.5"
+            >
+              Accept Adaptation
+            </button>
+            <button
+              type="button"
+              onClick={handleDeclineOffer}
+              aria-label="Decline adaptation suggestion and keep standard layout"
+              className="min-h-[56px] px-6 py-3 bg-brutal-card hover:bg-brutal-muted text-white font-mono font-bold text-xs uppercase tracking-wider border-2 border-brutal-border transition-all active:translate-x-0.5 active:translate-y-0.5"
+            >
+              Dismiss (Keep Standard)
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Reversible Active Adaptation Badges */}
+      {(currentAdaptationState.largeTargets || currentAdaptationState.speechRate < 1.0) && (
+        <div className="flex flex-wrap items-center justify-center gap-2 w-full">
+          {currentAdaptationState.largeTargets && (
+            <div className="flex items-center gap-2 bg-brutal-card border-2 border-coral-500 px-3 py-1.5 shadow-brutalSm">
+              <span className="text-xs font-mono font-bold uppercase text-coral-400">
+                Large Targets (72px) Active
+              </span>
+              <button
+                type="button"
+                onClick={() => handleRevert('larger_targets')}
+                aria-label="Revert large targets back to standard 56px size"
+                className="text-[11px] font-mono font-bold uppercase underline text-white hover:text-coral-300 ml-1 p-1"
+              >
+                Revert
+              </button>
+            </div>
+          )}
+
+          {currentAdaptationState.speechRate < 1.0 && (
+            <div className="flex items-center gap-2 bg-brutal-card border-2 border-coral-500 px-3 py-1.5 shadow-brutalSm">
+              <span className="text-xs font-mono font-bold uppercase text-coral-400">
+                Slower Speech (0.8x) Active
+              </span>
+              <button
+                type="button"
+                onClick={() => handleRevert('slower_speech')}
+                aria-label="Revert speech rate back to standard 1.0x"
+                className="text-[11px] font-mono font-bold uppercase underline text-white hover:text-coral-300 ml-1 p-1"
+              >
+                Revert
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. High-Contrast Brutalist Caption Bar (Contrast Ratio 21:1, exceeds WCAG AAA 7:1) */}
       {activeCaption && (
         <aside
           id="live-caption-bar"
@@ -191,7 +374,7 @@ export default function Controls({
         </aside>
       )}
 
-      {/* Mode Selector Toggle */}
+      {/* 4. Mode Selector Toggle */}
       <div
         role="group"
         aria-label="Recording Mode"
@@ -204,7 +387,9 @@ export default function Controls({
             setMode('push-to-talk');
           }}
           aria-pressed={mode === 'push-to-talk'}
-          className={`min-h-[48px] px-4 py-2 text-sm font-mono font-bold tracking-tight transition-all focus:outline-none ${
+          className={`${
+            isLargeTargets ? 'min-h-[64px] px-6 text-base' : 'min-h-[48px] px-4 text-sm'
+          } font-mono font-bold tracking-tight transition-all focus:outline-none ${
             mode === 'push-to-talk'
               ? 'bg-coral-500 text-brutal-black border-2 border-white shadow-brutalSm'
               : 'text-brutal-grey hover:text-white border-2 border-transparent'
@@ -219,7 +404,9 @@ export default function Controls({
             setMode('auto');
           }}
           aria-pressed={mode === 'auto'}
-          className={`min-h-[48px] px-4 py-2 text-sm font-mono font-bold tracking-tight transition-all focus:outline-none ${
+          className={`${
+            isLargeTargets ? 'min-h-[64px] px-6 text-base' : 'min-h-[48px] px-4 text-sm'
+          } font-mono font-bold tracking-tight transition-all focus:outline-none ${
             mode === 'auto'
               ? 'bg-coral-500 text-brutal-black border-2 border-white shadow-brutalSm'
               : 'text-brutal-grey hover:text-white border-2 border-transparent'
@@ -229,7 +416,7 @@ export default function Controls({
         </button>
       </div>
 
-      {/* Main Microphone Action Button */}
+      {/* 5. Main Microphone Action Button (Scales to >= 72px in Large Targets Mode) */}
       <div className="relative my-2">
         <button
           type="button"
@@ -244,7 +431,11 @@ export default function Controls({
               ? 'Start hands-free voice detection'
               : 'Start recording voice query'
           }
-          className={`min-h-[56px] min-w-[56px] sm:min-h-[64px] sm:min-w-[64px] px-8 py-5 font-mono font-black text-base sm:text-xl flex items-center justify-center gap-3 transition-all duration-150 border-3 border-white shadow-brutal focus:outline-none active:translate-x-1 active:translate-y-1 active:shadow-none ${
+          className={`${
+            isLargeTargets
+              ? 'min-h-[72px] min-w-[72px] sm:min-h-[84px] sm:min-w-[84px] px-10 py-6 text-lg sm:text-2xl'
+              : 'min-h-[56px] min-w-[56px] sm:min-h-[64px] sm:min-w-[64px] px-8 py-5 text-base sm:text-xl'
+          } font-mono font-black flex items-center justify-center gap-3 transition-all duration-150 border-3 border-white shadow-brutal focus:outline-none active:translate-x-1 active:translate-y-1 active:shadow-none ${
             isRecording
               ? isSpeaking
                 ? 'bg-white text-brutal-black ring-4 ring-coral-400 animate-pulse'
@@ -252,7 +443,7 @@ export default function Controls({
               : 'bg-coral-500 hover:bg-coral-400 text-brutal-black'
           }`}
         >
-          <span aria-hidden="true" className="text-2xl">
+          <span aria-hidden="true" className={isLargeTargets ? 'text-3xl' : 'text-2xl'}>
             {isRecording ? (isSpeaking ? '🗣️' : '⏹') : '🎤'}
           </span>
           <span className="uppercase tracking-wider">
@@ -269,7 +460,7 @@ export default function Controls({
         </button>
       </div>
 
-      {/* Status feedback */}
+      {/* 6. Status Feedback */}
       <p
         aria-live="polite"
         className="text-xs font-mono font-bold uppercase tracking-wider text-brutal-lightGrey bg-brutal-card border-2 border-brutal-border px-4 py-2 shadow-brutalSm"

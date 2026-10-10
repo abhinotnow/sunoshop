@@ -28,6 +28,7 @@ export interface ProductKnowledgeObject {
 
 export interface ShelfProduct {
   id: string;
+  parent_asin?: string;
   title: string;
   price_inr: number;
   pan: number; // -1 (left), 0 (center), +1 (right)
@@ -36,9 +37,18 @@ export interface ShelfProduct {
 
 export interface CartItem {
   product_id: string;
+  parent_asin?: string;
   title: string;
   price_inr: number;
-  qty: number;
+  qty?: number;
+  quantity?: number;
+  unit_price_inr?: number;
+  total_price_inr?: number;
+}
+
+export interface RemovedFee {
+  name: string;
+  amount_inr?: number;
 }
 
 // Client -> Server (C->S) messages
@@ -51,7 +61,12 @@ export interface SessionStartMessage {
 
 export interface AudioUtteranceMessage {
   type: 'audio.utterance';
-  audio: string; // Base64 or WAV payload
+  audio?: string; // Base64 WAV
+  audio_base64?: string; // Standard Base64 in CONTRACT.md
+  content_type?: 'audio/wav';
+  sample_rate_hz?: 16000;
+  channels?: 1;
+  duration_ms?: number;
   lang?: string;
 }
 
@@ -63,6 +78,7 @@ export interface UIEventMessage {
 export interface CheckoutActionMessage {
   type: 'checkout.action';
   action: 'start' | 'confirm_audio' | 'cancel';
+  audio_base64?: string;
   phrase?: string;
 }
 
@@ -89,6 +105,8 @@ export interface ReplySentenceMessage {
   idx: number;
   text: string;
   audio?: string;
+  audio_base64?: string;
+  content_type?: 'audio/wav';
   pause_ms?: number;
   rate?: number;
 }
@@ -107,12 +125,15 @@ export interface CheckoutStateMessage {
   type: 'checkout.state';
   state: 'BROWSING' | 'CART_REVIEW' | 'GUARDED' | 'AWAITING_CONFIRM' | 'ORDER_PLACED';
   cart: CartItem[];
-  removed_fees: string[];
+  total_inr?: number;
+  removed_fees: Array<string | RemovedFee>;
 }
 
 export interface ConfirmChallengeMessage {
   type: 'confirm.challenge';
   phrase: string;
+  lang?: string;
+  attempts_remaining?: number;
 }
 
 export interface AdaptOfferMessage {
@@ -137,3 +158,4 @@ export type ServerMessage =
   | ConfirmChallengeMessage
   | AdaptOfferMessage
   | ErrorMessage;
+

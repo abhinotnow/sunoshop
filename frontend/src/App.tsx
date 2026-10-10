@@ -157,11 +157,12 @@ export default function App(): React.ReactElement {
             </p>
           </div>
 
-          {/* Push-to-Talk Controls with Brutalist Coral Red Styling */}
+          {/* Push-to-Talk Controls with Brutalist Coral Red Styling and Adaptation Prompts */}
           <Controls
             apiClient={apiClient}
             currentLang={lang}
             onStatusChange={(status) => announce(status, 'polite')}
+            onAnnounce={(msg, prio) => announce(msg, prio)}
           />
         </section>
 

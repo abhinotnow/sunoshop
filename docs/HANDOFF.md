@@ -52,20 +52,20 @@
 ## Member 2 (Frontend & Accessibility)
 
 ### Current state
-- **Last completed step:** M2-11
-- **Next step:** M2-12
-- **Works right now:** Spatial audio panning via playSpatialShelf() using StereoPannerNode with exact pan values (-1.0 Left, 0.0 Center, +1.0 Right) and sequential mono fallback; Accessible Product Shelf with axe zero violations; Brutalist Coral Red design system; PWA app shell precache; IndexedDB catalog cache. All 39 tests pass.
+- **Last completed step:** M2-14
+- **Next step:** M2-15
+- **Works right now:** Reversible adaptation consent prompt modal (Controls.tsx) asking aloud and visually before applying adaptations; declining changes nothing; accepting enlarges buttons to >= 72px (WCAG 2.5.5) or slows speech to 0.8x; instant reversibility via Revert badge; design.md documenting complete brutalist accessibility system; FrictionTracker sliding window (adapt.ts); WCAG 2.5.7 non-draggable voice price filter; spatial audio panning; accessible product shelf (axe 0 violations); brutalist coral red/black/grey UI; PWA precache. All 60 frontend tests and 6 backend tests pass.
 - **Broken / blocked:** nothing
 - **Env needed:** `VITE_USE_MOCK=true`
 
 ### Log (newest first)
-### M2-11: Spatial audio (2026-10-11)
-- **Changed:** frontend/src/audio.ts, frontend/src/audio.test.tsx, frontend/src/components/Shelf.tsx, docs/ARCHITECTURE.md
-- **How to run/test:** `cd frontend && npm test` (39 tests pass across 6 test suites), `npm run build` (0 TS errors)
-- **Decisions:** playSpatialShelf connects sine chime oscillators through gain nodes to StereoPannerNode at target pan values (-1, 0, +1); gracefully falls back to sequential mono when StereoPannerNode is unavailable; Shelf component exposes Spatial Audio preview button.
+### M2-14: Adaptation prompt (2026-10-11)
+- **Changed:** frontend/src/adapt.ts, frontend/src/components/Controls.tsx, frontend/src/components/Controls.test.tsx, frontend/src/App.tsx, design.md, docs/ARCHITECTURE.md
+- **How to run/test:** `cd frontend && npm test` (60 tests pass across 9 test suites), `npm run build` (0 TS errors)
+- **Decisions:** Implemented Adaptation Prompt modal banner requiring explicit user consent; speaks proposals aloud via live region; declining strictly changes nothing; accepting scales touch targets to >= 72px or slows speech rate to 0.8x; provides persistent Revert badge for 100% reversibility; created design.md documenting complete brutalist design tokens.
 - **Deviations / known issues:** None
-- **Needs from other member:** None (Backend shelf search emits spatial pan values in M1-20).
-- **Next step:** M2-12 (Voice price filter)
+- **Needs from other member:** None
+- **Next step:** M2-15 (Explain Simpler control)
 
 ### M2-10: Product shelf (2026-10-11)
 - **Changed:** frontend/src/components/Shelf.tsx, frontend/src/components/Shelf.test.tsx, frontend/src/App.tsx, frontend/package.json, docs/ARCHITECTURE.md
