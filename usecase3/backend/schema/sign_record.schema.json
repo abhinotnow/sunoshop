@@ -1,0 +1,456 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "oriel/sign_record/v2",
+ "title": "SignRecord",
+ "description": "What Gemini reads from ONE camera frame. Three of these are compared to decide what is confirmed.",
+ "type": "object",
+ "properties": {
+  "sign_found": {
+   "type": "boolean",
+   "description": "True if a sign, signal, board or pictogram is visible (with or without text)."
+  },
+  "sign_count": {
+   "type": "integer",
+   "minimum": 0
+  },
+  "sign_category": {
+   "type": "string",
+   "enum": [
+    "bus_route_board",
+    "bus_stop",
+    "metro_rail",
+    "direction",
+    "street_name",
+    "traffic_sign",
+    "pedestrian_signal",
+    "shop",
+    "advertisement",
+    "emergency_exit",
+    "warning",
+    "information",
+    "other",
+    "none"
+   ],
+   "description": "Category of the MAIN sign (largest, most central)."
+  },
+  "main_sign_box": {
+   "type": "array",
+   "items": {
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 1000
+   },
+   "minItems": 0,
+   "maxItems": 4,
+   "description": "[ymin, xmin, ymax, xmax] normalized 0-1000, or [] if not visible."
+  },
+  "languages_present": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "enum": [
+     "te",
+     "hi",
+     "en",
+     "ur",
+     "other"
+    ]
+   }
+  },
+  "route_numbers": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "value": {
+      "type": "string",
+      "description": "Exactly as written, e.g. 218, 10H, 5K/M. Never guess a hidden character."
+     },
+     "legibility": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "partial",
+       "unreadable"
+      ]
+     },
+     "box": {
+      "type": "array",
+      "items": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 1000
+      },
+      "minItems": 0,
+      "maxItems": 4,
+      "description": "[ymin, xmin, ymax, xmax] normalized 0-1000, or [] if not visible."
+     }
+    },
+    "required": [
+     "value",
+     "legibility",
+     "box"
+    ]
+   }
+  },
+  "places": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string",
+      "description": "Exactly as written, original script."
+     },
+     "script": {
+      "type": "string",
+      "enum": [
+       "Telugu",
+       "Devanagari",
+       "Latin",
+       "Arabic",
+       "Other"
+      ]
+     },
+     "romanized": {
+      "type": "string",
+      "description": "Plain English letters of what is written; do not substitute another place."
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "destination",
+       "via",
+       "station",
+       "street",
+       "area",
+       "landmark",
+       "other"
+      ]
+     },
+     "legibility": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "partial",
+       "unreadable"
+      ]
+     }
+    },
+    "required": [
+     "text",
+     "script",
+     "romanized",
+     "role",
+     "legibility"
+    ]
+   }
+  },
+  "platform": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "arrows": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "direction": {
+      "type": "string",
+      "enum": [
+       "left",
+       "right",
+       "up",
+       "down",
+       "up_left",
+       "up_right",
+       "down_left",
+       "down_right",
+       "u_turn"
+      ]
+     },
+     "applies_to": {
+      "type": "string",
+      "description": "Romanized text the arrow belongs to, or empty string."
+     },
+     "legibility": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "partial",
+       "unreadable"
+      ]
+     }
+    },
+    "required": [
+     "direction",
+     "applies_to",
+     "legibility"
+    ]
+   }
+  },
+  "symbols": {
+   "type": "array",
+   "description": "Pictograms and traffic signs, including signs with no text.",
+   "items": {
+    "type": "object",
+    "properties": {
+     "code": {
+      "type": "string",
+      "enum": [
+       "stop",
+       "give_way",
+       "no_entry",
+       "one_way",
+       "no_parking",
+       "no_stopping",
+       "no_u_turn",
+       "no_left_turn",
+       "no_right_turn",
+       "no_horn",
+       "speed_limit",
+       "pedestrian_crossing",
+       "school_ahead",
+       "hospital",
+       "men_at_work",
+       "speed_breaker",
+       "traffic_signal_ahead",
+       "roundabout",
+       "keep_left",
+       "parking",
+       "bus_stop",
+       "metro",
+       "railway",
+       "toilet",
+       "exit",
+       "emergency_exit",
+       "fire_extinguisher",
+       "first_aid",
+       "wheelchair_access",
+       "lift",
+       "stairs",
+       "no_smoking",
+       "danger",
+       "other"
+      ]
+     },
+     "value": {
+      "type": "string",
+      "description": "Number shown on the sign (e.g. speed limit 40), else empty string."
+     },
+     "legibility": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "partial",
+       "unreadable"
+      ]
+     }
+    },
+    "required": [
+     "code",
+     "value",
+     "legibility"
+    ]
+   }
+  },
+  "pedestrian_signal": {
+   "type": "object",
+   "properties": {
+    "state": {
+     "type": "string",
+     "enum": [
+      "walk",
+      "dont_walk",
+      "flashing",
+      "off",
+      "none"
+     ],
+     "description": "walk = green walking figure; dont_walk = red standing figure or red hand; none = no pedestrian signal visible."
+    },
+    "countdown": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "Countdown digits if shown, else null."
+    }
+   },
+   "required": [
+    "state",
+    "countdown"
+   ]
+  },
+  "business": {
+   "type": "object",
+   "description": "Shop or business board. Empty strings if not a business.",
+   "properties": {
+    "name_text": {
+     "type": "string"
+    },
+    "name_script": {
+     "type": "string",
+     "enum": [
+      "Telugu",
+      "Devanagari",
+      "Latin",
+      "Arabic",
+      "Other"
+     ]
+    },
+    "name_romanized": {
+     "type": "string"
+    },
+    "category_en": {
+     "type": "string",
+     "description": "What it sells or offers in 1-4 plain English words, e.g. pharmacy, tea stall, mobile phone shop."
+    },
+    "hours_text": {
+     "type": "string",
+     "description": "Opening hours exactly as written, else empty."
+    },
+    "open_time": {
+     "type": "string",
+     "description": "Opening time as HH:MM 24-hour if written, else empty."
+    },
+    "close_time": {
+     "type": "string",
+     "description": "Closing time as HH:MM 24-hour if written, else empty."
+    },
+    "open_hint": {
+     "type": "string",
+     "enum": [
+      "open_sign",
+      "closed_sign",
+      "shutter_closed",
+      "none"
+     ]
+    }
+   },
+   "required": [
+    "name_text",
+    "name_script",
+    "name_romanized",
+    "category_en",
+    "hours_text",
+    "open_time",
+    "close_time",
+    "open_hint"
+   ]
+  },
+  "advertisement": {
+   "type": "object",
+   "description": "Advertisement content. Empty strings if not an ad.",
+   "properties": {
+    "brand": {
+     "type": "string"
+    },
+    "product_en": {
+     "type": "string",
+     "description": "What is advertised, 1-6 plain English words."
+    },
+    "offer_text": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "brand",
+    "product_en",
+    "offer_text"
+   ]
+  },
+  "other_text": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string"
+     },
+     "script": {
+      "type": "string",
+      "enum": [
+       "Telugu",
+       "Devanagari",
+       "Latin",
+       "Arabic",
+       "Other"
+      ]
+     },
+     "legibility": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "partial",
+       "unreadable"
+      ]
+     }
+    },
+    "required": [
+     "text",
+     "script",
+     "legibility"
+    ]
+   }
+  },
+  "table_description": {
+   "type": "string",
+   "description": "If the sign has a table (e.g. timetable), describe it in one plain English sentence; else empty."
+  },
+  "cut_off_sides": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "enum": [
+     "left",
+     "right",
+     "top",
+     "bottom"
+    ]
+   }
+  },
+  "quality_issues": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "enum": [
+     "blur",
+     "glare",
+     "dark",
+     "too_far",
+     "tilted",
+     "occluded",
+     "multiple_signs"
+    ]
+   }
+  },
+  "unclear_parts": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  }
+ },
+ "required": [
+  "sign_found",
+  "sign_count",
+  "sign_category",
+  "main_sign_box",
+  "languages_present",
+  "route_numbers",
+  "places",
+  "platform",
+  "arrows",
+  "symbols",
+  "pedestrian_signal",
+  "business",
+  "advertisement",
+  "other_text",
+  "table_description",
+  "cut_off_sides",
+  "quality_issues",
+  "unclear_parts"
+ ]
+}

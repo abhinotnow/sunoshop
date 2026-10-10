@@ -1,0 +1,1237 @@
+{
+ "_about": "Known Hyderabad places for the verify step. A place name read in 2 of 3 frames is 'confirmed' only if it matches an entry here (en, te, hi or an alias, fuzzy-matched); otherwise it is spoken as 'it looks like..., please check'. Add the places on your test route.",
+ "_sources": {
+  "metro_te": "Telugu names of the 57 operational metro stations copied from en.wikipedia.org/wiki/List_of_Hyderabad_Metro_stations (checked 10 Oct 2026).",
+  "drafts": "Every field marked 'draft' was written by Claude and needs a native-speaker check. Verify bus termini against the signs you photograph."
+ },
+ "places": [
+  {
+   "id": "ameerpet",
+   "en": "Ameerpet",
+   "te": "అమీర్‌పేట",
+   "hi": "अमीरपेट",
+   "kind": "metro_station",
+   "lines": [
+    "red",
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "assembly",
+   "en": "Assembly",
+   "te": "అసెంబ్లీ",
+   "hi": "असेंबली",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "begumpet",
+   "en": "Begumpet",
+   "te": "బేగంపేట",
+   "hi": "बेगमपेट",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "bharat_nagar",
+   "en": "Bharat Nagar",
+   "te": "భరత్ నగర్",
+   "hi": "भरत नगर",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "chaitanyapuri",
+   "en": "Chaitanyapuri",
+   "te": "చైతన్యపురి",
+   "hi": "चैतन्यपुरी",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "chikkadpally",
+   "en": "Chikkadpally",
+   "te": "చిక్కడపల్లి",
+   "hi": "चिक्कडपल्ली",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "dilsukhnagar",
+   "en": "Dilsukhnagar",
+   "te": "దిల్ సుఖ్ నగర్",
+   "hi": "दिलसुखनगर",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "Dilsukh Nagar"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "dr_b_r_ambedkar_balanagar",
+   "en": "Dr. B. R. Ambedkar Balanagar",
+   "te": "డా.బి.ఆర్.అంబేద్కర్ బాలానగర్",
+   "hi": "डॉ. बी. आर. अंबेडकर बालानगर",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "Balanagar",
+    "Ambedkar Balanagar"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "durgam_cheruvu",
+   "en": "Durgam Cheruvu",
+   "te": "దుర్గం చెరువు",
+   "hi": "दुर्गम चेरुवु",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "erragadda",
+   "en": "Erragadda",
+   "te": "ఎర్రగడ్డ",
+   "hi": "एर्रगड्डा",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "esi_hospital",
+   "en": "ESI Hospital",
+   "te": "ఇ.ఎస్.ఐ హాస్పిటల్",
+   "hi": "ईएसआई हॉस्पिटल",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "ESI"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "gandhi_bhavan",
+   "en": "Gandhi Bhavan",
+   "te": "గాంధీ భవన్",
+   "hi": "गांधी भवन",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "gandhi_hospital",
+   "en": "Gandhi Hospital",
+   "te": "గాంధీ హాస్పిటల్",
+   "hi": "गांधी हॉस्पिटल",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "habsiguda",
+   "en": "Habsiguda",
+   "te": "హబ్సిగూడ",
+   "hi": "हब्सीगुडा",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "hitec_city",
+   "en": "HITEC City",
+   "te": "హైటెక్ సిటీ",
+   "hi": "हाईटेक सिटी",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Hitech City",
+    "Hi-Tech City",
+    "Hitec City"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "irrum_manzil",
+   "en": "Irrum Manzil",
+   "te": "ఇరమ్ మంజిల్",
+   "hi": "इर्रम मंज़िल",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "Erram Manzil",
+    "Irram Manzil"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "jbs_parade_ground",
+   "en": "JBS Parade Ground",
+   "te": "జె బి ఎస్ పరేడ్ గ్రౌండ్",
+   "hi": "जेबीएस परेड ग्राउंड",
+   "kind": "metro_station",
+   "lines": [
+    "green",
+    "blue"
+   ],
+   "aliases": [
+    "JBS",
+    "Jubilee Bus Station"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "jntu_college",
+   "en": "JNTU College",
+   "te": "జె ఎన్ టి యు కాలేజీ",
+   "hi": "जेएनटीयू कॉलेज",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "JNTU"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "jubilee_hills_check_post",
+   "en": "Jubilee Hills Check Post",
+   "te": "జూబ్లీహిల్స్ చెక్ పోస్ట్",
+   "hi": "जुबली हिल्स चेक पोस्ट",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Jubilee Hills Checkpost"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "khairatabad",
+   "en": "Khairatabad",
+   "te": "ఖైరతాబాద్",
+   "hi": "खैरताबाद",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kphb_colony",
+   "en": "KPHB Colony",
+   "te": "కె పి హెచ్ బి కాలనీ",
+   "hi": "केपीएचबी कॉलोनी",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "KPHB"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kukatpally",
+   "en": "Kukatpally",
+   "te": "కూకట్‌పల్లి",
+   "hi": "कूकटपल्ली",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "lb_nagar",
+   "en": "LB Nagar",
+   "te": "ఎల్ బి నగర్",
+   "hi": "एलबी नगर",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "L.B. Nagar",
+    "L B Nagar"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "lakdi_ka_pul",
+   "en": "Lakdi-ka-pul",
+   "te": "లక్డీ-కా-పుల్",
+   "hi": "लकड़ी का पुल",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "Lakdikapul",
+    "Lakdi ka pul"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "madhapur",
+   "en": "Madhapur",
+   "te": "మాదాపూర్",
+   "hi": "माधापुर",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "malakpet",
+   "en": "Malakpet",
+   "te": "మలక్ పేట",
+   "hi": "मलकपेट",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "mettuguda",
+   "en": "Mettuguda",
+   "te": "మెట్టుగూడ",
+   "hi": "मेट्टुगुडा",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "mg_bus_station",
+   "en": "MG Bus Station",
+   "te": "ఎం జి బస్ స్టేషన్",
+   "hi": "एमजी बस स्टेशन",
+   "kind": "metro_station",
+   "lines": [
+    "red",
+    "green"
+   ],
+   "aliases": [
+    "MGBS",
+    "M.G. Bus Station",
+    "Mahatma Gandhi Bus Station",
+    "Imlibun"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "miyapur",
+   "en": "Miyapur",
+   "te": "మియాపూర్",
+   "hi": "मियापुर",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "moosapet",
+   "en": "Moosapet",
+   "te": "మూసాపేట్",
+   "hi": "मूसापेट",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "musarambagh",
+   "en": "Musarambagh",
+   "te": "ముసారాంబాగ్",
+   "hi": "मूसारामबाग",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "Moosarambagh"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "musheerabad",
+   "en": "Musheerabad",
+   "te": "ముషీరాబాద్",
+   "hi": "मुशीराबाद",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "nagole",
+   "en": "Nagole",
+   "te": "నాగోల్",
+   "hi": "नागोल",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "nampally",
+   "en": "Nampally",
+   "te": "నాంపల్లి",
+   "hi": "नामपल्ली",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "narayanaguda",
+   "en": "Narayanaguda",
+   "te": "నారాయణగూడ",
+   "hi": "नारायणगुडा",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [
+    "Narayanguda"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "new_market",
+   "en": "New Market",
+   "te": "కొత్త మార్కెట్",
+   "hi": "न्यू मार्केट",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "ngri",
+   "en": "NGRI",
+   "te": "ఎన్ జి ఆర్ ఐ",
+   "hi": "एनजीआरआई",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "osmania_medical_college",
+   "en": "Osmania Medical College",
+   "te": "ఉస్మానియా మెడికల్ కాలేజీ",
+   "hi": "उस्मानिया मेडिकल कॉलेज",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "parade_ground",
+   "en": "Parade Ground",
+   "te": "పరేడ్ గ్రౌండ్",
+   "hi": "परेड ग्राउंड",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "paradise",
+   "en": "Paradise",
+   "te": "ప్యారడైజ్",
+   "hi": "पैराडाइज़",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "peddamma_gudi",
+   "en": "Peddamma Gudi",
+   "te": "పెద్దమ్మ గుడి",
+   "hi": "पेद्दम्मा गुडी",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Peddammagudi",
+    "Peddamma Temple"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "prakash_nagar",
+   "en": "Prakash Nagar",
+   "te": "ప్రకాష్ నగర్",
+   "hi": "प्रकाश नगर",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "punjagutta",
+   "en": "Punjagutta",
+   "te": "పంజాగుట్ట",
+   "hi": "पंजागुट्टा",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "Panjagutta"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "raidurg",
+   "en": "Raidurg",
+   "te": "రాయదుర్గ్",
+   "hi": "रायदुर्ग",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Raidurgam"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "rasoolpura",
+   "en": "Rasoolpura",
+   "te": "రసూల్‌పురా",
+   "hi": "रसूलपुरा",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "road_no_5_jubilee_hills",
+   "en": "Road No 5 Jubilee Hills",
+   "te": "రోడ్ నెం.5 జూబ్లీ హిల్స్",
+   "hi": "रोड नंबर 5 जुबली हिल्स",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Jubilee Hills Road No. 5"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "r_t_c_x_roads",
+   "en": "R.T.C. X Roads",
+   "te": "ఆర్ టి సి క్రాస్ రోడ్స్",
+   "hi": "आरटीसी क्रॉस रोड्स",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [
+    "RTC X Roads",
+    "RTC Cross Roads"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "s_r_nagar",
+   "en": "S.R. Nagar",
+   "te": "ఎస్ ఆర్ నగర్",
+   "hi": "एसआर नगर",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [
+    "SR Nagar"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "secunderabad_east",
+   "en": "Secunderabad East",
+   "te": "సికింద్రాబాద్ తూర్పు",
+   "hi": "सिकंदराबाद ईस्ट",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "secunderabad_west",
+   "en": "Secunderabad West",
+   "te": "సికింద్రాబాద్ వెస్ట్",
+   "hi": "सिकंदराबाद वेस्ट",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "stadium",
+   "en": "Stadium",
+   "te": "స్టేడియం",
+   "hi": "स्टेडियम",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Uppal Stadium"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "sultan_bazaar",
+   "en": "Sultan Bazaar",
+   "te": "సుల్తాన్ బజార్",
+   "hi": "सुल्तान बाज़ार",
+   "kind": "metro_station",
+   "lines": [
+    "green"
+   ],
+   "aliases": [
+    "Sultan Bazar"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "tarnaka",
+   "en": "Tarnaka",
+   "te": "తార్నాక",
+   "hi": "तारनाका",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "madhura_nagar",
+   "en": "Madhura Nagar",
+   "te": "మధుర నగర్",
+   "hi": "मधुरा नगर",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "uppal",
+   "en": "Uppal",
+   "te": "ఉప్పల్",
+   "hi": "उप्पल",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "victoria_memorial",
+   "en": "Victoria Memorial",
+   "te": "విక్టోరియా మెమోరియల్",
+   "hi": "विक्टोरिया मेमोरियल",
+   "kind": "metro_station",
+   "lines": [
+    "red"
+   ],
+   "aliases": [],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "yusufguda",
+   "en": "Yusufguda",
+   "te": "యూసుఫ్‌గూడ",
+   "hi": "यूसुफगुडा",
+   "kind": "metro_station",
+   "lines": [
+    "blue"
+   ],
+   "aliases": [
+    "Yousufguda"
+   ],
+   "te_source": "wikipedia",
+   "hi_source": "draft"
+  },
+  {
+   "id": "secunderabad",
+   "en": "Secunderabad",
+   "te": "సికింద్రాబాద్",
+   "hi": "सिकंदराबाद",
+   "kind": "area",
+   "lines": [],
+   "aliases": [
+    "Secunderabad Railway Station"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "hyderabad",
+   "en": "Hyderabad",
+   "te": "హైదరాబాద్",
+   "hi": "हैदराबाद",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "koti",
+   "en": "Koti",
+   "te": "కోఠి",
+   "hi": "कोठी",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "afzalgunj",
+   "en": "Afzalgunj",
+   "te": "అఫ్జల్‌గంజ్",
+   "hi": "अफ़ज़लगंज",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [
+    "Afzal Gunj"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "mehdipatnam",
+   "en": "Mehdipatnam",
+   "te": "మెహదీపట్నం",
+   "hi": "मेहदीपटनम",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "charminar",
+   "en": "Charminar",
+   "te": "చార్మినార్",
+   "hi": "चारमीनार",
+   "kind": "landmark",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "lingampally",
+   "en": "Lingampally",
+   "te": "లింగంపల్లి",
+   "hi": "लिंगमपल्ली",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "patancheru",
+   "en": "Patancheru",
+   "te": "పటాన్‌చెరు",
+   "hi": "पटानचेरु",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [
+    "Patancheruvu"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "ecil",
+   "en": "ECIL",
+   "te": "ఈసీఐఎల్",
+   "hi": "ईसीआईएल",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [
+    "ECIL X Roads"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "gachibowli",
+   "en": "Gachibowli",
+   "te": "గచ్చిబౌలి",
+   "hi": "गच्चीबावली",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kondapur",
+   "en": "Kondapur",
+   "te": "కొండాపూర్",
+   "hi": "कोंडापुर",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "shamshabad",
+   "en": "Shamshabad",
+   "te": "శంషాబాద్",
+   "hi": "शमशाबाद",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "rajiv_gandhi_international_airport",
+   "en": "Rajiv Gandhi International Airport",
+   "te": "రాజీవ్ గాంధీ అంతర్జాతీయ విమానాశ్రయం",
+   "hi": "राजीव गांधी अंतरराष्ट्रीय हवाई अड्डा",
+   "kind": "landmark",
+   "lines": [],
+   "aliases": [
+    "RGIA",
+    "Airport",
+    "Hyderabad Airport"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "ghatkesar",
+   "en": "Ghatkesar",
+   "te": "ఘట్‌కేసర్",
+   "hi": "घटकेसर",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "hayathnagar",
+   "en": "Hayathnagar",
+   "te": "హయత్‌నగర్",
+   "hi": "हयातनगर",
+   "kind": "bus_terminus",
+   "lines": [],
+   "aliases": [
+    "Hayath Nagar"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "medchal",
+   "en": "Medchal",
+   "te": "మేడ్చల్",
+   "hi": "मेडचल",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "tolichowki",
+   "en": "Tolichowki",
+   "te": "టోలిచౌకి",
+   "hi": "टोलीचौकी",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "golconda",
+   "en": "Golconda",
+   "te": "గోల్కొండ",
+   "hi": "गोलकोंडा",
+   "kind": "landmark",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kothaguda",
+   "en": "Kothaguda",
+   "te": "కొత్తగూడ",
+   "hi": "कोथागुडा",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "nizampet",
+   "en": "Nizampet",
+   "te": "నిజాంపేట్",
+   "hi": "निज़ामपेट",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "bachupally",
+   "en": "Bachupally",
+   "te": "బాచుపల్లి",
+   "hi": "बाचुपल्ली",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kompally",
+   "en": "Kompally",
+   "te": "కొంపల్లి",
+   "hi": "कोमपल्ली",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "alwal",
+   "en": "Alwal",
+   "te": "అల్వాల్",
+   "hi": "अलवाल",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "abids",
+   "en": "Abids",
+   "te": "అబిడ్స్",
+   "hi": "आबिड्स",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "masab_tank",
+   "en": "Masab Tank",
+   "te": "మాసబ్ ట్యాంక్",
+   "hi": "मासाब टैंक",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "banjara_hills",
+   "en": "Banjara Hills",
+   "te": "బంజారా హిల్స్",
+   "hi": "बंजारा हिल्स",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "jubilee_hills",
+   "en": "Jubilee Hills",
+   "te": "జూబ్లీ హిల్స్",
+   "hi": "जुबली हिल्स",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kacheguda",
+   "en": "Kacheguda",
+   "te": "కాచిగూడ",
+   "hi": "काचीगुडा",
+   "kind": "railway_station",
+   "lines": [],
+   "aliases": [
+    "Kacheguda Railway Station"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "falaknuma",
+   "en": "Falaknuma",
+   "te": "ఫలక్‌నుమా",
+   "hi": "फ़लकनुमा",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "chandrayangutta",
+   "en": "Chandrayangutta",
+   "te": "చాంద్రాయణగుట్ట",
+   "hi": "चंद्रायणगुट्टा",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "santosh_nagar",
+   "en": "Santosh Nagar",
+   "te": "సంతోష్ నగర్",
+   "hi": "संतोष नगर",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "vanasthalipuram",
+   "en": "Vanasthalipuram",
+   "te": "వనస్థలిపురం",
+   "hi": "वनस्थलीपुरम",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "boduppal",
+   "en": "Boduppal",
+   "te": "బోడుప్పల్",
+   "hi": "बोडुप्पल",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "kushaiguda",
+   "en": "Kushaiguda",
+   "te": "కుషాయిగూడ",
+   "hi": "कुशाईगुडा",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "sainikpuri",
+   "en": "Sainikpuri",
+   "te": "సైనిక్‌పురి",
+   "hi": "सैनिकपुरी",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "malkajgiri",
+   "en": "Malkajgiri",
+   "te": "మల్కాజ్‌గిరి",
+   "hi": "मलकाजगिरी",
+   "kind": "area",
+   "lines": [],
+   "aliases": [],
+   "te_source": "draft",
+   "hi_source": "draft"
+  },
+  {
+   "id": "iiit_hyderabad",
+   "en": "IIIT Hyderabad",
+   "te": "ఐఐఐటీ హైదరాబాద్",
+   "hi": "आईआईआईटी हैदराबाद",
+   "kind": "landmark",
+   "lines": [],
+   "aliases": [
+    "Triple IT",
+    "IIITH"
+   ],
+   "te_source": "draft",
+   "hi_source": "draft"
+  }
+ ]
+}

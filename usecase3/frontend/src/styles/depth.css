@@ -1,0 +1,181 @@
+/* Depth layer: the 3D world behind the app, tilting glass, extruded type, 3D card entrances and a holographic
+   camera HUD. Loaded last. High contrast mode switches every effect off (flat black and white stays the rule
+   there), and prefers-reduced-motion stops the movement (base.css). */
+
+/* ---------- world canvas ---------- */
+.world { position: fixed; inset: 0; z-index: 0; pointer-events: none; transition: opacity 0.9s ease; }
+.world canvas { display: block; }
+.world-ambient { opacity: 0.5; }
+.start, .app { position: relative; z-index: 1; }
+/* keep text readable over the moving street: a soft dark pool behind the hero copy */
+.start-copy { isolation: isolate; }
+.start-copy::before {
+  content: ""; position: absolute; inset: -40px 0; z-index: -1; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(5, 8, 22, 0.92), rgba(5, 8, 22, 0.6) 65%, transparent);
+  transform: scaleX(1.25);
+}
+.tagline, .intro { text-shadow: 0 2px 18px rgba(5, 8, 22, 0.9); }
+
+/* ---------- extruded 3D wordmark ----------
+   Stacked drop-shadows compound (each one also shadows the previous), so five 1px steps make a solid side.
+   They work with gradient text, unlike text-shadow, which would paint over the clipped gradient. */
+.brand-title {
+  transform: perspective(900px) rotateX(12deg); transform-origin: 50% 100%;
+  filter: drop-shadow(0 1px 0 #0f5d63) drop-shadow(0 1px 0 #0c4a55) drop-shadow(0 1px 0 #0a3b48)
+    drop-shadow(0 1px 0 #082f3c) drop-shadow(0 2px 0 #062431) drop-shadow(0 16px 24px rgba(0, 0, 0, 0.65));
+}
+
+/* ---------- glass that catches the light ---------- */
+.glass { position: relative; isolation: isolate; }
+.glass::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
+  background: linear-gradient(140deg, rgba(126, 249, 230, 0.55), rgba(124, 156, 255, 0.12) 35%, transparent 60%, rgba(124, 156, 255, 0.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.glass::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: radial-gradient(600px circle at var(--mx, 30%) var(--my, 0%), rgba(126, 249, 230, 0.09), transparent 45%);
+}
+
+/* tilt (desktop pointer only; useTilt adds the class) */
+.tilt {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d; transition: transform 0.25s ease-out; will-change: transform;
+}
+.tilt > * { transform: translateZ(14px); }
+.tilt.stage > * { transform: none; }
+
+/* ---------- 3D keycap buttons ---------- */
+.start-btn { position: relative; transform: translateY(0); box-shadow: 0 6px 0 #0d6f61, 0 18px 50px -12px rgba(46, 230, 197, 0.6); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.start-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 #0d6f61, 0 8px 24px -10px rgba(46, 230, 197, 0.6); }
+.lang-btn, .dock-side, .actions .btn {
+  box-shadow: 0 4px 0 rgba(3, 6, 18, 0.9), 0 10px 24px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.2s;
+}
+.lang-btn:active, .dock-side:active:not(:disabled), .actions .btn:active:not(:disabled) {
+  transform: translateY(3px); box-shadow: 0 1px 0 rgba(3, 6, 18, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.lang-btn.is-on { transform: translateY(-2px); box-shadow: 0 6px 0 #0d6f61, var(--glow), inset 0 0 0 1px var(--accent); }
+
+/* ---------- camera stage as a holographic viewport ---------- */
+.stage { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9), 0 0 0 1px var(--border-strong), 0 0 50px -10px rgba(46, 230, 197, 0.25); }
+.stage::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: repeating-linear-gradient(0deg, rgba(126, 249, 230, 0.035) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+}
+.reticle i { transform: translateZ(0); filter: drop-shadow(0 0 8px rgba(46, 230, 197, 0.9)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6)); }
+.scan-grid {
+  position: absolute; left: -20%; right: -20%; bottom: -10%; height: 60%; pointer-events: none;
+  transform: perspective(420px) rotateX(64deg); transform-origin: 50% 100%;
+  background-image:
+    linear-gradient(rgba(46, 230, 197, 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46, 230, 197, 0.55) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: linear-gradient(0deg, #000 10%, transparent 90%); mask-image: linear-gradient(0deg, #000 10%, transparent 90%);
+  animation: gridflow 1.1s linear infinite; opacity: 0.75;
+}
+.sign-box { border: 0; box-shadow: none; }
+.sign-box::before {
+  content: ""; position: absolute; inset: 0; border-radius: 10px;
+  background:
+    linear-gradient(var(--ok), var(--ok)) top left / 26px 3px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) top left / 3px 26px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) top right / 26px 3px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) top right / 3px 26px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) bottom left / 26px 3px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) bottom left / 3px 26px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) bottom right / 26px 3px no-repeat,
+    linear-gradient(var(--ok), var(--ok)) bottom right / 3px 26px no-repeat,
+    rgba(74, 222, 128, 0.08);
+  filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.9));
+  animation: lockon 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.sign-tag {
+  position: absolute; left: 0; top: -30px; white-space: nowrap; padding: 3px 10px; border-radius: 8px;
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #052e16; background: var(--ok); box-shadow: 0 0 18px rgba(74, 222, 128, 0.7);
+}
+
+/* ---------- beacon button: spinning light ring ---------- */
+.dock-main::before {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%; padding: 3px; pointer-events: none;
+  background: conic-gradient(from var(--spin, 0deg), transparent, var(--accent) 20%, transparent 40%, var(--accent-2) 70%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: spin 3.5s linear infinite;
+}
+.dock-main.is-busy::before { animation-duration: 1.1s; }
+.dock-main { transform: perspective(600px) translateZ(0); }
+
+/* ---------- facts flip up in 3D, one after another ---------- */
+.facts { perspective: 900px; }
+.fact {
+  transform-origin: 50% 0; animation: flipin 0.6s cubic-bezier(0.2, 0.8, 0.25, 1.15) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.fact.st-confirmed { box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.9), -6px 0 22px -10px rgba(74, 222, 128, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+.fact.st-uncertain { box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.9), -6px 0 22px -10px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+
+/* ---------- pipeline: glossy nodes and light flowing down the wire ---------- */
+.node-dot { background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.35), var(--bg) 60%); }
+.is-done .node-dot { background: radial-gradient(circle at 35% 30%, #eafff1, var(--ok) 45%, #15803d); }
+.is-running .node-dot { background: radial-gradient(circle at 35% 30%, #f5f3ff, #a78bfa 45%, #6d28d9); }
+.is-error .node-dot { background: radial-gradient(circle at 35% 30%, #fff1f1, var(--bad) 45%, #991b1b); }
+.is-running::before {
+  background: linear-gradient(180deg, transparent, #a78bfa, transparent) 0 0 / 100% 40% no-repeat, var(--border-strong);
+  animation: wire 0.9s linear infinite;
+}
+
+/* ---------- keyframes ---------- */
+@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes spin { to { --spin: 360deg; } }
+@keyframes gridflow { from { background-position: 0 0, 0 0; } to { background-position: 0 44px, 0 0; } }
+@keyframes lockon { from { transform: scale(1.25); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flipin {
+  from { opacity: 0; transform: rotateX(-78deg) translateY(-6px) translateZ(-40px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes wire { from { background-position: 0 -40%, 0 0; } to { background-position: 0 140%, 0 0; } }
+
+/* ---------- high contrast: no depth effects at all ---------- */
+:root[data-contrast="high"] .glass::before, :root[data-contrast="high"] .glass::after,
+:root[data-contrast="high"] .stage::after, :root[data-contrast="high"] .start-copy::before,
+:root[data-contrast="high"] .dock-main::before,
+:root[data-contrast="high"] .scan-grid { display: none; }
+:root[data-contrast="high"] .brand-title, :root[data-contrast="high"] .tilt { transform: none; filter: none; }
+:root[data-contrast="high"] .lang-btn, :root[data-contrast="high"] .dock-side, :root[data-contrast="high"] .actions .btn,
+:root[data-contrast="high"] .start-btn, :root[data-contrast="high"] .fact { box-shadow: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt { transform: none; }
+  .scan-grid { display: none; }
+}
+
+/* ---------- narrow screens: long Telugu lines must wrap, never widen the page ---------- */
+.start > *, .start-panel > * { min-width: 0; }
+.lang-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.chip, .fine-print, .intro { overflow-wrap: anywhere; }
+@media (max-width: 420px) { .lang-native { font-size: var(--fs-3); } .lang-btn { padding: 14px 4px; } }
+html, body { overflow-x: hidden; }
+
+/* ---------- camera switch (inside the viewport, top right) ---------- */
+.seg.wide.two { grid-template-columns: repeat(2, 1fr); }
+.cam-flip {
+  position: absolute; top: 10px; right: 10px; z-index: 3; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 48px; padding: 0 14px; border-radius: 16px; font-weight: 700; font-size: var(--fs-1);
+  background: rgba(5, 8, 22, 0.72); border: 1px solid var(--border-strong); color: var(--text);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 4px 0 rgba(3, 6, 18, 0.9), 0 10px 24px -12px rgba(0, 0, 0, 0.8);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.cam-flip svg { width: 22px; height: 22px; transition: transform 0.4s ease; }
+.cam-flip:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 rgba(3, 6, 18, 0.9); }
+.cam-flip:hover:not(:disabled) svg { transform: rotateY(180deg); }
+.stage-badges { right: 150px; }
+.stage.is-front { animation: camflip 0.45s ease; }
+@keyframes camflip { from { transform: perspective(900px) rotateY(-80deg); opacity: 0.3; } to { transform: none; opacity: 1; } }
+:root[data-contrast="high"] .cam-flip { background: #000; border: 2px solid #fff; box-shadow: none; }
+@media (max-width: 420px) { .cam-flip span { display: none; } .stage-badges { right: 70px; } }

@@ -1,0 +1,99 @@
+import type { Lang } from "../types";
+
+/** Interface labels in all three languages. Spoken lines live in /data (shared with the backend). */
+const UI = {
+  tagline: { en: "Leading the way", hi: "राह दिखाने वाला", te: "దారి చూపే తోడు" },
+  intro: {
+    en: "Point your phone at a sign. Oriel reads it aloud, checks it twice, and tells you when it is not sure.",
+    hi: "फ़ोन किसी बोर्ड की ओर कीजिए। ओरियल उसे पढ़कर सुनाता है, दो बार जाँचता है, और पक्का न हो तो बताता है।",
+    te: "ఫోన్‌ను బోర్డు వైపు చూపించండి. ఓరియల్ దాన్ని చదివి వినిపిస్తుంది, రెండుసార్లు సరిచూస్తుంది, ఖచ్చితంగా తెలియకపోతే చెబుతుంది.",
+  },
+  chooseLanguage: { en: "Choose your language", hi: "अपनी भाषा चुनिए", te: "మీ భాష ఎంచుకోండి" },
+  start: { en: "Tap anywhere to start", hi: "शुरू करने के लिए कहीं भी छुएँ", te: "ప్రారంభించడానికి ఎక్కడైనా తాకండి" },
+  startButton: { en: "Start Oriel", hi: "ओरियल शुरू करें", te: "ఓరియల్ ప్రారంభించండి" },
+  readNow: { en: "Read the sign now", hi: "अभी बोर्ड पढ़ें", te: "ఇప్పుడు బోర్డు చదవండి" },
+  again: { en: "Again", hi: "फिर से", te: "మళ్ళీ" },
+  more: { en: "More", hi: "और", te: "ఇంకా" },
+  spell: { en: "Spell", hi: "स्पेलिंग", te: "స్పెల్లింగ్" },
+  simpler: { en: "Simpler", hi: "आसान", te: "సులభంగా" },
+  ask: { en: "Ask", hi: "पूछें", te: "అడగండి" },
+  newSign: { en: "New sign", hi: "नया बोर्ड", te: "కొత్త బోర్డు" },
+  stop: { en: "Stop", hi: "रोकें", te: "ఆపండి" },
+  settings: { en: "Settings", hi: "सेटिंग्स", te: "సెట్టింగ్స్" },
+  close: { en: "Close", hi: "बंद करें", te: "మూసివేయండి" },
+  yes: { en: "Yes", hi: "हाँ", te: "అవును" },
+  no: { en: "No", hi: "नहीं", te: "కాదు" },
+  confirmed: { en: "Confirmed", hi: "पक्का", te: "నిర్ధారించబడింది" },
+  uncertain: { en: "Please check", hi: "जाँच लें", te: "సరిచూసుకోండి" },
+  unreadable: { en: "Not readable", hi: "पढ़ा नहीं गया", te: "చదవలేకపోయాం" },
+  info: { en: "Note", hi: "सूचना", te: "గమనిక" },
+  scanning: { en: "Looking for a sign", hi: "बोर्ड ढूँढ रहे हैं", te: "బోర్డు కోసం చూస్తున్నాను" },
+  reading: { en: "Reading", hi: "पढ़ रहे हैं", te: "చదువుతున్నాను" },
+  listening: { en: "Listening", hi: "सुन रहे हैं", te: "వింటున్నాను" },
+  speaking: { en: "Speaking", hi: "बोल रहे हैं", te: "మాట్లాడుతున్నాను" },
+  thinking: { en: "Thinking", hi: "सोच रहे हैं", te: "ఆలోచిస్తున్నాను" },
+  pipeline: { en: "Live pipeline", hi: "लाइव पाइपलाइन", te: "లైవ్ పైప్‌లైన్" },
+  whatSignSays: { en: "What the sign says", hi: "बोर्ड पर क्या लिखा है", te: "బోర్డుపై ఏముంది" },
+  moreDetails: { en: "More details", hi: "और जानकारी", te: "మరిన్ని వివరాలు" },
+  askTitle: { en: "Ask about this sign", hi: "इस बोर्ड के बारे में पूछें", te: "ఈ బోర్డు గురించి అడగండి" },
+  askHint: {
+    en: "Tap the microphone and ask, for example: which bus goes to the station?",
+    hi: "माइक दबाकर पूछिए, जैसे: स्टेशन कौन-सी बस जाती है?",
+    te: "మైక్ నొక్కి అడగండి, ఉదా: స్టేషన్‌కు ఏ బస్సు వెళ్తుంది?",
+  },
+  typeQuestion: { en: "Or type your question", hi: "या अपना सवाल लिखिए", te: "లేదా మీ ప్రశ్న టైప్ చేయండి" },
+  send: { en: "Send", hi: "भेजें", te: "పంపండి" },
+  record: { en: "Speak", hi: "बोलें", te: "మాట్లాడండి" },
+  stopRecording: { en: "Done", hi: "हो गया", te: "అయింది" },
+  youAsked: { en: "You asked", hi: "आपने पूछा", te: "మీరు అడిగింది" },
+  answer: { en: "Answer", hi: "जवाब", te: "సమాధానం" },
+  upload: { en: "Use a photo", hi: "फ़ोटो चुनें", te: "ఫోటో ఎంచుకోండి" },
+  switchCamera: { en: "Switch camera", hi: "कैमरा बदलें", te: "కెమెరా మార్చండి" },
+  frontCamera: { en: "Front camera", hi: "सामने का कैमरा", te: "ముందు కెమెరా" },
+  backCamera: { en: "Back camera", hi: "पीछे का कैमरा", te: "వెనుక కెమెరా" },
+  readingCamera: { en: "Camera that reads signs", hi: "बोर्ड पढ़ने वाला कैमरा", te: "బోర్డు చదివే కెమెరా" },
+  listenLang: { en: "I speak", hi: "मैं बोलता/बोलती हूँ", te: "నేను మాట్లాడే భాష" },
+  outputLang: { en: "Answer me in", hi: "जवाब इस भाषा में", te: "సమాధానం ఈ భాషలో" },
+  mode: { en: "Mode", hi: "मोड", te: "మోడ్" },
+  modeVisual: { en: "Low vision / blind", hi: "कम दृष्टि / दृष्टिहीन", te: "తక్కువ చూపు / అంధులు" },
+  modeAgeing: { en: "Ageing", hi: "बुज़ुर्ग", te: "వృద్ధులు" },
+  modeHandMotor: { en: "Hand-motor", hi: "हाथ की गति", te: "చేతి కదలిక" },
+  speechSpeed: { en: "Speech speed", hi: "बोलने की गति", te: "మాట్లాడే వేగం" },
+  textSize: { en: "Text size", hi: "अक्षरों का आकार", te: "అక్షరాల పరిమాణం" },
+  autoCapture: { en: "Zero-tap auto capture", hi: "बिना छुए अपने-आप फ़ोटो", te: "తాకకుండానే ఆటో క్యాప్చర్" },
+  handsFree: { en: "Hands-free voice commands", hi: "बिना हाथ के आवाज़ से आदेश", te: "చేతులు లేకుండా వాయిస్ ఆదేశాలు" },
+  headGestures: { en: "Head gestures (front camera)", hi: "सिर के इशारे (सामने का कैमरा)", te: "తల సంజ్ఞలు (ముందు కెమెరా)" },
+  simpleWords: { en: "Simple words", hi: "आसान शब्द", te: "సులభమైన పదాలు" },
+  highContrast: { en: "High contrast", hi: "हाई कॉन्ट्रास्ट", te: "హై కాంట్రాస్ట్" },
+  showPipeline: { en: "Show live pipeline", hi: "लाइव पाइपलाइन दिखाएँ", te: "లైవ్ పైప్‌లైన్ చూపించు" },
+  screenReader: { en: "I use VoiceOver (silence Oriel's voice for messages)", hi: "मैं वॉयसओवर इस्तेमाल करता हूँ", te: "నేను వాయిస్‌ఓవర్ వాడుతాను" },
+  digitsEnglish: { en: "Say bus numbers in English", hi: "बस नंबर अंग्रेज़ी में बोलें", te: "బస్సు నంబర్లు ఆంగ్లంలో చెప్పండి" },
+  gestureHelp: {
+    en: "Nod = yes / more · Shake = no / stop · Tilt right = again · Tilt left = new sign",
+    hi: "सिर हिलाना = हाँ / और · दाएँ-बाएँ = नहीं / रोकें · दाएँ झुकाना = फिर से · बाएँ झुकाना = नया बोर्ड",
+    te: "తల ఊపడం = అవును / ఇంకా · అటూ ఇటూ = కాదు / ఆపు · కుడికి వంచడం = మళ్ళీ · ఎడమకు వంచడం = కొత్త బోర్డు",
+  },
+  offline: { en: "Offline", hi: "ऑफ़लाइन", te: "ఆఫ్‌లైన్" },
+  setupMissing: { en: "Setup incomplete", hi: "सेटअप अधूरा", te: "సెటప్ పూర్తి కాలేదు" },
+  cameraOff: { en: "Camera is off", hi: "कैमरा बंद है", te: "కెమెరా ఆఫ్‌లో ఉంది" },
+  keyboardHint: {
+    en: "Keys: Space read · A again · M more · Q ask · S spell · C camera · Esc stop",
+    hi: "कुंजी: Space पढ़ें · A फिर से · M और · Q पूछें · S स्पेलिंग · C कैमरा · Esc रोकें",
+    te: "కీలు: Space చదువు · A మళ్ళీ · M ఇంకా · Q అడుగు · S స్పెల్లింగ్ · C కెమెరా · Esc ఆపు",
+  },
+  next: { en: "Next", hi: "आगे", te: "తరువాత" },
+  previous: { en: "Back", hi: "पीछे", te: "వెనుకకు" },
+} as const;
+
+export type UIKey = keyof typeof UI;
+
+export function t(key: UIKey, lang: Lang): string {
+  const entry = UI[key] as Record<Lang, string>;
+  return entry[lang] ?? entry.en;
+}
+
+export const LANG_NAMES: Record<Lang, { native: string; english: string; bcp47: string }> = {
+  te: { native: "తెలుగు", english: "Telugu", bcp47: "te-IN" },
+  hi: { native: "हिन्दी", english: "Hindi", bcp47: "hi-IN" },
+  en: { native: "English", english: "English", bcp47: "en-IN" },
+};

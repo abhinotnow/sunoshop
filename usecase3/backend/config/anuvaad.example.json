@@ -1,0 +1,71 @@
+{
+  "_about": "Paste the api_endpoint and access-token for EACH model from your AnuvaadHub dashboard. Leave a model blank if you do not have it; Oriel falls back gracefully (pivot translation through English, phone voice, text only). mt keys are source-target, e.g. 'te-en' means Telugu to English.",
+  "mt": {
+    "en-te": {
+      "endpoint": "",
+      "token": ""
+    },
+    "en-hi": {
+      "endpoint": "",
+      "token": ""
+    },
+    "te-en": {
+      "endpoint": "",
+      "token": ""
+    },
+    "hi-en": {
+      "endpoint": "",
+      "token": ""
+    },
+    "te-hi": {
+      "endpoint": "",
+      "token": ""
+    },
+    "hi-te": {
+      "endpoint": "",
+      "token": ""
+    }
+  },
+  "asr": {
+    "te": {
+      "endpoint": "",
+      "token": ""
+    },
+    "hi": {
+      "endpoint": "",
+      "token": ""
+    },
+    "en": {
+      "endpoint": "",
+      "token": ""
+    }
+  },
+  "tts": {
+    "te": {
+      "endpoint": "",
+      "token": ""
+    },
+    "hi": {
+      "endpoint": "",
+      "token": ""
+    },
+    "en": {
+      "endpoint": "",
+      "token": ""
+    }
+  },
+  "ocr": {
+    "te": {
+      "endpoint": "",
+      "token": ""
+    },
+    "hi": {
+      "endpoint": "",
+      "token": ""
+    },
+    "en": {
+      "endpoint": "",
+      "token": ""
+    }
+  }
+}

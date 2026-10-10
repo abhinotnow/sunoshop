@@ -1,0 +1,254 @@
+{
+  "_about": "Words that trigger each voice command after speech recognition. Matching is on the normalized transcript (lower case, no punctuation). A command matches only when the whole utterance is the command phrase, or the utterance has at most 3 words and starts with it, so questions such as 'what does the sign say' are never mistaken for commands. Anything that matches no command is treated as a QUESTION and goes to the Ask pipeline. The microphone is paused while Oriel speaks, so it never hears its own voice. Telugu and Hindi are drafts: add the words your testers actually say.",
+  "commands": {
+    "read": {
+      "en": [
+        "read",
+        "read it",
+        "read the sign",
+        "scan"
+      ],
+      "hi": [
+        "पढ़ो",
+        "पढ़िए",
+        "पढ़ें",
+        "स्कैन"
+      ],
+      "te": [
+        "చదువు",
+        "చదవండి",
+        "స్కాన్"
+      ]
+    },
+    "more": {
+      "en": [
+        "more",
+        "tell me more",
+        "what else"
+      ],
+      "hi": [
+        "और",
+        "और बताओ",
+        "आगे"
+      ],
+      "te": [
+        "ఇంకా",
+        "ఇంకా చెప్పు",
+        "మరింత"
+      ]
+    },
+    "again": {
+      "en": [
+        "again",
+        "repeat",
+        "say again"
+      ],
+      "hi": [
+        "फिर से",
+        "दोबारा"
+      ],
+      "te": [
+        "మళ్ళీ",
+        "మళ్లీ",
+        "మళ్ళీ చెప్పు"
+      ]
+    },
+    "spell": {
+      "en": [
+        "spell",
+        "spell it"
+      ],
+      "hi": [
+        "स्पेलिंग",
+        "अक्षर बताओ"
+      ],
+      "te": [
+        "స్పెల్లింగ్",
+        "అక్షరాలు చెప్పు"
+      ]
+    },
+    "slower": {
+      "en": [
+        "slower",
+        "slow down",
+        "speak slowly"
+      ],
+      "hi": [
+        "धीरे",
+        "धीरे बोलो"
+      ],
+      "te": [
+        "నెమ్మదిగా",
+        "నెమ్మదిగా చెప్పు"
+      ]
+    },
+    "faster": {
+      "en": [
+        "faster",
+        "speak faster"
+      ],
+      "hi": [
+        "तेज़",
+        "जल्दी",
+        "तेज़ बोलो"
+      ],
+      "te": [
+        "వేగంగా",
+        "త్వరగా"
+      ]
+    },
+    "simpler": {
+      "en": [
+        "simpler",
+        "explain simpler",
+        "simple"
+      ],
+      "hi": [
+        "आसान",
+        "आसान भाषा में",
+        "सरल"
+      ],
+      "te": [
+        "సులభంగా",
+        "సరళంగా"
+      ]
+    },
+    "yes": {
+      "en": [
+        "yes",
+        "yeah",
+        "yep",
+        "okay",
+        "ok",
+        "sure"
+      ],
+      "hi": [
+        "हाँ",
+        "हां",
+        "ठीक है",
+        "जी"
+      ],
+      "te": [
+        "అవును",
+        "సరే",
+        "ఔను"
+      ]
+    },
+    "no": {
+      "en": [
+        "no",
+        "nope"
+      ],
+      "hi": [
+        "नहीं",
+        "ना"
+      ],
+      "te": [
+        "కాదు",
+        "వద్దు",
+        "లేదు"
+      ]
+    },
+    "stop": {
+      "en": [
+        "stop",
+        "cancel",
+        "quiet"
+      ],
+      "hi": [
+        "रुको",
+        "बंद करो",
+        "चुप"
+      ],
+      "te": [
+        "ఆపు",
+        "ఆపండి"
+      ]
+    },
+    "settings": {
+      "en": [
+        "settings"
+      ],
+      "hi": [
+        "सेटिंग्स",
+        "सेटिंग"
+      ],
+      "te": [
+        "సెట్టింగ్స్"
+      ]
+    },
+    "help": {
+      "en": [
+        "help",
+        "ask someone"
+      ],
+      "hi": [
+        "मदद",
+        "किसी से पूछो"
+      ],
+      "te": [
+        "సహాయం",
+        "ఎవరినైనా అడుగు"
+      ]
+    },
+    "ask": {
+      "en": [
+        "ask",
+        "question",
+        "i have a question"
+      ],
+      "hi": [
+        "सवाल",
+        "पूछना है"
+      ],
+      "te": [
+        "ప్రశ్న",
+        "అడగాలి"
+      ]
+    },
+    "camera": {
+      "en": [
+        "camera",
+        "switch camera",
+        "flip camera",
+        "change camera"
+      ],
+      "hi": [
+        "कैमरा",
+        "कैमरा बदलो",
+        "कैमरा बदलिए"
+      ],
+      "te": [
+        "కెమెరా",
+        "కెమెరా మార్చు",
+        "కెమెరా మార్చండి"
+      ]
+    },
+    "front_camera": {
+      "en": [
+        "front camera",
+        "selfie camera"
+      ],
+      "hi": [
+        "सामने का कैमरा",
+        "आगे का कैमरा"
+      ],
+      "te": [
+        "ముందు కెమెరా",
+        "సెల్ఫీ కెమెరా"
+      ]
+    },
+    "back_camera": {
+      "en": [
+        "back camera",
+        "rear camera"
+      ],
+      "hi": [
+        "पीछे का कैमरा"
+      ],
+      "te": [
+        "వెనుక కెమెరా"
+      ]
+    }
+  }
+}

@@ -59,4 +59,15 @@ frontend/dist/
 # LaTeX build artifacts
 *.aux
 *.out
+*.log
+
+# Recursive ignores for sub-folders (usecase2, usecase3)
+**/.venv/
+**/venv/
+**/node_modules/
+**/dist/
+**/__pycache__/
+**/.pytest_cache/
+**/.env
+**/anuvaad.json
 

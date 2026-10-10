@@ -1,0 +1,196 @@
+{
+  "_about": "Sign codes Gemini may return in 'symbols' (signs without text, or with a pictogram). Names are nouns used in the says_traffic_sign template. Telugu/Hindi are drafts. 'note' adds a short safety line after the sign is read.",
+  "_review": {
+    "te": "DRAFT",
+    "hi": "DRAFT",
+    "en": "ok"
+  },
+  "notes": {
+    "crossing": {
+      "en": "Cross only when the traffic has stopped, and listen before you step out.",
+      "hi": "वाहन रुकने पर ही पार कीजिए, और कदम बढ़ाने से पहले ध्यान से सुनिए।",
+      "te": "వాహనాలు ఆగినప్పుడే దాటండి, అడుగు వేసే ముందు జాగ్రత్తగా వినండి."
+    },
+    "caution": {
+      "en": "Please move carefully here.",
+      "hi": "यहाँ सावधानी से चलिए।",
+      "te": "ఇక్కడ జాగ్రత్తగా నడవండి."
+    }
+  },
+  "signs": {
+    "stop": {
+      "en": "stop",
+      "te": "స్టాప్",
+      "hi": "स्टॉप"
+    },
+    "give_way": {
+      "en": "give way",
+      "te": "దారి ఇవ్వండి",
+      "hi": "रास्ता दें"
+    },
+    "no_entry": {
+      "en": "no entry",
+      "te": "ప్రవేశం లేదు",
+      "hi": "प्रवेश निषेध"
+    },
+    "one_way": {
+      "en": "one way",
+      "te": "వన్ వే",
+      "hi": "एकतरफ़ा मार्ग"
+    },
+    "no_parking": {
+      "en": "no parking",
+      "te": "పార్కింగ్ నిషేధం",
+      "hi": "पार्किंग निषेध"
+    },
+    "no_stopping": {
+      "en": "no stopping",
+      "te": "ఆపడం నిషేధం",
+      "hi": "रुकना मना है"
+    },
+    "no_u_turn": {
+      "en": "no U-turn",
+      "te": "యూ-టర్న్ నిషేధం",
+      "hi": "यू-टर्न निषेध"
+    },
+    "no_left_turn": {
+      "en": "no left turn",
+      "te": "ఎడమ మలుపు నిషేధం",
+      "hi": "बाएँ मुड़ना मना है"
+    },
+    "no_right_turn": {
+      "en": "no right turn",
+      "te": "కుడి మలుపు నిషేధం",
+      "hi": "दाएँ मुड़ना मना है"
+    },
+    "no_horn": {
+      "en": "no horn",
+      "te": "హారన్ నిషేధం",
+      "hi": "हॉर्न बजाना मना है"
+    },
+    "speed_limit": {
+      "en": "speed limit",
+      "te": "వేగ పరిమితి",
+      "hi": "गति सीमा"
+    },
+    "pedestrian_crossing": {
+      "en": "pedestrian crossing",
+      "te": "పాదచారుల క్రాసింగ్",
+      "hi": "पैदल पार पथ",
+      "note": "crossing"
+    },
+    "school_ahead": {
+      "en": "school ahead",
+      "te": "ముందు పాఠశాల",
+      "hi": "आगे स्कूल",
+      "note": "caution"
+    },
+    "hospital": {
+      "en": "hospital",
+      "te": "ఆసుపత్రి",
+      "hi": "अस्पताल"
+    },
+    "men_at_work": {
+      "en": "road work",
+      "te": "రోడ్డు పనులు",
+      "hi": "सड़क पर काम",
+      "note": "caution"
+    },
+    "speed_breaker": {
+      "en": "speed breaker",
+      "te": "స్పీడ్ బ్రేకర్",
+      "hi": "स्पीड ब्रेकर"
+    },
+    "traffic_signal_ahead": {
+      "en": "traffic signal ahead",
+      "te": "ముందు ట్రాఫిక్ సిగ్నల్",
+      "hi": "आगे ट्रैफ़िक सिग्नल"
+    },
+    "roundabout": {
+      "en": "roundabout",
+      "te": "రౌండబౌట్",
+      "hi": "गोल चक्कर"
+    },
+    "keep_left": {
+      "en": "keep left",
+      "te": "ఎడమవైపు వెళ్ళండి",
+      "hi": "बाएँ चलें"
+    },
+    "parking": {
+      "en": "parking",
+      "te": "పార్కింగ్",
+      "hi": "पार्किंग"
+    },
+    "bus_stop": {
+      "en": "bus stop",
+      "te": "బస్ స్టాప్",
+      "hi": "बस स्टॉप"
+    },
+    "metro": {
+      "en": "metro",
+      "te": "మెట్రో",
+      "hi": "मेट्रो"
+    },
+    "railway": {
+      "en": "railway station",
+      "te": "రైల్వే స్టేషన్",
+      "hi": "रेलवे स्टेशन"
+    },
+    "toilet": {
+      "en": "toilet",
+      "te": "మరుగుదొడ్డి",
+      "hi": "शौचालय"
+    },
+    "exit": {
+      "en": "exit",
+      "te": "నిష్క్రమణ",
+      "hi": "निकास"
+    },
+    "emergency_exit": {
+      "en": "emergency exit",
+      "te": "అత్యవసర నిష్క్రమణ",
+      "hi": "आपातकालीन निकास"
+    },
+    "fire_extinguisher": {
+      "en": "fire extinguisher",
+      "te": "అగ్నిమాపక పరికరం",
+      "hi": "अग्निशामक"
+    },
+    "first_aid": {
+      "en": "first aid",
+      "te": "ప్రథమ చికిత్స",
+      "hi": "प्राथमिक चिकित्सा"
+    },
+    "wheelchair_access": {
+      "en": "wheelchair access",
+      "te": "వీల్‌చైర్ దారి",
+      "hi": "व्हीलचेयर मार्ग"
+    },
+    "lift": {
+      "en": "lift",
+      "te": "లిఫ్ట్",
+      "hi": "लिफ़्ट"
+    },
+    "stairs": {
+      "en": "stairs",
+      "te": "మెట్లు",
+      "hi": "सीढ़ियाँ"
+    },
+    "no_smoking": {
+      "en": "no smoking",
+      "te": "ధూమపానం నిషేధం",
+      "hi": "धूम्रपान निषेध"
+    },
+    "danger": {
+      "en": "danger",
+      "te": "ప్రమాదం",
+      "hi": "खतरा",
+      "note": "caution"
+    },
+    "other": {
+      "en": "road",
+      "te": "రోడ్డు",
+      "hi": "सड़क"
+    }
+  }
+}

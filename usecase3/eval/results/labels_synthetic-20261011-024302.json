@@ -1,0 +1,341 @@
+{
+ "summary": {
+  "labels": "eval/labels_synthetic.json",
+  "lang": "en",
+  "oriel": {
+   "signs": 16,
+   "wrong_but_confident": 0,
+   "key_fact_recall": 1.042,
+   "hedged_right": 1,
+   "sign_found_accuracy": 1.0,
+   "abstained": 4
+  },
+  "single_frame_baseline": {},
+  "latency_ms": {
+   "median": 13286,
+   "max": 39506
+  },
+  "errors": 0
+ },
+ "rows": [
+  {
+   "id": "bus_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 12976,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus two one eight, to Secunderabad."
+    ]
+   }
+  },
+  {
+   "id": "bus_002",
+   "conditions": [
+    "blurry"
+   ],
+   "ms": 12954,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus one zero H, to Mehdipatnam."
+    ]
+   }
+  },
+  {
+   "id": "bus_003",
+   "conditions": [
+    "glare"
+   ],
+   "ms": 39506,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "reread",
+    "said": [
+     "The sign says: Koti."
+    ]
+   }
+  },
+  {
+   "id": "bus_004",
+   "conditions": [
+    "far"
+   ],
+   "ms": 37842,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus one two seven K, to Kondapur."
+    ]
+   }
+  },
+  {
+   "id": "bus_005",
+   "conditions": [
+    "cut_off_right"
+   ],
+   "ms": 14720,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus two one nine, to Lingampally."
+    ]
+   }
+  },
+  {
+   "id": "busstop_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 38905,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 1,
+    "uncertain_total": 1,
+    "sign_found_ok": true,
+    "action": "reread",
+    "said": [
+     "It looks like Gachibowli, please check."
+    ]
+   }
+  },
+  {
+   "id": "metro_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 13844,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Ameerpet."
+    ]
+   }
+  },
+  {
+   "id": "platform_001",
+   "conditions": [
+    "tilted"
+   ],
+   "ms": 11331,
+   "oriel": {
+    "expected_facts": 3,
+    "confirmed_right": 4,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign shows MG Bus Station, to the left.",
+     "Platform two."
+    ]
+   }
+  },
+  {
+   "id": "direction_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 12666,
+   "oriel": {
+    "expected_facts": 4,
+    "confirmed_right": 4,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign shows Ameerpet, to the left.",
+     "The sign shows Secunderabad, to the right."
+    ]
+   }
+  },
+  {
+   "id": "direction_002",
+   "conditions": [
+    "dark"
+   ],
+   "ms": 12400,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign shows HITEC City, straight ahead."
+    ]
+   }
+  },
+  {
+   "id": "street_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 13666,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: BANJARA HILLS ROAD NO. 1."
+    ]
+   }
+  },
+  {
+   "id": "warning_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 37887,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "This is a danger sign.",
+     "Please move carefully here."
+    ]
+   }
+  },
+  {
+   "id": "shop_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 13350,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Sri Sai Medicals."
+    ]
+   }
+  },
+  {
+   "id": "several_001",
+   "conditions": [
+    "several_signs"
+   ],
+   "ms": 13223,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus two one eight, to Secunderabad."
+    ]
+   }
+  },
+  {
+   "id": "nosign_001",
+   "conditions": [
+    "no_sign"
+   ],
+   "ms": 6440,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "guide",
+    "said": []
+   }
+  },
+  {
+   "id": "nosign_002",
+   "conditions": [
+    "no_sign"
+   ],
+   "ms": 6302,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "guide",
+    "said": []
+   }
+  }
+ ]
+}

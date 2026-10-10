@@ -1,0 +1,68 @@
+/* Design tokens. Every colour pair used for text meets WCAG AA (4.5:1) on its background. */
+:root {
+  --scale: 1;
+  --font-ui: "Inter", "Noto Sans Telugu", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-script: "Noto Sans Telugu", "Noto Sans Devanagari", "Inter", system-ui, sans-serif;
+
+  --bg: #050816;
+  --bg-2: #0a1230;
+  --surface: rgba(18, 26, 56, 0.66);
+  --surface-strong: rgba(24, 34, 72, 0.9);
+  --border: rgba(148, 197, 255, 0.16);
+  --border-strong: rgba(148, 197, 255, 0.34);
+  --text: #eef3ff;
+  --text-dim: #b6c2e3;
+  --text-faint: #8a98c2;
+
+  --accent: #2ee6c5;
+  --accent-2: #7c9cff;
+  --accent-ink: #032a26;
+
+  --ok: #4ade80;
+  --ok-bg: rgba(74, 222, 128, 0.14);
+  --warn: #fbbf24;
+  --warn-bg: rgba(251, 191, 36, 0.14);
+  --bad: #f87171;
+  --bad-bg: rgba(248, 113, 113, 0.14);
+  --info: #93c5fd;
+  --info-bg: rgba(147, 197, 253, 0.14);
+
+  --radius-s: 12px;
+  --radius: 18px;
+  --radius-l: 28px;
+  --shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+  --glow: 0 0 40px rgba(46, 230, 197, 0.35);
+
+  --tap: 56px; /* minimum touch target (WCAG suggests 44; we go bigger for tremor) */
+  --fs-1: calc(0.85rem * var(--scale));
+  --fs-2: calc(1rem * var(--scale));
+  --fs-3: calc(1.2rem * var(--scale));
+  --fs-4: calc(1.55rem * var(--scale));
+  --fs-5: calc(2.1rem * var(--scale));
+  --fs-hero: clamp(3.2rem, 11vw, 6.5rem);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* High contrast: pure black and white with yellow accents, no transparency or blur */
+:root[data-contrast="high"] {
+  --bg: #000;
+  --bg-2: #000;
+  --surface: #000;
+  --surface-strong: #000;
+  --border: #fff;
+  --border-strong: #ffd400;
+  --text: #fff;
+  --text-dim: #fff;
+  --text-faint: #e6e6e6;
+  --accent: #ffd400;
+  --accent-2: #ffd400;
+  --accent-ink: #000;
+  --ok-bg: #000;
+  --warn-bg: #000;
+  --bad-bg: #000;
+  --info-bg: #000;
+  --shadow: 0 0 0 2px #fff;
+  --glow: none;
+}

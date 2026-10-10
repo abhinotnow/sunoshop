@@ -1,0 +1,145 @@
+{
+ "summary": {
+  "labels": "eval/labels_synthetic.json",
+  "lang": "en",
+  "oriel": {
+   "signs": 6,
+   "wrong_but_confident": 0,
+   "key_fact_recall": 0.875,
+   "hedged_right": 1,
+   "sign_found_accuracy": 1.0,
+   "abstained": 1
+  },
+  "single_frame_baseline": {},
+  "latency_ms": {
+   "median": 10920,
+   "max": 39557
+  },
+  "errors": 0
+ },
+ "rows": [
+  {
+   "id": "shop_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 39557,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: SRI SAI MEDICALS."
+    ]
+   }
+  },
+  {
+   "id": "shop_002",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 7547,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Sri Lakshmi General Stores.",
+     "It looks like a general store."
+    ]
+   }
+  },
+  {
+   "id": "shop_003",
+   "conditions": [
+    "tilted"
+   ],
+   "ms": 10481,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 1,
+    "uncertain_total": 1,
+    "sign_found_ok": true,
+    "action": "reread",
+    "said": [
+     "The shop name looks like NEW SAGAR, please check.",
+     "It looks like a tiffin centre."
+    ]
+   }
+  },
+  {
+   "id": "shop_004",
+   "conditions": [
+    "far"
+   ],
+   "ms": 9536,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: GUPTA SWEETS.",
+     "It looks like a sweet shop."
+    ]
+   }
+  },
+  {
+   "id": "nameplate_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 11360,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: ZILLA PARISHAD HIGH SCHOOL."
+    ]
+   }
+  },
+  {
+   "id": "notice_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 25648,
+   "oriel": {
+    "expected_facts": 3,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: NOTICE. PLEASE USE GATE NO. 2."
+    ]
+   }
+  }
+ ]
+}

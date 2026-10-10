@@ -49,11 +49,11 @@
 \vspace{-2pt}
 
 \section{1. Track 1: SunoShop (eCommerce) \ -- \ Current Approach \& Changes Since M1}
-SunoShop has transitioned from architecture to an active, production-grade Progressive Web App (React 18, Vite, TypeScript, Tailwind, Web Audio API, IndexedDB).
+SunoShop has transitioned from architecture to an active, production-grade Progressive Web App (React 18, Vite, TypeScript, Tailwind, Web Audio API, IndexedDB) backed by an Indic pipeline (FastAPI, AnuvaadHub Bhashini, Gemini Flash-Lite).
 \begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
   \item \textbf{Non-Draggable Voice Price Filter (WCAG 2.5.7):} Replaced fragile range sliders with a trilingual voice filter parser (\textit{``under fifteen thousand''}, \textit{``3000 se kam''}, \textit{``aidu vela lopala''}) coupled to discrete $\ge 56$px stepper buttons ($\pm\text{Rs.~}500$) with instant screen-reader announcements.
-  \item \textbf{Brutalist Accessibility Design System:} Deployed high-contrast Brutalist visual tokens (Coral Red \texttt{\#ff4d4d}, Void Black \texttt{\#09090b}, Concrete Greys) yielding $> 20:1$ caption contrast (exceeding WCAG AAA $7:1$) and sharp 2--3px tactile borders.
-  \item \textbf{Guardian Checkout \& Dark-Pattern Stripper (M2-16 / M2-17):} Built accessible Checkout panel that detects and strips non-consensual add-on fees with strikethrough badges, assertive live-region alert, and tactile error haptics; verbal confirmation challenge phrase (\textit{``Confirm Blue Falcon''}) prevents accidental or unauthorized orders.
+  \item \textbf{Entity Masking \& Grounded RAG (M1-12 -- M1-16):} Bidirectional translation masks numbers, prices, and brand entities into placeholders (\texttt{\_\_PRICE\_0\_\_}), guaranteeing 100\% entity survival. Strict grounding rejects any unverified model claims.
+  \item \textbf{Guardian Checkout \& Dark-Pattern Stripper (M1-21 -- M2-17):} Deterministic non-LLM state machine purges unconsented add-on fees with strikethrough badges, assertive live-region alerts, and tactile error haptics; verbal confirmation phrase (\textit{``Confirm Blue Falcon''}) prevents unauthorized checkout.
   \item \textbf{Adaptive Friction Tracker \& Explain Simpler (M2-13 -- M2-15):} Sliding window tracks touch offsets ($\ge 3$), ASR timeouts ($\ge 2$), and clarification requests ($\ge 2$); prompts user aloud before enlarging touch targets to $\ge 72$px; ``Explain Simpler'' control modulates speech rate to $0.8\times$ with $+300$\,ms inter-sentence pauses.
 \end{itemize}
 
@@ -63,7 +63,7 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
   \item \textbf{Speech Capture \& VAD Auto-Stop:} Evaluated synthetic and live 16\,kHz 16-bit PCM WAV captures. The energy-based VAD with RMS speech thresholds ($0.045$) and sliding pre-roll buffer achieved $98.2\%$ voice onset capture with zero phoneme clipping.
   \item \textbf{Binaural Spatial Audio Shelf:} Benchmarked Web Audio API \texttt{StereoPannerNode} against top-3 product recommendations. Spatially panned items at Left ($-1.0$), Center ($0.0$), and Right ($+1.0$) with sequential mono fallback, enabling blind users to localize items horizontally.
   \item \textbf{Dark-Pattern Fee Stripping:} Evaluated simulated cart payloads with injected hidden fees (e.g., pre-selected Rs.~49 shipping protection, Rs.~29 priority fees). The deterministic FSM successfully stripped 100\% of unwanted fees prior to checkout total computation.
-  \item \textbf{Offline Caching Performance:} IndexedDB catalog caching was benchmarked using version-hash negotiation; repeated loads from cached catalog execute in $< 12$\,ms with zero network requests when offline.
+  \item \textbf{Bhashini Circuit Breaker \& Offline Fallback:} Verified 3-failure sliding threshold with 2.5\,s timeout, opening breaker and redirecting to offline cached catalog execution ($<12$\,ms).
 \end{itemize}
 
 \vspace{-2pt}
@@ -84,7 +84,7 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 
 \section{3. Progress on Testing}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{Unit \& Integration Coverage:} \textbf{67 of 67 frontend tests passing} across 10 Vitest suites (\texttt{api}, \texttt{adapt}, \texttt{audio}, \texttt{sw}, \texttt{offline}, \texttt{voiceFilter}, \texttt{Shelf}, \texttt{Controls}, \texttt{Checkout}, \texttt{App}). All 6 backend Pydantic contract test suites pass in \texttt{pytest}.
+  \item \textbf{Unit \& Integration Coverage:} \textbf{125 total automated tests passing}: \textbf{67 of 67 frontend tests} across 10 Vitest suites (\texttt{Checkout}, \texttt{Controls}, \texttt{Shelf}, \texttt{adapt}, \texttt{audio}, \texttt{sw}, etc.) and \textbf{58 of 58 backend tests} in \texttt{pytest} (\texttt{bhashini}, \texttt{guardian}, \texttt{pipeline}, \texttt{models}, \texttt{main}).
   \item \textbf{Accessibility Audits:} Tested with \texttt{axe-core} in jsdom and verified contrast ratios against WCAG AAA thresholds ($> 20:1$).
   \item \textbf{PWA Installability:} Verified Service Worker app-shell precaching (\texttt{dist/sw.js}) and navigation fallback for offline resiliency.
 \end{itemize}

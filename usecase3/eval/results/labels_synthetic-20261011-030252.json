@@ -1,0 +1,212 @@
+{
+ "summary": {
+  "labels": "eval/labels_synthetic.json",
+  "lang": "en",
+  "oriel": {
+   "signs": 6,
+   "wrong_but_confident": 1,
+   "key_fact_recall": 0.75,
+   "hedged_right": 0,
+   "sign_found_accuracy": 1.0,
+   "abstained": 0
+  },
+  "single_frame_baseline": {
+   "signs": 6,
+   "wrong_but_confident": 2,
+   "key_fact_recall": 0.875,
+   "hedged_right": 0,
+   "sign_found_accuracy": 1.0,
+   "abstained": 0
+  },
+  "latency_ms": {
+   "median": 12490,
+   "max": 18602
+  },
+  "errors": 0
+ },
+ "rows": [
+  {
+   "id": "shop_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 9287,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Sri Sai Medicals.",
+     "It looks like a pharmacy."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_002",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 11883,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Sri Lakshmi General Stores.",
+     "It looks like a general store."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_003",
+   "conditions": [
+    "tilted"
+   ],
+   "ms": 11705,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: NEW SAGAR TIFFIN CENTRE.",
+     "It looks like a tiffin centre."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_004",
+   "conditions": [
+    "far"
+   ],
+   "ms": 18602,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: GUPTA SWEETS.",
+     "It looks like a sweet shop."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "nameplate_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 13097,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 0,
+    "wrong_but_confident": 1,
+    "wrong_details": [
+     "place=Zilla Parishat Unnata Pathasala"
+    ],
+    "hedged_right": 0,
+    "uncertain_total": 1,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Zilla Parishat Unnata Pathasala."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 0,
+    "wrong_but_confident": 2,
+    "wrong_details": [
+     "place=Zilla Parishat Unnata Patasala",
+     "place=ZILLA PARISHAD HIGH SCHOOL"
+    ],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "notice_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 14784,
+   "oriel": {
+    "expected_facts": 3,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: NOTICE."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 3,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,38 @@
+{
+  "_about": "One entry per sign. Copy this file to eval/labels.json and add an entry for every sign you photograph. 'expected' is the ground truth a correct Oriel would confirm. Use null for fields the sign does not have.",
+  "signs": [
+    {
+      "id": "busstop_001",
+      "frames": ["eval/photos/busstop_001_a.jpg", "eval/photos/busstop_001_b.jpg", "eval/photos/busstop_001_c.jpg"],
+      "location": "Gachibowli bus stop, near IIIT gate",
+      "sign_type": "bus_route_board",
+      "conditions": ["clear"],
+      "languages_on_sign": ["te", "en"],
+      "expected": {
+        "sign_found": true,
+        "routes": ["218"],
+        "places": ["Secunderabad"],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "nosign_001",
+      "frames": ["eval/photos/nosign_001_a.jpg", "eval/photos/nosign_001_b.jpg", "eval/photos/nosign_001_c.jpg"],
+      "location": "campus wall, no sign",
+      "sign_type": "none",
+      "conditions": ["no_sign"],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": false,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "Oriel should say it could not find a readable sign"
+    }
+  ],
+  "_allowed_conditions": ["clear", "blurry", "far", "cut_off_left", "cut_off_right", "cut_off_top", "cut_off_bottom", "glare", "dark", "several_signs", "tilted", "no_sign"]
+}

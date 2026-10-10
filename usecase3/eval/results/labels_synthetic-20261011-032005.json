@@ -1,0 +1,640 @@
+{
+ "summary": {
+  "labels": "eval/labels_synthetic.json",
+  "lang": "en",
+  "oriel": {
+   "signs": 21,
+   "wrong_but_confident": 0,
+   "key_fact_recall": 1.0,
+   "hedged_right": 0,
+   "sign_found_accuracy": 1.0,
+   "abstained": 3
+  },
+  "single_frame_baseline": {
+   "signs": 20,
+   "wrong_but_confident": 2,
+   "key_fact_recall": 1.367,
+   "hedged_right": 0,
+   "sign_found_accuracy": 1.0,
+   "abstained": 0
+  },
+  "latency_ms": {
+   "median": 13044,
+   "max": 44872
+  },
+  "errors": 0
+ },
+ "rows": [
+  {
+   "id": "bus_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 15841,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus two one eight, to Secunderabad."
+    ]
+   },
+   "baseline": {
+    "error": "gemini-3.5-flash-lite: TimeoutError: "
+   }
+  },
+  {
+   "id": "bus_002",
+   "conditions": [
+    "blurry"
+   ],
+   "ms": 16361,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus one zero H, to Mehdipatnam."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "bus_003",
+   "conditions": [
+    "glare"
+   ],
+   "ms": 29379,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "reread",
+    "said": [
+     "The sign says: Koti."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "bus_004",
+   "conditions": [
+    "far"
+   ],
+   "ms": 8750,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus one two seven K, to Kondapur."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "bus_005",
+   "conditions": [
+    "cut_off_right"
+   ],
+   "ms": 9179,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus two one nine, to Lingampally."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "busstop_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 44872,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Gachibowli."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 2,
+    "wrong_but_confident": 1,
+    "wrong_details": [
+     "place=Gachhibawali"
+    ],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "metro_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 14576,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Ameerpet."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "platform_001",
+   "conditions": [
+    "tilted"
+   ],
+   "ms": 15651,
+   "oriel": {
+    "expected_facts": 3,
+    "confirmed_right": 4,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: MG Bus Station.",
+     "Platform two."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 3,
+    "confirmed_right": 3,
+    "wrong_but_confident": 1,
+    "wrong_details": [
+     "place=Em Ji Bas Steshan"
+    ],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "direction_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 7886,
+   "oriel": {
+    "expected_facts": 4,
+    "confirmed_right": 4,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign shows Ameerpet, to the left.",
+     "The sign shows Secunderabad, to the right."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 4,
+    "confirmed_right": 6,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "direction_002",
+   "conditions": [
+    "dark"
+   ],
+   "ms": 10170,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign shows HITEC City, straight ahead."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "street_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 9763,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Banjara Hills Road No. 1."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "warning_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 41683,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "This is a danger sign.",
+     "Please move carefully here.",
+     "The sign says: Keep away."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 8212,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Sri Sai Medicals.",
+     "It looks like a pharmacy."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "several_001",
+   "conditions": [
+    "several_signs"
+   ],
+   "ms": 9052,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: bus two one eight, to Secunderabad."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "nosign_001",
+   "conditions": [
+    "no_sign"
+   ],
+   "ms": 6867,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "guide",
+    "said": []
+   },
+   "baseline": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "nosign_002",
+   "conditions": [
+    "no_sign"
+   ],
+   "ms": 6199,
+   "oriel": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "guide",
+    "said": []
+   },
+   "baseline": {
+    "expected_facts": 0,
+    "confirmed_right": 0,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_002",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 13044,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Sri Lakshmi General Stores.",
+     "It looks like a general stores."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_003",
+   "conditions": [
+    "tilted"
+   ],
+   "ms": 39444,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: New Sagar Tiffin Centre.",
+     "It looks like a tiffin centre."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "shop_004",
+   "conditions": [
+    "far"
+   ],
+   "ms": 13949,
+   "oriel": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The board says: Gupta Sweets.",
+     "It looks like a sweets shop."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 1,
+    "confirmed_right": 1,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "nameplate_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 11336,
+   "oriel": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Zilla parishad high school."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 2,
+    "confirmed_right": 2,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  },
+  {
+   "id": "notice_001",
+   "conditions": [
+    "clear"
+   ],
+   "ms": 18002,
+   "oriel": {
+    "expected_facts": 3,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true,
+    "action": "done",
+    "said": [
+     "The sign says: Notice. Please use gate no. 2."
+    ]
+   },
+   "baseline": {
+    "expected_facts": 3,
+    "confirmed_right": 3,
+    "wrong_but_confident": 0,
+    "wrong_details": [],
+    "hedged_right": 0,
+    "uncertain_total": 0,
+    "sign_found_ok": true
+   }
+  }
+ ]
+}

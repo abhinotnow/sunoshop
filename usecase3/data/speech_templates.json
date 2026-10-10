@@ -1,0 +1,470 @@
+{
+  "_about": "Sentence templates for everything Oriel states about a sign. Oriel fills the slots itself; key facts NEVER go through machine translation, so a route number or a place name cannot be changed by a translation model. 'says_*' templates are only used for CONFIRMED facts, 'looks_*' for uncertain ones. 'simple' holds the Explain-simpler version. Telugu and Hindi are drafts: check with native speakers.",
+  "_review": {
+    "te": "DRAFT - check with a Telugu speaker",
+    "hi": "DRAFT - check with a Hindi speaker",
+    "en": "ok"
+  },
+  "templates": {
+    "says_route_to": {
+      "en": "The sign says: bus {route}, to {place}.",
+      "hi": "बोर्ड पर लिखा है: बस {route}, {place} के लिए।",
+      "te": "బోర్డుపై ఉంది: బస్సు {route}, {place} కు.",
+      "simple": {
+        "en": "Bus {route}. It goes to {place}.",
+        "hi": "बस {route}। यह {place} जाती है।",
+        "te": "బస్సు {route}. ఇది {place} కు వెళ్తుంది."
+      }
+    },
+    "says_route": {
+      "en": "The sign says: bus {route}.",
+      "hi": "बोर्ड पर लिखा है: बस {route}।",
+      "te": "బోర్డుపై ఉంది: బస్సు {route}.",
+      "simple": {
+        "en": "Bus {route}.",
+        "hi": "बस {route}।",
+        "te": "బస్సు {route}."
+      }
+    },
+    "looks_route": {
+      "en": "The bus number looks like {route}, please check.",
+      "hi": "बस नंबर {route} लग रहा है, कृपया जाँच लीजिए।",
+      "te": "బస్సు నంబర్ {route} లా ఉంది, దయచేసి సరిచూసుకోండి.",
+      "simple": {
+        "en": "Maybe bus {route}. I am not sure. Please ask someone.",
+        "hi": "शायद बस {route}। पक्का नहीं। किसी से पूछ लीजिए।",
+        "te": "బహుశా బస్సు {route}. ఖచ్చితంగా తెలియదు. ఎవరినైనా అడగండి."
+      }
+    },
+    "route_unreadable": {
+      "en": "I can read {place} but not the bus number.",
+      "hi": "{place} पढ़ पा रहे हैं, लेकिन बस नंबर नहीं।",
+      "te": "{place} చదవగలుగుతున్నాను, కానీ బస్సు నంబర్ కాదు.",
+      "simple": {
+        "en": "{place}. I cannot read the bus number.",
+        "hi": "{place}। बस नंबर नहीं पढ़ पाए।",
+        "te": "{place}. బస్సు నంబర్ చదవలేకపోయాను."
+      }
+    },
+    "says_place": {
+      "en": "The sign says: {place}.",
+      "hi": "बोर्ड पर लिखा है: {place}।",
+      "te": "బోర్డుపై ఉంది: {place}.",
+      "simple": {
+        "en": "{place}.",
+        "hi": "{place}।",
+        "te": "{place}."
+      }
+    },
+    "looks_place": {
+      "en": "It looks like {place}, please check.",
+      "hi": "यह {place} लग रहा है, कृपया जाँच लीजिए।",
+      "te": "ఇది {place} లా ఉంది, దయచేసి సరిచూసుకోండి.",
+      "simple": {
+        "en": "Maybe {place}. I am not sure. Please ask someone.",
+        "hi": "शायद {place}। पक्का नहीं। किसी से पूछ लीजिए।",
+        "te": "బహుశా {place}. ఖచ్చితంగా తెలియదు. ఎవరినైనా అడగండి."
+      }
+    },
+    "says_platform": {
+      "en": "Platform {platform}.",
+      "hi": "प्लेटफ़ॉर्म {platform}।",
+      "te": "ప్లాట్‌ఫారం {platform}."
+    },
+    "looks_platform": {
+      "en": "The platform looks like {platform}, please check.",
+      "hi": "प्लेटफ़ॉर्म {platform} लग रहा है, कृपया जाँच लीजिए।",
+      "te": "ప్లాట్‌ఫారం {platform} లా ఉంది, దయచేసి సరిచూసుకోండి.",
+      "simple": {
+        "en": "Maybe platform {platform}. Not sure.",
+        "hi": "शायद प्लेटफ़ॉर्म {platform}। पक्का नहीं।",
+        "te": "బహుశా ప్లాట్‌ఫారం {platform}. ఖచ్చితంగా తెలియదు."
+      }
+    },
+    "says_arrow": {
+      "en": "The arrow points {direction}.",
+      "hi": "तीर {direction} है।",
+      "te": "బాణం {direction} చూపిస్తోంది."
+    },
+    "looks_arrow": {
+      "en": "The arrow looks like it points {direction}, please check.",
+      "hi": "तीर {direction} लग रहा है, कृपया जाँच लीजिए।",
+      "te": "బాణం {direction} చూపిస్తున్నట్టుంది, దయచేసి సరిచూసుకోండి."
+    },
+    "says_direction": {
+      "en": "The sign shows {place}, {direction}.",
+      "hi": "बोर्ड के अनुसार {place} {direction} है।",
+      "te": "బోర్డు ప్రకారం {place} {direction} ఉంది.",
+      "simple": {
+        "en": "{place} is {direction}.",
+        "hi": "{place} {direction} है।",
+        "te": "{place} {direction} ఉంది."
+      }
+    },
+    "looks_direction": {
+      "en": "It looks like {place} is {direction}, please check.",
+      "hi": "लगता है {place} {direction} है, कृपया जाँच लीजिए।",
+      "te": "{place} {direction} ఉన్నట్టుంది, దయచేసి సరిచూసుకోండి.",
+      "simple": {
+        "en": "Maybe {place} is {direction}. Not sure.",
+        "hi": "शायद {place} {direction} है। पक्का नहीं।",
+        "te": "బహుశా {place} {direction} ఉంది. ఖచ్చితంగా తెలియదు."
+      }
+    },
+    "says_traffic_sign": {
+      "en": "This is a {sign} sign.",
+      "hi": "यह {sign} का संकेत है।",
+      "te": "ఇది {sign} గుర్తు."
+    },
+    "looks_traffic_sign": {
+      "en": "This looks like a {sign} sign, please check.",
+      "hi": "यह {sign} का संकेत लग रहा है, कृपया जाँच लीजिए।",
+      "te": "ఇది {sign} గుర్తులా ఉంది, దయచేసి సరిచూసుకోండి."
+    },
+    "speed_limit": {
+      "en": "Speed limit {value} kilometres per hour.",
+      "hi": "गति सीमा {value} किलोमीटर प्रति घंटा।",
+      "te": "వేగ పరిమితి గంటకు {value} కిలోమీటర్లు."
+    },
+    "signal_walk": {
+      "en": "The crossing signal appears to show the walking figure. Still, listen to the traffic before you cross.",
+      "hi": "पैदल सिग्नल पर चलने का निशान दिख रहा है। फिर भी पार करने से पहले ट्रैफ़िक ध्यान से सुनिए।",
+      "te": "పాదచారుల సిగ్నల్‌పై నడిచే గుర్తు కనిపిస్తోంది. అయినా దాటే ముందు వాహనాల శబ్దం జాగ్రత్తగా వినండి."
+    },
+    "signal_dont_walk": {
+      "en": "The crossing signal appears to show stop. Do not cross yet.",
+      "hi": "पैदल सिग्नल पर रुकने का निशान दिख रहा है। अभी पार मत कीजिए।",
+      "te": "పాదచారుల సిగ్నల్‌పై ఆగమనే గుర్తు కనిపిస్తోంది. ఇప్పుడే దాటకండి."
+    },
+    "signal_changing": {
+      "en": "The signal seems to be changing. Wait for the next walk signal.",
+      "hi": "सिग्नल बदलता हुआ लग रहा है। अगले चलने के सिग्नल का इंतज़ार कीजिए।",
+      "te": "సిగ్నల్ మారుతున్నట్టుంది. తదుపరి నడిచే సిగ్నల్ కోసం వేచి ఉండండి."
+    },
+    "signal_unclear": {
+      "en": "I can't tell what the crossing signal shows. Please ask someone before crossing.",
+      "hi": "पैदल सिग्नल साफ़ नहीं दिख रहा। पार करने से पहले किसी से पूछ लीजिए।",
+      "te": "పాదచారుల సిగ్నల్ స్పష్టంగా కనిపించడం లేదు. దాటే ముందు ఎవరినైనా అడగండి."
+    },
+    "signal_countdown": {
+      "en": "The countdown looks like {value} seconds.",
+      "hi": "उलटी गिनती में लगभग {value} सेकंड दिख रहे हैं।",
+      "te": "కౌంట్‌డౌన్‌లో సుమారు {value} సెకన్లు కనిపిస్తున్నాయి."
+    },
+    "says_text": {
+      "en": "The sign says: {text}.",
+      "hi": "बोर्ड पर लिखा है: {text}।",
+      "te": "బోర్డుపై ఉంది: {text}."
+    },
+    "looks_text": {
+      "en": "It looks like it says {text}, please check.",
+      "hi": "लगता है लिखा है: {text}, कृपया जाँच लीजिए।",
+      "te": "{text} అని రాసి ఉన్నట్టుంది, దయచేసి సరిచూసుకోండి.",
+      "simple": {
+        "en": "Maybe it says {text}. Not sure.",
+        "hi": "शायद लिखा है: {text}। पक्का नहीं।",
+        "te": "బహుశా {text} అని ఉంది. ఖచ్చితంగా తెలియదు."
+      }
+    },
+    "shop_name": {
+      "en": "The board says: {name}.",
+      "hi": "बोर्ड पर लिखा है: {name}।",
+      "te": "బోర్డుపై ఉంది: {name}."
+    },
+    "looks_shop_name": {
+      "en": "The shop name looks like {name}, please check.",
+      "hi": "दुकान का नाम {name} लग रहा है, कृपया जाँच लीजिए।",
+      "te": "షాపు పేరు {name} లా ఉంది, దయచేసి సరిచూసుకోండి."
+    },
+    "shop_category": {
+      "en": "It looks like a {category}.",
+      "hi": "यह {category} लग रहा है।",
+      "te": "ఇది {category} లా ఉంది."
+    },
+    "shop_hours": {
+      "en": "The board shows timings {hours}.",
+      "hi": "बोर्ड पर समय लिखा है: {hours}।",
+      "te": "బోర్డుపై సమయం: {hours}."
+    },
+    "probably_open": {
+      "en": "So it is probably open now.",
+      "hi": "इसलिए यह शायद अभी खुला है।",
+      "te": "కాబట్టి ఇది ఇప్పుడు బహుశా తెరిచి ఉంది."
+    },
+    "probably_closed": {
+      "en": "So it is probably closed now.",
+      "hi": "इसलिए यह शायद अभी बंद है।",
+      "te": "కాబట్టి ఇది ఇప్పుడు బహుశా మూసి ఉంది."
+    },
+    "open_sign": {
+      "en": "There is an open sign.",
+      "hi": "खुला है का बोर्ड लगा है।",
+      "te": "తెరిచి ఉంది అనే బోర్డు ఉంది."
+    },
+    "closed_sign": {
+      "en": "There is a closed sign.",
+      "hi": "बंद है का बोर्ड लगा है।",
+      "te": "మూసి ఉంది అనే బోర్డు ఉంది."
+    },
+    "shutter_closed": {
+      "en": "The shutter looks closed.",
+      "hi": "शटर बंद लग रहा है।",
+      "te": "షట్టర్ మూసి ఉన్నట్టుంది."
+    },
+    "advertisement": {
+      "en": "This is an advertisement for {brand}.",
+      "hi": "यह {brand} का विज्ञापन है।",
+      "te": "ఇది {brand} ప్రకటన."
+    },
+    "advertisement_unknown": {
+      "en": "This looks like an advertisement.",
+      "hi": "यह एक विज्ञापन लग रहा है।",
+      "te": "ఇది ఒక ప్రకటనలా ఉంది."
+    },
+    "sign_unclear": {
+      "en": "I can see a sign but cannot read it clearly.",
+      "hi": "बोर्ड दिख रहा है, लेकिन साफ़ पढ़ नहीं पा रहे।",
+      "te": "బోర్డు కనిపిస్తోంది, కానీ స్పష్టంగా చదవలేకపోతున్నాను."
+    },
+    "also_route": {
+      "en": "Also bus {route}.",
+      "hi": "बस {route} भी।",
+      "te": "బస్సు {route} కూడా."
+    },
+    "table_info": {
+      "en": "There is a table on the sign. {text}",
+      "hi": "बोर्ड पर एक तालिका है। {text}",
+      "te": "బోర్డుపై ఒక పట్టిక ఉంది. {text}"
+    },
+    "advert_product": {
+      "en": "It advertises {text}.",
+      "hi": "इसमें {text} का विज्ञापन है।",
+      "te": "ఇందులో {text} ప్రకటన ఉంది."
+    },
+    "spell_letters": {
+      "en": "{name} is spelled {letters}.",
+      "hi": "{name} की स्पेलिंग है {letters}।",
+      "te": "{name} స్పెల్లింగ్ {letters}."
+    },
+    "route_spelled": {
+      "en": "Bus number {route}.",
+      "hi": "बस नंबर {route}।",
+      "te": "బస్సు నంబర్ {route}."
+    }
+  },
+  "directions": {
+    "left": {
+      "en": "to the left",
+      "hi": "बाईं ओर",
+      "te": "ఎడమ వైపు"
+    },
+    "right": {
+      "en": "to the right",
+      "hi": "दाईं ओर",
+      "te": "కుడి వైపు"
+    },
+    "up": {
+      "en": "straight ahead",
+      "hi": "सीधे आगे",
+      "te": "నేరుగా ముందుకు"
+    },
+    "down": {
+      "en": "downwards",
+      "hi": "नीचे की ओर",
+      "te": "కింది వైపు"
+    },
+    "up_left": {
+      "en": "ahead and to the left",
+      "hi": "आगे बाईं ओर",
+      "te": "ముందుకు ఎడమ వైపు"
+    },
+    "up_right": {
+      "en": "ahead and to the right",
+      "hi": "आगे दाईं ओर",
+      "te": "ముందుకు కుడి వైపు"
+    },
+    "down_left": {
+      "en": "down and to the left",
+      "hi": "नीचे बाईं ओर",
+      "te": "కిందికి ఎడమ వైపు"
+    },
+    "down_right": {
+      "en": "down and to the right",
+      "hi": "नीचे दाईं ओर",
+      "te": "కిందికి కుడి వైపు"
+    },
+    "u_turn": {
+      "en": "back, as a U-turn",
+      "hi": "पीछे की ओर, यू-टर्न",
+      "te": "వెనక్కి, యూ-టర్న్"
+    }
+  },
+  "route_digit_style": {
+    "_about": "How route numbers are spoken. 'native' uses digit_words in the user's language, 'english' uses English digit words for everyone (many Hyderabad riders say bus numbers in English). Ask your testers.",
+    "default": "native"
+  },
+  "digit_words": {
+    "en": [
+      "zero",
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "six",
+      "seven",
+      "eight",
+      "nine"
+    ],
+    "hi": [
+      "शून्य",
+      "एक",
+      "दो",
+      "तीन",
+      "चार",
+      "पाँच",
+      "छह",
+      "सात",
+      "आठ",
+      "नौ"
+    ],
+    "te": [
+      "సున్నా",
+      "ఒకటి",
+      "రెండు",
+      "మూడు",
+      "నాలుగు",
+      "ఐదు",
+      "ఆరు",
+      "ఏడు",
+      "ఎనిమిది",
+      "తొమ్మిది"
+    ]
+  },
+  "letter_names": {
+    "_about": "Latin letters in route numbers (10H, 219D) spelled in the user's script so Telugu and Hindi voices do not skip them.",
+    "en": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "E": "E",
+      "F": "F",
+      "G": "G",
+      "H": "H",
+      "I": "I",
+      "J": "J",
+      "K": "K",
+      "L": "L",
+      "M": "M",
+      "N": "N",
+      "O": "O",
+      "P": "P",
+      "Q": "Q",
+      "R": "R",
+      "S": "S",
+      "T": "T",
+      "U": "U",
+      "V": "V",
+      "W": "W",
+      "X": "X",
+      "Y": "Y",
+      "Z": "Z",
+      "/": "slash"
+    },
+    "hi": {
+      "A": "ए",
+      "B": "बी",
+      "C": "सी",
+      "D": "डी",
+      "E": "ई",
+      "F": "एफ़",
+      "G": "जी",
+      "H": "एच",
+      "I": "आई",
+      "J": "जे",
+      "K": "के",
+      "L": "एल",
+      "M": "एम",
+      "N": "एन",
+      "O": "ओ",
+      "P": "पी",
+      "Q": "क्यू",
+      "R": "आर",
+      "S": "एस",
+      "T": "टी",
+      "U": "यू",
+      "V": "वी",
+      "W": "डब्ल्यू",
+      "X": "एक्स",
+      "Y": "वाई",
+      "Z": "ज़ेड",
+      "/": "स्लैश"
+    },
+    "te": {
+      "A": "ఏ",
+      "B": "బీ",
+      "C": "సీ",
+      "D": "డీ",
+      "E": "ఈ",
+      "F": "ఎఫ్",
+      "G": "జీ",
+      "H": "హెచ్",
+      "I": "ఐ",
+      "J": "జే",
+      "K": "కే",
+      "L": "ఎల్",
+      "M": "ఎం",
+      "N": "ఎన్",
+      "O": "ఓ",
+      "P": "పీ",
+      "Q": "క్యూ",
+      "R": "ఆర్",
+      "S": "ఎస్",
+      "T": "టీ",
+      "U": "యూ",
+      "V": "వీ",
+      "W": "డబ్ల్యూ",
+      "X": "ఎక్స్",
+      "Y": "వై",
+      "Z": "జెడ్",
+      "/": "స్లాష్"
+    }
+  },
+  "hours_words": {
+    "_about": "Used to say shop timings in each language. Periods: morning 5-11, afternoon 12-15, evening 16-19, night 20-4.",
+    "en": {
+      "morning": "{h} AM",
+      "afternoon": "{h} PM",
+      "evening": "{h} PM",
+      "night": "{h} PM",
+      "night_am": "{h} AM",
+      "range": "{from} to {to}",
+      "noon": "12 noon",
+      "midnight": "midnight",
+      "all_day": "open all day"
+    },
+    "hi": {
+      "morning": "सुबह {h} बजे",
+      "afternoon": "दोपहर {h} बजे",
+      "evening": "शाम {h} बजे",
+      "night": "रात {h} बजे",
+      "night_am": "रात {h} बजे",
+      "range": "{from} से {to} तक",
+      "noon": "दोपहर 12 बजे",
+      "midnight": "आधी रात",
+      "all_day": "पूरे दिन खुला"
+    },
+    "te": {
+      "morning": "ఉదయం {h}",
+      "afternoon": "మధ్యాహ్నం {h}",
+      "evening": "సాయంత్రం {h}",
+      "night": "రాత్రి {h}",
+      "night_am": "రాత్రి {h}",
+      "range": "{from} నుండి {to} వరకు",
+      "noon": "మధ్యాహ్నం 12",
+      "midnight": "అర్ధరాత్రి",
+      "all_day": "రోజంతా తెరిచి ఉంటుంది"
+    }
+  }
+}

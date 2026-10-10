@@ -1,0 +1,3 @@
+# OPTIONAL extra reader. Heavy; only install if you want ENABLE_PADDLEOCR=true.
+paddlepaddle
+paddleocr

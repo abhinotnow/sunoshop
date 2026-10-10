@@ -1,0 +1,286 @@
+{
+  "_about": "Short spoken lines Oriel says while guiding the user. Pre-recorded once (scripts/generate_guidance_audio.py) and played instantly; captions use the same text. One instruction at a time. Telugu and Hindi are drafts: a native speaker must check them before you generate audio.",
+  "_review": {
+    "te": "DRAFT - check with a Telugu speaker",
+    "hi": "DRAFT - check with a Hindi speaker",
+    "en": "ok"
+  },
+  "phrases": [
+    {
+      "id": "ready",
+      "en": "Oriel is ready. Hold your phone up in front of you.",
+      "hi": "ओरियल तैयार है। फ़ोन अपने सामने उठाइए।",
+      "te": "ఓరియల్ సిద్ధంగా ఉంది. ఫోన్‌ను మీ ముందు పైకి పట్టుకోండి."
+    },
+    {
+      "id": "hold_still",
+      "en": "Hold still.",
+      "hi": "फ़ोन स्थिर रखिए।",
+      "te": "ఫోన్‌ను కదలకుండా పట్టుకోండి."
+    },
+    {
+      "id": "keep_still",
+      "en": "Keep still, almost done.",
+      "hi": "स्थिर रखिए, बस हो गया।",
+      "te": "కదలకండి, దాదాపు అయిపోయింది."
+    },
+    {
+      "id": "reading",
+      "en": "Reading the sign.",
+      "hi": "बोर्ड पढ़ा जा रहा है।",
+      "te": "బోర్డు చదువుతున్నాను."
+    },
+    {
+      "id": "zooming_in",
+      "en": "Hold still, zooming in.",
+      "hi": "फ़ोन स्थिर रखिए, ज़ूम किया जा रहा है।",
+      "te": "కదలకండి, జూమ్ చేస్తున్నాను."
+    },
+    {
+      "id": "tilt_up",
+      "en": "Tilt the phone up a little.",
+      "hi": "फ़ोन थोड़ा ऊपर झुकाइए।",
+      "te": "ఫోన్‌ను కొంచెం పైకి వంచండి."
+    },
+    {
+      "id": "tilt_down",
+      "en": "Tilt the phone down a little.",
+      "hi": "फ़ोन थोड़ा नीचे झुकाइए।",
+      "te": "ఫోన్‌ను కొంచెం కిందికి వంచండి."
+    },
+    {
+      "id": "level_phone",
+      "en": "Hold the phone straight up, like a window.",
+      "hi": "फ़ोन को खिड़की की तरह सीधा खड़ा रखिए।",
+      "te": "ఫోన్‌ను కిటికీలా నిటారుగా పట్టుకోండి."
+    },
+    {
+      "id": "aim_left",
+      "en": "The sign is to your left. Move the phone a little left.",
+      "hi": "बोर्ड आपके बाईं ओर है। फ़ोन थोड़ा बाईं ओर कीजिए।",
+      "te": "బోర్డు మీ ఎడమ వైపు ఉంది. ఫోన్‌ను కొంచెం ఎడమకు జరపండి."
+    },
+    {
+      "id": "aim_right",
+      "en": "The sign is to your right. Move the phone a little right.",
+      "hi": "बोर्ड आपके दाईं ओर है। फ़ोन थोड़ा दाईं ओर कीजिए।",
+      "te": "బోర్డు మీ కుడి వైపు ఉంది. ఫోన్‌ను కొంచెం కుడికి జరపండి."
+    },
+    {
+      "id": "aim_up",
+      "en": "The sign is higher. Tilt the phone up a little.",
+      "hi": "बोर्ड ऊपर है। फ़ोन थोड़ा ऊपर झुकाइए।",
+      "te": "బోర్డు పైన ఉంది. ఫోన్‌ను కొంచెం పైకి వంచండి."
+    },
+    {
+      "id": "aim_down",
+      "en": "The sign is lower. Tilt the phone down a little.",
+      "hi": "बोर्ड नीचे है। फ़ोन थोड़ा नीचे झुकाइए।",
+      "te": "బోర్డు కింద ఉంది. ఫోన్‌ను కొంచెం కిందికి వంచండి."
+    },
+    {
+      "id": "move_left",
+      "en": "The sign is cut off on the left. Move the phone a little left.",
+      "hi": "बोर्ड बाईं ओर से कटा हुआ है। फ़ोन थोड़ा बाईं ओर ले जाइए।",
+      "te": "బోర్డు ఎడమ భాగం కనిపించడం లేదు. ఫోన్‌ను కొంచెం ఎడమకు జరపండి."
+    },
+    {
+      "id": "move_right",
+      "en": "The sign is cut off on the right. Move the phone a little right.",
+      "hi": "बोर्ड दाईं ओर से कटा हुआ है। फ़ोन थोड़ा दाईं ओर ले जाइए।",
+      "te": "బోర్డు కుడి భాగం కనిపించడం లేదు. ఫోన్‌ను కొంచెం కుడికి జరపండి."
+    },
+    {
+      "id": "move_up",
+      "en": "The sign is cut off at the top. Tilt the phone up a little.",
+      "hi": "बोर्ड ऊपर से कटा हुआ है। फ़ोन थोड़ा ऊपर झुकाइए।",
+      "te": "బోర్డు పై భాగం కనిపించడం లేదు. ఫోన్‌ను కొంచెం పైకి వంచండి."
+    },
+    {
+      "id": "move_down",
+      "en": "The sign is cut off at the bottom. Tilt the phone down a little.",
+      "hi": "बोर्ड नीचे से कटा हुआ है। फ़ोन थोड़ा नीचे झुकाइए।",
+      "te": "బోర్డు కింది భాగం కనిపించడం లేదు. ఫోన్‌ను కొంచెం కిందికి వంచండి."
+    },
+    {
+      "id": "step_back",
+      "en": "The sign is too close. Step back a little.",
+      "hi": "बोर्ड बहुत पास है। थोड़ा पीछे हटिए।",
+      "te": "బోర్డు చాలా దగ్గరగా ఉంది. కొంచెం వెనక్కి జరగండి."
+    },
+    {
+      "id": "move_closer",
+      "en": "The sign is far away. Move a little closer if it is safe.",
+      "hi": "बोर्ड दूर है। सुरक्षित हो तो थोड़ा पास जाइए।",
+      "te": "బోర్డు దూరంగా ఉంది. సురక్షితమైతే కొంచెం దగ్గరకు వెళ్ళండి."
+    },
+    {
+      "id": "sweep_left",
+      "en": "Slowly turn left. I'll say stop.",
+      "hi": "धीरे-धीरे बाईं ओर घुमाइए, जब तक मैं रुकिए न कहूँ।",
+      "te": "నేను ఆపండి అని చెప్పే వరకు నెమ్మదిగా ఎడమవైపు తిప్పండి."
+    },
+    {
+      "id": "sweep_right",
+      "en": "Slowly turn right. I'll say stop.",
+      "hi": "धीरे-धीरे दाईं ओर घुमाइए, जब तक मैं रुकिए न कहूँ।",
+      "te": "నేను ఆపండి అని చెప్పే వరకు నెమ్మదిగా కుడివైపు తిప్పండి."
+    },
+    {
+      "id": "stop",
+      "en": "Stop.",
+      "hi": "रुकिए।",
+      "te": "ఆపండి."
+    },
+    {
+      "id": "too_dark",
+      "en": "It is too dark to read here.",
+      "hi": "यहाँ बहुत अँधेरा है, पढ़ना मुश्किल है।",
+      "te": "ఇక్కడ చాలా చీకటిగా ఉంది, చదవడం కష్టం."
+    },
+    {
+      "id": "glare",
+      "en": "There is glare on the sign. Tilt the phone slightly.",
+      "hi": "बोर्ड पर चमक है। फ़ोन थोड़ा तिरछा कीजिए।",
+      "te": "బోర్డుపై మెరుపు ఉంది. ఫోన్‌ను కొంచెం వంచండి."
+    },
+    {
+      "id": "several_signs",
+      "en": "I can see more than one sign. I will read the biggest one.",
+      "hi": "एक से ज़्यादा बोर्ड दिख रहे हैं। सबसे बड़ा बोर्ड पढ़ा जाएगा।",
+      "te": "ఒకటి కంటే ఎక్కువ బోర్డులు కనిపిస్తున్నాయి. పెద్ద బోర్డు చదువుతాను."
+    },
+    {
+      "id": "no_sign_try",
+      "en": "I can't see a sign yet. Hold the phone at chest height and turn slowly.",
+      "hi": "अभी कोई बोर्ड नहीं दिखा। फ़ोन छाती की ऊँचाई पर रखकर धीरे घुमाइए।",
+      "te": "ఇంకా బోర్డు కనిపించలేదు. ఫోన్‌ను ఛాతీ ఎత్తులో పట్టుకుని నెమ్మదిగా తిరగండి."
+    },
+    {
+      "id": "no_sign",
+      "en": "I couldn't find a readable sign.",
+      "hi": "कोई पढ़ने लायक बोर्ड नहीं मिला।",
+      "te": "చదవగలిగే బోర్డు ఏదీ దొరకలేదు."
+    },
+    {
+      "id": "ask_someone",
+      "en": "Please ask someone nearby.",
+      "hi": "कृपया आसपास किसी से पूछ लीजिए।",
+      "te": "దయచేసి దగ్గరలో ఉన్నవారిని అడగండి."
+    },
+    {
+      "id": "say_more",
+      "en": "Say more to hear the rest.",
+      "hi": "बाकी सुनने के लिए और कहिए।",
+      "te": "మిగతాది వినడానికి ఇంకా అనండి."
+    },
+    {
+      "id": "did_that_help",
+      "en": "Did that help?",
+      "hi": "क्या इससे मदद मिली?",
+      "te": "ఇది ఉపయోగపడిందా?"
+    },
+    {
+      "id": "listening",
+      "en": "Listening.",
+      "hi": "सुन रहे हैं।",
+      "te": "వింటున్నాను."
+    },
+    {
+      "id": "ask_prompt",
+      "en": "Ask your question now.",
+      "hi": "अब अपना सवाल पूछिए।",
+      "te": "ఇప్పుడు మీ ప్రశ్న అడగండి."
+    },
+    {
+      "id": "didnt_catch",
+      "en": "Sorry, I didn't catch that. Please say it again.",
+      "hi": "माफ़ कीजिए, समझ नहीं आया। कृपया फिर से कहिए।",
+      "te": "క్షమించండి, అర్థం కాలేదు. దయచేసి మళ్ళీ చెప్పండి."
+    },
+    {
+      "id": "say_yes_no",
+      "en": "Please say yes or no.",
+      "hi": "कृपया हाँ या नहीं कहिए।",
+      "te": "దయచేసి అవును లేదా కాదు అనండి."
+    },
+    {
+      "id": "network_slow",
+      "en": "The network is slow. Still trying.",
+      "hi": "नेटवर्क धीमा है। कोशिश जारी है।",
+      "te": "నెట్‌వర్క్ నెమ్మదిగా ఉంది. ఇంకా ప్రయత్నిస్తున్నాను."
+    },
+    {
+      "id": "network_offline",
+      "en": "There is no internet connection. I will try again when it is back.",
+      "hi": "इंटरनेट नहीं है। वापस आने पर फिर कोशिश करेंगे।",
+      "te": "ఇంటర్నెట్ లేదు. తిరిగి వచ్చాక మళ్ళీ ప్రయత్నిస్తాను."
+    },
+    {
+      "id": "camera_blocked",
+      "en": "I can't use the camera. Please allow camera access.",
+      "hi": "कैमरा नहीं चल रहा। कृपया कैमरे की अनुमति दीजिए।",
+      "te": "కెమెరా వాడలేకపోతున్నాను. దయచేసి కెమెరా అనుమతి ఇవ్వండి."
+    },
+    {
+      "id": "mic_blocked",
+      "en": "I can't use the microphone. Please allow microphone access.",
+      "hi": "माइक्रोफ़ोन नहीं चल रहा। कृपया अनुमति दीजिए।",
+      "te": "మైక్రోఫోన్ వాడలేకపోతున్నాను. దయచేసి అనుమతి ఇవ్వండి."
+    },
+    {
+      "id": "gestures_on",
+      "en": "Head gestures are on. Nod for yes, shake your head for no.",
+      "hi": "सिर के इशारे चालू हैं। हाँ के लिए सिर हिलाइए, नहीं के लिए दाएँ-बाएँ।",
+      "te": "తల సంజ్ఞలు ఆన్‌లో ఉన్నాయి. అవును అంటే తల ఊపండి, కాదు అంటే అటూ ఇటూ తిప్పండి."
+    },
+    {
+      "id": "offer_ageing",
+      "en": "Would larger text and slower speech help? Say yes or no.",
+      "hi": "क्या बड़े अक्षर और धीमी आवाज़ से मदद मिलेगी? हाँ या नहीं कहिए।",
+      "te": "పెద్ద అక్షరాలు, నెమ్మదిగా మాట్లాడటం సహాయపడుతుందా? అవును లేదా కాదు అనండి."
+    },
+    {
+      "id": "offer_visual",
+      "en": "Would you like spoken help to aim the camera? Say yes or no.",
+      "hi": "क्या कैमरा सही दिशा में करने के लिए बोलकर मदद चाहिए? हाँ या नहीं कहिए।",
+      "te": "కెమెరాను సరిగ్గా చూపించడానికి మాటలతో సహాయం కావాలా? అవును లేదా కాదు అనండి."
+    },
+    {
+      "id": "offer_hand_motor",
+      "en": "Would you like hands-free mode, with no buttons? Say yes or no.",
+      "hi": "क्या बिना बटन वाला मोड चाहिए? हाँ या नहीं कहिए।",
+      "te": "బటన్లు లేని మోడ్ కావాలా? అవును లేదా కాదు అనండి."
+    },
+    {
+      "id": "mode_on",
+      "en": "Done. You can change this any time in settings.",
+      "hi": "हो गया। इसे कभी भी सेटिंग्स में बदल सकते हैं।",
+      "te": "అయింది. దీన్ని ఎప్పుడైనా సెట్టింగ్స్‌లో మార్చవచ్చు."
+    },
+    {
+      "id": "mode_kept",
+      "en": "Okay, nothing changed.",
+      "hi": "ठीक है, कुछ नहीं बदला।",
+      "te": "సరే, ఏమీ మార్చలేదు."
+    },
+    {
+      "id": "nothing_more",
+      "en": "That is everything on the sign.",
+      "hi": "बोर्ड पर बस इतना ही है।",
+      "te": "బోర్డుపై ఉన్నది ఇంతే."
+    },
+    {
+      "id": "camera_front",
+      "en": "Front camera. Hold the sign facing the screen.",
+      "hi": "सामने का कैमरा। बोर्ड को स्क्रीन की तरफ़ रखिए।",
+      "te": "ముందు కెమెరా. బోర్డును స్క్రీన్ వైపు పట్టుకోండి."
+    },
+    {
+      "id": "camera_back",
+      "en": "Back camera. Point the back of the phone at the sign.",
+      "hi": "पीछे का कैमरा। फ़ोन का पिछला हिस्सा बोर्ड की तरफ़ कीजिए।",
+      "te": "వెనుక కెమెరా. ఫోన్ వెనుక భాగాన్ని బోర్డు వైపు చూపండి."
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+ "$id": "oriel/arbiter/v1",
+ "title": "ArbiterRead",
+ "type": "object",
+ "description": "Independent second reading of the main sign (a zoomed crop or the full sharpest frame).",
+ "properties": {
+  "legible": {
+   "type": "boolean"
+  },
+  "route_numbers": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "Every route number fully readable in the crop, exactly as written."
+  },
+  "places": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "text": {
+      "type": "string"
+     },
+     "romanized": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "text",
+     "romanized"
+    ]
+   }
+  },
+  "platform": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "business_name_romanized": {
+   "type": "string"
+  },
+  "business_name_text": {
+   "type": "string",
+   "description": "The shop or business name exactly as written, in its original script; empty if not a shop board."
+  },
+  "text_lines": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "maxItems": 10,
+   "description": "Every other line of words on the main sign, in reading order, exactly as written in its original script (notices, building names, instructions, offers). Not route numbers or place names already listed."
+  },
+  "symbols": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "enum": [
+     "stop",
+     "give_way",
+     "no_entry",
+     "one_way",
+     "no_parking",
+     "no_stopping",
+     "no_u_turn",
+     "no_left_turn",
+     "no_right_turn",
+     "no_horn",
+     "speed_limit",
+     "pedestrian_crossing",
+     "school_ahead",
+     "hospital",
+     "men_at_work",
+     "speed_breaker",
+     "traffic_signal_ahead",
+     "roundabout",
+     "keep_left",
+     "parking",
+     "bus_stop",
+     "metro",
+     "railway",
+     "toilet",
+     "exit",
+     "emergency_exit",
+     "fire_extinguisher",
+     "first_aid",
+     "wheelchair_access",
+     "lift",
+     "stairs",
+     "no_smoking",
+     "danger",
+     "other"
+    ]
+   }
+  },
+  "speed_limit_value": {
+   "type": "string"
+  },
+  "pedestrian_signal_state": {
+   "type": "string",
+   "enum": [
+    "walk",
+    "dont_walk",
+    "flashing",
+    "off",
+    "none"
+   ]
+  }
+ },
+ "required": [
+  "legible",
+  "route_numbers",
+  "places",
+  "platform",
+  "business_name_romanized",
+  "business_name_text",
+  "text_lines",
+  "symbols",
+  "speed_limit_value",
+  "pedestrian_signal_state"
+ ]
+}

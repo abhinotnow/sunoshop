@@ -1,0 +1,51 @@
+{
+ "$id": "oriel/ask/v1",
+ "title": "AskAnswer",
+ "type": "object",
+ "properties": {
+  "answer_en": {
+   "type": "string",
+   "description": "The spoken answer in plain English, at most 2 short sentences (max 40 words)."
+  },
+  "confidence": {
+   "type": "string",
+   "enum": [
+    "high",
+    "medium",
+    "low"
+   ]
+  },
+  "grounded_in_sign": {
+   "type": "boolean",
+   "description": "True only if the answer comes from the sign facts or image provided."
+  },
+  "needs_confirmation": {
+   "type": "boolean",
+   "description": "True if the question is unclear or looks misheard and you need the user to confirm it."
+  },
+  "confirm_question_en": {
+   "type": "string",
+   "description": "If needs_confirmation, a short yes/no question like 'Did you ask which bus goes to Koti?'; else empty."
+  },
+  "out_of_scope": {
+   "type": "boolean",
+   "description": "True for medical, legal or financial advice requests."
+  },
+  "protected_terms": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "Route numbers and place names used in answer_en, exactly as they appear in it."
+  }
+ },
+ "required": [
+  "answer_en",
+  "confidence",
+  "grounded_in_sign",
+  "needs_confirmation",
+  "confirm_question_en",
+  "out_of_scope",
+  "protected_terms"
+ ]
+}

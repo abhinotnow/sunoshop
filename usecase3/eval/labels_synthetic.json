@@ -1,0 +1,608 @@
+{
+  "_about": "SYNTHETIC test set made by scripts/make_synthetic_signs.py. Route-destination pairings are invented. Report results on this set separately from real photos.",
+  "signs": [
+    {
+      "id": "bus_001",
+      "frames": [
+        "eval/photos/synthetic/bus_001_a.jpg",
+        "eval/photos/synthetic/bus_001_b.jpg",
+        "eval/photos/synthetic/bus_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_route_board",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [
+          "218"
+        ],
+        "places": [
+          "Secunderabad"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "bus_002",
+      "frames": [
+        "eval/photos/synthetic/bus_002_a.jpg",
+        "eval/photos/synthetic/bus_002_b.jpg",
+        "eval/photos/synthetic/bus_002_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_route_board",
+      "conditions": [
+        "blurry"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [
+          "10H"
+        ],
+        "places": [
+          "Mehdipatnam"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "one frame much blurrier than the other two"
+    },
+    {
+      "id": "bus_003",
+      "frames": [
+        "eval/photos/synthetic/bus_003_a.jpg",
+        "eval/photos/synthetic/bus_003_b.jpg",
+        "eval/photos/synthetic/bus_003_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_route_board",
+      "conditions": [
+        "glare"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [
+          "5K"
+        ],
+        "places": [
+          "Koti"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "glare hides the route number in all frames: correct behaviour is to confirm Koti and NOT state a route"
+    },
+    {
+      "id": "bus_004",
+      "frames": [
+        "eval/photos/synthetic/bus_004_a.jpg",
+        "eval/photos/synthetic/bus_004_b.jpg",
+        "eval/photos/synthetic/bus_004_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_route_board",
+      "conditions": [
+        "far"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [
+          "127K"
+        ],
+        "places": [
+          "Kondapur"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "sign is small in frame: expect move_closer or a re-read"
+    },
+    {
+      "id": "bus_005",
+      "frames": [
+        "eval/photos/synthetic/bus_005_a.jpg",
+        "eval/photos/synthetic/bus_005_b.jpg",
+        "eval/photos/synthetic/bus_005_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_route_board",
+      "conditions": [
+        "cut_off_right"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [
+          "219"
+        ],
+        "places": [
+          "Lingampally"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "destination partly cut off: expect move_right guidance"
+    },
+    {
+      "id": "busstop_001",
+      "frames": [
+        "eval/photos/synthetic/busstop_001_a.jpg",
+        "eval/photos/synthetic/busstop_001_b.jpg",
+        "eval/photos/synthetic/busstop_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_stop",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "hi",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Gachibowli"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "metro_001",
+      "frames": [
+        "eval/photos/synthetic/metro_001_a.jpg",
+        "eval/photos/synthetic/metro_001_b.jpg",
+        "eval/photos/synthetic/metro_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "metro",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en",
+        "hi"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Ameerpet"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "trilingual: no translation needed for any user language"
+    },
+    {
+      "id": "platform_001",
+      "frames": [
+        "eval/photos/synthetic/platform_001_a.jpg",
+        "eval/photos/synthetic/platform_001_b.jpg",
+        "eval/photos/synthetic/platform_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "metro",
+      "conditions": [
+        "tilted"
+      ],
+      "languages_on_sign": [
+        "en",
+        "te",
+        "hi"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "MG Bus Station"
+        ],
+        "platform": "2",
+        "arrows": [
+          "left"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "direction_001",
+      "frames": [
+        "eval/photos/synthetic/direction_001_a.jpg",
+        "eval/photos/synthetic/direction_001_b.jpg",
+        "eval/photos/synthetic/direction_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "direction",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Ameerpet",
+          "Secunderabad"
+        ],
+        "platform": null,
+        "arrows": [
+          "left",
+          "right"
+        ]
+      },
+      "notes": "two destinations, opposite arrows"
+    },
+    {
+      "id": "direction_002",
+      "frames": [
+        "eval/photos/synthetic/direction_002_a.jpg",
+        "eval/photos/synthetic/direction_002_b.jpg",
+        "eval/photos/synthetic/direction_002_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "direction",
+      "conditions": [
+        "dark"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "HITEC City"
+        ],
+        "platform": null,
+        "arrows": [
+          "up"
+        ]
+      },
+      "notes": "night-time darkness: expect too_dark or uncertain"
+    },
+    {
+      "id": "street_001",
+      "frames": [
+        "eval/photos/synthetic/street_001_a.jpg",
+        "eval/photos/synthetic/street_001_b.jpg",
+        "eval/photos/synthetic/street_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "street_name",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Banjara Hills Road No. 1"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "warning_001",
+      "frames": [
+        "eval/photos/synthetic/warning_001_a.jpg",
+        "eval/photos/synthetic/warning_001_b.jpg",
+        "eval/photos/synthetic/warning_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "warning",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "hi",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "free text only: Danger / Keep away"
+    },
+    {
+      "id": "shop_001",
+      "frames": [
+        "eval/photos/synthetic/shop_001_a.jpg",
+        "eval/photos/synthetic/shop_001_b.jpg",
+        "eval/photos/synthetic/shop_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "shop",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "shop name is not a place"
+    },
+    {
+      "id": "several_001",
+      "frames": [
+        "eval/photos/synthetic/several_001_a.jpg",
+        "eval/photos/synthetic/several_001_b.jpg",
+        "eval/photos/synthetic/several_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "bus_route_board",
+      "conditions": [
+        "several_signs"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [
+          "218"
+        ],
+        "places": [
+          "Secunderabad"
+        ],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "bus board next to a shop sign: expect several_signs guidance or the bus board as main sign"
+    },
+    {
+      "id": "nosign_001",
+      "frames": [
+        "eval/photos/synthetic/nosign_001_a.jpg",
+        "eval/photos/synthetic/nosign_001_b.jpg",
+        "eval/photos/synthetic/nosign_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "none",
+      "conditions": [
+        "no_sign"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": false,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "plain wall"
+    },
+    {
+      "id": "nosign_002",
+      "frames": [
+        "eval/photos/synthetic/nosign_002_a.jpg",
+        "eval/photos/synthetic/nosign_002_b.jpg",
+        "eval/photos/synthetic/nosign_002_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "none",
+      "conditions": [
+        "no_sign"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": false,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": []
+      },
+      "notes": "sky and road"
+    },
+    {
+      "id": "shop_002",
+      "frames": [
+        "eval/photos/synthetic/shop_002_a.jpg",
+        "eval/photos/synthetic/shop_002_b.jpg",
+        "eval/photos/synthetic/shop_002_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "shop",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "Sri Lakshmi General Stores",
+        "texts": []
+      },
+      "notes": "Telugu only: the romanized name may be spelled several ways (Sri/Shri, Lakshmi/Laxmi)"
+    },
+    {
+      "id": "shop_003",
+      "frames": [
+        "eval/photos/synthetic/shop_003_a.jpg",
+        "eval/photos/synthetic/shop_003_b.jpg",
+        "eval/photos/synthetic/shop_003_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "shop",
+      "conditions": [
+        "tilted"
+      ],
+      "languages_on_sign": [
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "New Sagar Tiffin Centre",
+        "texts": []
+      },
+      "notes": "English only, tilted"
+    },
+    {
+      "id": "shop_004",
+      "frames": [
+        "eval/photos/synthetic/shop_004_a.jpg",
+        "eval/photos/synthetic/shop_004_b.jpg",
+        "eval/photos/synthetic/shop_004_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "shop",
+      "conditions": [
+        "far"
+      ],
+      "languages_on_sign": [
+        "hi",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "Gupta Sweets",
+        "texts": []
+      },
+      "notes": "Hindi + English shop, far away, with opening hours"
+    },
+    {
+      "id": "nameplate_001",
+      "frames": [
+        "eval/photos/synthetic/nameplate_001_a.jpg",
+        "eval/photos/synthetic/nameplate_001_b.jpg",
+        "eval/photos/synthetic/nameplate_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "information",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "te",
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "Zilla Parishad High School",
+          "జిల్లా పరిషత్ ఉన్నత పాఠశాల"
+        ]
+      },
+      "notes": "building nameplate: free text, not a place or a shop"
+    },
+    {
+      "id": "notice_001",
+      "frames": [
+        "eval/photos/synthetic/notice_001_a.jpg",
+        "eval/photos/synthetic/notice_001_b.jpg",
+        "eval/photos/synthetic/notice_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "information",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "en",
+        "hi"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "Notice",
+          "Please use gate no. 2",
+          "कृपया गेट नंबर 2 का उपयोग करें"
+        ]
+      },
+      "notes": "notice board: the instruction must be read out"
+    }
+  ]
+}
