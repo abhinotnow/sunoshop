@@ -14,4 +14,5 @@ dependencies = [
 dev = [
     "httpx>=0.24",
     "pytest>=7.0",
+    "textstat>=0.7.13",
 ]

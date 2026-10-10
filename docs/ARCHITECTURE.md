@@ -56,7 +56,7 @@ sunoshop/
 │   ├── main.py            app, /health, /catalog, /ws endpoint
 │   ├── models.py          PKO and message models (pydantic)
 │   ├── ingest.py          OFFLINE: normalize, alt-text, sanitize reviews, embed
-│   ├── bhashini.py        ASR, translate, TTS, 2.5 s circuit breaker, mock mode
+│   ├── bhashini.py        ASR, translate, TTS, 3 s circuit breaker, mock mode
 │   ├── pipeline.py        mask, route, retrieve, answer, simplify, shelf
 │   ├── guardian.py        checkout state machine, dark patterns, orders (NO LLM)
 │   ├── data/              products.json (raw) · catalog.json (built) · orders.json
@@ -100,7 +100,7 @@ sunoshop/
 
 **Guardian (`guardian.py`).** A finite state machine: `BROWSING → CART_REVIEW → GUARDED → AWAITING_CONFIRM → ORDER_PLACED`. It strips pre-ticked add-ons and fake urgency timers, and only completes when the user speaks a random confirmation phrase.
 
-**Frontend.** Semantic HTML + live regions so it works under TalkBack/NVDA. Top-3 results are played with left→right spatial audio, with captions and vibration. It watches for friction (timeouts, "explain again", tap-misses) and *offers* adaptations, applying them only with consent. When Bhashini times out (>2.5 s) or the network drops, it switches to the IndexedDB catalog and the browser's `speechSynthesis`.
+**Frontend.** Semantic HTML + live regions so it works under TalkBack/NVDA. Top-3 results are played with left→right spatial audio, with captions and vibration. It watches for friction (timeouts, "explain again", tap-misses) and *offers* adaptations, applying them only with consent. When Bhashini times out (>3 s per request) or the network drops, it switches to the IndexedDB catalog and the browser's `speechSynthesis`.
 
 ---
 
@@ -146,13 +146,13 @@ Both members start with their scaffold step. Sync points are marked **→ SYNC**
 
 **M1-07 Embed + build catalog.** *Depends:* M1-05, M1-06. *Files:* `ingest.py`, `main.py`. *Do:* chunk reviews by aspect, embed, write `data/catalog.json`; add `GET /catalog` and `GET /catalog/version`. *Done when:* both endpoints return valid data. **→ SYNC-B**
 
-**M1-08 Bhashini: client + ASR.** *Depends:* M1-01. *Files:* `bhashini.py`. *Do:* auth and ASR (wav bytes + language → text); `MOCK_BHASHINI=1` returns canned replies. Check the current ULCA docs for request shapes, don't guess. *Done when:* mock test passes.
+**M1-08 Bhashini: client + ASR.** *Depends:* M1-01. *Files:* `bhashini.py`. *Do:* AnuvaadHub auth and ASR (WAV bytes + language → text); `MOCK_BHASHINI=1` returns canned replies. Follow section 11 request shapes. *Done when:* mock test passes. **Live smoke (2026-10-11):** EN/HI/TE passed (2034/900/870 ms).
 
-**M1-09 Bhashini: translate.** *Depends:* M1-08. *Files:* `bhashini.py`. *Do:* translate between en/hi/te both ways. *Done when:* mock test passes.
+**M1-09 Bhashini: translate.** *Depends:* M1-08. *Files:* `bhashini.py`. *Do:* translate between en/hi/te both ways. *Done when:* mock test passes. **Live smoke (2026-10-11):** all six configured directions passed (328–457 ms).
 
-**M1-10 Bhashini: TTS.** *Depends:* M1-08. *Files:* `bhashini.py`. *Do:* text + language + `rate` → audio bytes. *Done when:* `rate` is passed through (test).
+**M1-10 Bhashini: TTS.** *Depends:* M1-08. *Files:* `bhashini.py`. *Do:* text + language + gender → downloaded WAV bytes; client applies playback `rate`. *Done when:* mock test passes. **Live smoke (2026-10-11):** EN/HI/TE passed (2351/2365/2861 ms end-to-end); TTS inference and audio download are timed as separate requests.
 
-**M1-11 Circuit breaker.** *Depends:* M1-09, M1-10. *Files:* `bhashini.py`. *Do:* any call over 2.5 s counts as a failure; after N failures the breaker opens and the caller gets `fallback: "offline"`. *Done when:* a simulated slow call opens it.
+**M1-11 Circuit breaker.** *Depends:* M1-09, M1-10. *Files:* `bhashini.py`. *Do:* any individual request over 3 s counts as a failure; after 3 consecutive failures the breaker opens and the caller gets `fallback: "offline"`. *Done when:* a simulated slow call opens it. **Live timing:** initial samples across ASR, MT, and TTS fit the 3 s per-request limit; collect more before treating this as a final latency guarantee.
 
 **M1-12 Masking.** *Depends:* M1-02. *Files:* `pipeline.py`. *Do:* `mask(text)` / `unmask(text, map)` for prices, numbers, brand/model names. *Done when:* round trip over 20 en/hi/te strings loses zero entities, even if surrounding text is scrambled.
 
@@ -160,19 +160,19 @@ Both members start with their scaffold step. Sync points are marked **→ SYNC**
 
 **M1-14 Retrieval.** *Depends:* M1-07. *Files:* `pipeline.py`. *Do:* exact spec lookup plus top-k review chunks by cosine similarity. *Done when:* "battery of p_001" returns the spec and chunks.
 
-**M1-15 Grounded answer.** *Depends:* M1-14. *Files:* `pipeline.py`. *Do:* Gemini Flash-Lite answers from retrieved context only; a `check_grounded()` rejects any number or claim not in that context and falls back to "I don't have that information." *Done when:* asking for a spec that doesn't exist never invents a value.
+**M1-15 Grounded answer.** *Depends:* M1-14. *Files:* `pipeline.py`. *Do:* Gemini `gemini-3.5-flash-lite` answers from retrieved context only; `check_grounded()` rejects any number or claim not in that context and falls back to "I don't have that information." *Done when:* asking for a spec that doesn't exist never invents a value. **Live smoke (2026-10-11):** HTTP 200; synthetic battery fact returned grounded (1.36 s).
 
 **M1-16 Chunker + plausibility.** *Depends:* M1-15, M1-08. *Files:* `pipeline.py`. *Do:* split replies into sentences ≤25 words; flag empty/gibberish ASR text as implausible. *Done when:* no sentence exceeds 25 words (test); silence is flagged.
 
-**M1-17 Orchestrator + WebSocket.** *Depends:* M1-09..M1-16. *Files:* `pipeline.py`, `main.py`. *Do:* `handle_utterance()` runs the full loop and `/ws` streams `reply.sentence` events. *Done when:* in mock mode, Telugu "battery ela undi" → grounded Telugu sentences with entities intact. **→ SYNC-C**
+**M1-17 Orchestrator + WebSocket.** *Depends:* M1-09..M1-16. *Files:* `pipeline.py`, `main.py`. *Do:* `handle_utterance()` runs the full loop and `/ws` streams `reply.sentence` events. *Done when:* in mock mode, Telugu "battery ela undi" → grounded Telugu sentences with entities intact. **→ SYNC-C** **Mock WebSocket test passes (2026-10-11); live WebSocket sync remains pending.**
 
-**M1-18 Explain Simpler.** *Depends:* M1-17. *Files:* `pipeline.py`. *Do:* on `simpler`, re-render the last answer with shorter sentences, simpler words, lower `rate`, longer `pause_ms`. *Done when:* `textstat` grade drops on 10 samples.
+**M1-18 Explain Simpler.** *Depends:* M1-17. *Files:* `pipeline.py`, `main.py`, `tests/test_pipeline.py`, `tests/test_main.py`, `pyproject.toml`, `uv.lock` (approved scope expansion: session state, required readability dependency, and tests). *Do:* on `simpler`, re-render the last answer with shorter sentences, simpler words, lower `rate`, longer `pause_ms`. *Done when:* `textstat` grade drops on 10 samples.
 
-**M1-19 Claim-vs-Experience.** *Depends:* M1-14. *Files:* `pipeline.py`. *Do:* compare spec claims with the review digest → supported / contradicted / mixed. *Done when:* "2-day battery" with bad battery reviews → contradicted.
+**M1-19 Claim-vs-Experience.** *Depends:* M1-14. *Files:* `pipeline.py`, `tests/test_pipeline.py` (approved scope expansion for regression coverage). *Do:* compare spec claims with the review digest → supported / contradicted / mixed. *Done when:* "2-day battery" with bad battery reviews → contradicted. With no matching evidence, return `mixed` conservatively because the contract has no unknown status.
 
-**M1-20 Shelf search + price filter.** *Depends:* M1-14. *Files:* `pipeline.py`. *Do:* rank top 3; parse "under 15000" in en/hi/te; emit `shelf.results` with `pan`. *Done when:* the filter is correct and alt-text is included.
+**M1-20 Shelf search + price filter.** *Depends:* M1-14. *Files:* `pipeline.py`, `tests/test_pipeline.py` (approved scope expansion for regression coverage). *Do:* rank top 3; parse "under 15000" in en/hi/te; emit `shelf.results` with `pan`. *Done when:* the filter is correct and alt-text is included. Price filtering requires an explicit `price_inr`; source-only USD prices are excluded per section 14's deferred INR normalization.
 
-**M1-21 Checkout state machine.** *Depends:* M1-02. *Files:* `guardian.py`. *Do:* states and an explicit allowed-transition table. *Done when:* illegal moves raise; a test confirms `guardian.py` imports no LLM library.
+**M1-21 Checkout state machine.** *Depends:* M1-02. *Files:* `guardian.py`, `tests/test_guardian.py` (approved scope expansion for required tests). *Do:* define states and explicit allowed transitions: `start`, `guard`, `request_confirmation`, `verified_confirmation`, and `cancel`. *Done when:* illegal moves raise; tests confirm the order path, cancellation, and that `guardian.py` imports no LLM library.
 
 **M1-22 Dark-pattern stripper.** *Depends:* M1-21. *Files:* `guardian.py`. *Do:* remove pre-ticked add-ons and false-urgency timers; return `removed_fees[]`. *Done when:* fixture carts end with the correct total.
 
@@ -275,7 +275,7 @@ Keep each entry under ~15 lines. A fresh LLM session (or a teammate) must be abl
 
 ## 8. Progress checklist
 
-**Member 1:** `M1-01` `M1-02` `M1-03` `M1-04` `M1-05` `M1-06` `M1-07` `M1-08` `M1-09` `M1-10` `M1-11` `M1-12` `M1-13` `M1-14` `M1-15` `M1-16` `M1-17` `M1-18` `M1-19` `M1-20` `M1-21` `M1-22` `M1-23` `M1-24` `M1-25` `M1-26` `M1-27`
+**Member 1:** `M1-01` `M1-02` `M1-03` `M1-04` `M1-05` `M1-06` `M1-07` `✅ M1-08` `✅ M1-09` `✅ M1-10` `✅ M1-11` `✅ M1-12` `✅ M1-13` `✅ M1-14` `✅ M1-15` `✅ M1-16` `✅ M1-17` `✅ M1-18` `✅ M1-19` `✅ M1-20` `✅ M1-21` `M1-22` `M1-23` `M1-24` `M1-25` `M1-26` `M1-27`
 *(replace with ✅ as you finish each)*
 
 **Member 2:** `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `M2-12` `M2-13` `M2-14` `M2-15` `M2-16` `M2-17` `M2-18` `M2-19` `M2-20` `M2-21` `M2-22` `M2-23` `M2-24` `M2-25`
@@ -308,7 +308,7 @@ Catalog is a cached snapshot, not live-scraped · checkout and tracking are simu
 - Backend downloads the TTS wav from s3_url, caches it by text hash, and sends it as the
   reply.sentence `audio` field (decide base64 vs URL in CONTRACT.md at M1-02).
 - Before TTS: unmask placeholders, convert currency/digits to words, strip brackets and symbols.
-- Breaker timeout is a starting value: measure real latency in M1-08 before fixing it.
+- Breaker: initial live smoke samples led to a 3 s per-request cap and 3 consecutive failures. Samples were one call per configured endpoint on 2026-10-11; review after more measurements.
 - MOCK_BHASHINI=1 must return the same response shapes as the real API.
 
 ## 12. Change notes (agreed with the team, override earlier text)
@@ -331,7 +331,7 @@ Catalog is a cached snapshot, not live-scraped · checkout and tracking are simu
 6. Before TTS: unmask placeholders, convert currency and digits to words per language, strip symbols.
    Test TTS with digits early; if a language mispronounces them, write a small number-to-words helper.
 7. Build order for M1: M1-01, M1-02 (freeze contract fast), then M1-08 with a real smoke test
-   (record latency), then continue. Set the circuit-breaker timeout after measuring.
+   (record latency), then continue. The initial measured cap is 3 s per request; revisit with more samples.
 8. Add .gitignore (.env, __pycache__, node_modules, data/orders.json) by hand. Never commit tokens.
 
 ## 13. Dataset notation and download (overrides earlier field names)
@@ -370,7 +370,7 @@ Catalog is a cached snapshot, not live-scraped · checkout and tracking are simu
   `BHASHINI_OCR_URL/TOKEN`. Store the URL and token together under the matching name in local `.env`.
 - For deployed environments, use the platform's secret manager/environment secret facility, not a
   checked-in file. Restrict access to the backend runtime and rotate any credential that is exposed.
-- Exact AnuvaadHub endpoints and tokens are needed for the real M1-08 ASR smoke test. Until then,
-  `MOCK_BHASHINI=1` allows development without credentials. Obtain values from AnuvaadHub and enter
-  them directly into local `.env`; do not send the values in messages or source files.
+- The real M1-08 smoke passed for ASR EN/HI/TE; all six MT directions and all three TTS endpoints
+  also returned successful responses on 2026-10-11. Keep credentials in ignored `backend/.env` and
+  continue using `MOCK_BHASHINI=1` for tests; never send the values in messages or source files.
 - Cite Hou et al. 2024 (arXiv:2403.03952) in README. State that dataset terms are unverified.

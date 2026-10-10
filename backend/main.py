@@ -1,13 +1,21 @@
-# SunoShop's FastAPI entry point and initial health endpoint.
+# SunoShop's FastAPI entry point, health endpoint, catalog, and voice WebSocket.
 # Exports the FastAPI app and loaded external-service configuration values.
-# Depends on FastAPI and python-dotenv; secrets are supplied through environment variables.
+# Depends on FastAPI, Pydantic models, the pipeline, and python-dotenv.
 
+import asyncio
+import base64
+import binascii
+import json
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-load_dotenv()
+from backend.models import AudioUtterance, SessionStart
+from backend.pipeline import handle_utterance
+
+load_dotenv(Path(__file__).with_name(".env"))
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 MOCK_BHASHINI = os.getenv("MOCK_BHASHINI", "1").strip().lower() in {"1", "true", "yes"}
@@ -31,9 +39,69 @@ BHASHINI_TTS = {lang: _credentials(f"TTS_{lang}") for lang in ("EN", "HI", "TE")
 BHASHINI_OCR = _credentials("OCR")
 
 app = FastAPI(title="SunoShop API")
+CATALOG_PATH = Path(__file__).with_name("data") / "catalog.json"
+
+
+def _load_catalog() -> list[dict[str, object]]:
+    if not CATALOG_PATH.exists():
+        return []
+    try:
+        payload = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if isinstance(payload, dict):
+        payload = payload.get("products", [])
+    return payload if isinstance(payload, list) else []
+
+
+CATALOG = _load_catalog()
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     """Report that the API process is ready to serve requests."""
     return {"status": "ok"}
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket) -> None:
+    await websocket.accept()
+    language = None
+    rate = 1.0
+    session_state: dict[str, object] = {}
+    try:
+        while True:
+            payload = await websocket.receive_json()
+            message_type = payload.get("type") if isinstance(payload, dict) else None
+            if message_type == "session.start":
+                session = SessionStart.model_validate(payload)
+                language = session.lang
+                rate = session.rate
+                continue
+            if message_type != "audio.utterance" or language is None:
+                await websocket.send_json(
+                    {"type": "error", "code": "session_or_message_invalid", "fallback": "retry"}
+                )
+                continue
+
+            try:
+                utterance = AudioUtterance.model_validate(payload)
+                wav_bytes = base64.b64decode(utterance.audio_base64, validate=True)
+            except (ValueError, binascii.Error):
+                await websocket.send_json(
+                    {"type": "error", "code": "audio_message_invalid", "fallback": "retry"}
+                )
+                continue
+
+            events = await asyncio.to_thread(
+                handle_utterance,
+                wav_bytes,
+                language,
+                CATALOG,
+                rate,
+                session_state=session_state,
+            )
+            for event in events:
+                await websocket.send_json(event)
+    except WebSocketDisconnect:
+        return

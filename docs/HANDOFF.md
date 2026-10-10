@@ -8,13 +8,127 @@
 ## Member 1 (Backend & AI)
 
 ### Current state
-- **Last completed step:** M1-01 scaffold
-- **Next step:** Member 2 reviews the M1-02 draft and completes SYNC-A; then M1-08 per section 12 build order
-- **Works right now:** `GET /health`; per-language/pair `BHASHINI_*_URL/TOKEN` settings load; M1-02 PKO/message schemas remain a draft; checked 40-product English raw subset is available.
-- **Broken / blocked:** M1-02 awaits Member 2 review. M1-04 injection reviews and `eval/testset.json` are missing; INR conversion and synthetic multilingual reviews are deferred per section 14.
-- **Env needed:** `GEMINI_API_KEY`; `BHASHINI_ASR_{EN,HI,TE}_URL/TOKEN`, all six `BHASHINI_MT_{SOURCE}_{TARGET}_URL/TOKEN` pairs, `BHASHINI_TTS_{EN,HI,TE}_URL/TOKEN`; `MOCK_BHASHINI=1` for local development. Real values are needed for M1-08 smoke test only.
+- **Last completed step:** M1-21 Checkout state machine
+- **Next step:** M1-22 Dark-pattern stripper
+- **Works right now:** `GET /health` and `/ws`; mock ASR/MT/TTS; live ASR EN/HI/TE, all six MT directions, all three TTS models, and Gemini Flash-Lite returned successful responses. `guardian.transition()` enforces the checkout state table from browsing through order placement and allows cancellation from active checkout states. `search_shelf()` ranks up to three products, applies an optional strict INR limit, assigns spatial pans, and returns localized alt text; price-limited utterances emit `shelf.results`. `compare_claim_experience()` returns supported, contradicted, or mixed. Backend explicitly loads local `backend/.env`.
+- **Broken / blocked:** `backend/pipeline.py` is over 500 lines; per architecture, the human owner should decide whether to split it later. `backend/data/catalog.json` is absent because M1-07 is not complete; current raw prices are USD and INR conversion is deferred, so shelf output requires PKOs that already have `price_inr`. Query embeddings are not wired, so live review retrieval remains pending. Real SYNC-C has not been exercised end to end. ASR plausibility uses simple heuristics; TTS latency is near 3 s for Telugu; the breaker stays open until process restart. M1-04 injection reviews and `eval/testset.json` are missing; synthetic multilingual reviews and INR conversion are deferred per section 14. SYNC-A is marked complete, but frontend `types.ts` still differs from `CONTRACT.md` (including audio and product ID fields); reconcile before frontend integration.
+- **Env needed:** `GEMINI_API_KEY` is configured in ignored `backend/.env`; Gemini live smoke passed with synthetic facts. ASR, all six MT, and all three TTS endpoint/token pairs are present there; their live smoke checks passed. Keep credentials local and use `MOCK_BHASHINI=1` for tests.
 
 ### Log (newest first)
+### M1-21: Checkout state machine (2026-10-11)
+- **Changed:** Added `backend/guardian.py` with checkout states and an explicit transition table; added tests for legal flow, cancel, illegal moves, and imports. Expanded test scope with user approval.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_guardian.py -q` (4 passed); `.venv/bin/python -m pytest backend/tests -q` (53 passed); `git diff --check`.
+- **Decisions:** `start` opens cart review; `guard` and `request_confirmation` are internal transitions for the next checkout steps; only `verified_confirmation` completes `AWAITING_CONFIRM`. Cancel returns active checkout states to browsing.
+- **Deviations / known issues:** Checkout state transitions are not yet connected to WebSocket actions; M1-22 and M1-23 add fee stripping and verified verbal confirmation.
+- **Needs from other member:** none
+- **Next step:** M1-22 Dark-pattern stripper.
+
+### M1-20: Shelf search + price filter (2026-10-11)
+- **Changed:** Added multilingual numeric budget parsing, top-three catalog ranking, strict `price_inr` filtering, localized alt text and pan assignment; price-limited utterances emit `shelf.results`. Added parser, ranking, contract-shape, and WebSocket-pipeline tests. Expanded test scope with user approval.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (21 passed); `.venv/bin/python -m pytest backend/tests -q` (49 passed); `git diff --check`.
+- **Decisions:** Rank by query-term overlap, then average rating; distribute one result center, two left/right, or three left/center/right. Only explicit `price_inr` values qualify for rupee filtering.
+- **Deviations / known issues:** Section 14 defers USD-to-INR conversion and M1-07 has not built `data/catalog.json`; current raw data therefore cannot yet provide populated INR-budget results. Ranking uses simple word overlap and can miss synonyms.
+- **Needs from other member:** none
+- **Next step:** M1-21 Checkout state machine.
+
+### M1-19: Claim-vs-Experience (2026-10-11)
+- **Changed:** Added `compare_claim_experience()` and tests for contradicted, supported, mixed, and no matching evidence. Expanded M1-19 scope to include the regression test with user approval; checked the architecture progress list.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (18 passed); `.venv/bin/python -m pytest backend/tests -q` (46 passed); `git diff --check`.
+- **Decisions:** Match claim vocabulary against digest pros/cons. Since the three-status contract has no unknown value, return `mixed` with empty evidence lists when no relevant digest entry matches.
+- **Deviations / known issues:** Token overlap is deliberately simple and can miss paraphrases or ambiguous aspects; the verdict is a rule-based signal, not a statistical confidence score.
+- **Needs from other member:** none
+- **Next step:** M1-20 Shelf search + price filter.
+
+### M1-18: Explain Simpler (2026-10-11)
+- **Changed:** Added per-WebSocket prior-answer state and deterministic simpler wording with lower `rate` and longer `pause_ms`; added the `textstat` dev dependency, 10-sample grade check, and WebSocket regression test. Expanded the architecture file list with user approval.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py backend/tests/test_main.py -q` (20 passed); `.venv/bin/python -m pytest backend/tests -q` (44 passed); `git diff --check`.
+- **Decisions:** Simplification changes selected vocabulary and breaks conjunction-linked clauses; the original grounded answer is the evidence basis. State is scoped to one WebSocket connection.
+- **Deviations / known issues:** Pipeline now exceeds 500 lines; split decision belongs to the human owner. `textstat` requires NLTK's CMU dictionary; on a fresh machine run `.venv/bin/python -m nltk.downloader cmudict` before the grade test.
+- **Needs from other member:** none
+- **Next step:** M1-19 Claim-vs-Experience.
+
+### M1-17: Orchestrator + WebSocket (2026-10-11)
+- **Changed:** Added `handle_utterance()` orchestration in `backend/pipeline.py`; added `/ws` session/audio validation and event streaming in `backend/main.py`; added mock WebSocket tests.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_main.py backend/tests/test_pipeline.py -q` (18 passed); `.venv/bin/python -m pytest backend/tests -q` (42 passed).
+- **Decisions:** Load `backend/data/catalog.json` when present; keep the endpoint available with an empty catalog otherwise. TTS input converts numeric values to words and strips unsupported symbols.
+- **Deviations / known issues:** WebSocket was exercised with stubbed Bhashini/Gemini functions and a fixture product; live SYNC-C is pending. M1-07 has not built the real catalog or query embeddings. `pipeline.py` is 475 lines; leave any split to the human owner.
+- **Needs from other member:** Frontend can connect to `/ws`; reconcile existing `types.ts` differences with `CONTRACT.md` before live integration.
+- **Next step:** M1-18 Explain Simpler.
+
+### M1-16: Chunker + plausibility (2026-10-11)
+- **Changed:** Added `chunk_sentences()` and `is_plausible_asr()` with tests in `backend/pipeline.py` and `backend/tests/test_pipeline.py`; checked M1-16 in `docs/ARCHITECTURE.md`.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (15 passed); `.venv/bin/python -m pytest backend/tests -q` (40 passed).
+- **Decisions:** Sentence splitting recognizes English punctuation and danda; ASR checks are deterministic, language-neutral heuristics and do not perform script/language detection.
+- **Deviations / known issues:** Heuristics reject silence, symbol-only text, repeated-character noise, and obvious long ASCII consonant strings, but cannot detect all gibberish. `pipeline.py` is now 327 lines; architecture says leave any split to the human owner.
+- **Needs from other member:** none
+- **Next step:** M1-17 orchestrator + WebSocket.
+
+### M1-15: Grounded answer (2026-10-11)
+- **Changed:** Added Gemini Flash-Lite answer generation and conservative number/claim checks in `backend/pipeline.py`, plus stubbed API and grounding tests in `backend/tests/test_pipeline.py`; updated the M1-15 checklist.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (11 passed); `.venv/bin/python -m pytest backend/tests -q` (36 passed).
+- **Decisions:** Use REST `generateContent` with `gemini-3.5-flash-lite`; pass only retrieved product facts/specs/review text, treat evidence as untrusted, and fail closed to "I don't have that information." when grounding fails.
+- **Live check:** HTTP 200 and grounded synthetic battery answer returned in 1.36 s; no key or answer text was logged.
+- **Deviations / known issues:** Lexical grounding is conservative and may reject valid paraphrases; M1-07 catalog integration is pending.
+- **Needs from other member:** none
+- **Next step:** M1-16 chunker + plausibility.
+
+### M1-14: Retrieval (2026-10-11)
+- **Changed:** Added exact product/detail lookup and cosine-ranked review chunk retrieval in `backend/pipeline.py`, with fixture tests in `backend/tests/test_pipeline.py`; checked M1-14 in `docs/ARCHITECTURE.md`.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (8 passed); `.venv/bin/python -m pytest backend/tests -q` (33 passed).
+- **Decisions:** `retrieve()` accepts PKO mappings or model objects and a caller-provided query embedding; a missing embedding returns no review chunks.
+- **Deviations / known issues:** M1-07 is still incomplete, so real catalog integration is pending; validated using a PKO-shaped fixture.
+- **Needs from other member:** none
+- **Next step:** M1-15 grounded answer.
+
+### M1-13: Router (2026-10-11)
+- **Changed:** Added `route()` and table-driven paraphrase tests in `backend/pipeline.py` and `backend/tests/test_pipeline.py`; checked M1-13 in `docs/ARCHITECTURE.md`.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (6 passed); `.venv/bin/python -m pytest backend/tests -q` (31 passed).
+- **Decisions:** Route English text after translation, as described in the architecture flow; normalize Unicode, case, and punctuation, then match explicit phrases.
+- **Deviations / known issues:** Commands must match a listed phrase; other text intentionally falls through to `rag`.
+- **Needs from other member:** none
+- **Next step:** M1-14 retrieval.
+
+### M1-12: Masking (2026-10-11)
+- **Changed:** Added `backend/pipeline.py`, `backend/tests/test_pipeline.py`; checked M1-12 in `docs/ARCHITECTURE.md`.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (4 passed); `.venv/bin/python -m pytest backend/tests -q` (29 passed).
+- **Decisions:** Pass catalog brand/model strings through optional `known_entities`; also detect model-like alphanumeric IDs without a fixed brand list.
+- **Deviations / known issues:** Brand names must be supplied by the caller; number words written out in prose are not tokenized.
+- **Needs from other member:** none
+- **Next step:** M1-13 router.
+
+### M1-11: Bhashini circuit breaker and live API checks (2026-10-11)
+- **Changed:** Added a shared breaker; fixed file-relative loading of `backend/.env` in `main.py` and `bhashini.py`; recorded live results in ARCHITECTURE.md.
+- **How to run/test:** Backend: `.venv/bin/python -m pytest backend/tests -q` (25 passed); frontend: `cd frontend && npm test` (39 passed).
+- **Decisions:** Set a 3 s per-request cap after initial live timings; three consecutive failures open the breaker and return `fallback="offline"`; a fast success resets the failure count.
+- **Live API results:** ASR EN/HI/TE passed (2034/900/870 ms); all six MT directions passed (328–457 ms); TTS EN/HI/TE passed (2351/2365/2861 ms end-to-end). No tokens or transcripts were logged.
+- **Deviations / known issues:** Initial TTS calls crossed the old 2.5 s limit, so inference and S3 download are timed separately. One Telugu TTS request exceeded 2.5 s; the 3 s cap passed at 2861 ms. Breaker stays open until process restart. `backend/bhashini.py` is 319 lines; architecture guidance says leave splitting to the human owner.
+- **Needs from other member:** Reconcile frontend message/product types with `CONTRACT.md` before backend/frontend integration.
+- **Next step:** M1-12 masking.
+
+### M1-10: AnuvaadHub TTS (2026-10-11)
+- **Changed:** Added `synthesize_speech` to `backend/bhashini.py` and TTS mock, request, cache, and validation checks to `backend/tests/test_bhashini.py`.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests -q` (23 passed); `cd frontend && npm test` (39 passed; dependencies installed from `package-lock.json`).
+- **Decisions:** TTS accepts up to 30 words of letters/spaces, posts `text`/`gender`, downloads WAV from `s3_url`, and caches by language, gender, mode, and text hash. Playback rate remains client-side per section 12.
+- **Deviations / known issues:** Only mock and stubbed HTTP paths were tested; real TTS credentials are not yet configured. Caller-side number conversion and symbol removal remain for the pipeline step.
+- **Needs from other member:** Reconcile frontend message/product types with `CONTRACT.md` before backend/frontend integration.
+- **Next step:** M1-11 circuit breaker.
+
+### M1-09: AnuvaadHub translation (2026-10-11)
+- **Changed:** Extended `backend/bhashini.py` with all six MT directions and added mock/request tests in `backend/tests/test_bhashini.py`.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests -q` (16 passed).
+- **Decisions:** Each direction uses its own `BHASHINI_MT_<SOURCE>_<TARGET>_URL/TOKEN`; requests use `input_text` and reject inputs over 50 words.
+- **Deviations / known issues:** Tests use mock responses; real endpoint checks wait until credentials are ready. The M1-08 real smoke is deferred per user instruction.
+- **Needs from other member:** Reconcile frontend message/product types with `CONTRACT.md` before backend/frontend integration.
+- **Next step:** M1-10 mock TTS.
+
+### M1-08: AnuvaadHub ASR client (2026-10-11)
+- **Changed:** Added `backend/bhashini.py` and `backend/tests/test_bhashini.py`; marked M1-08 mock completion in the architecture checklist.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests -q` (7 passed).
+- **Decisions:** ASR uses the per-language `access-token` and multipart `audio_file` contract; accepts mono 16 kHz WAV under 5 MB and up to 20 seconds.
+- **Deviations / known issues:** Mock ASR passes; the required real API smoke/latency check is pending credentials and a sample WAV. Contract/type mismatch noted above.
+- **Needs from other member:** Reconcile frontend message/product types with `CONTRACT.md` before real integration.
+- **Next step:** Real AnuvaadHub ASR smoke, then M1-09.
+
 ### M1-02: Draft shared for SYNC-A review (2026-10-11)
 - **Changed:** Published the backend contract draft, models, setup changes, and current architecture/handoff notes on `main` for Member 2 review.
 - **How to run/test:** `uv sync --all-groups`; `.venv/bin/python -c 'from backend.models import ProductKnowledgeObject'`.
