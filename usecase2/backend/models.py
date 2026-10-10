@@ -11,11 +11,18 @@ Language = Literal["en", "hi", "te"]
 ReviewLanguage = Literal["en", "hi", "te", "hi-en"]
 
 
+class AltText(BaseModel):
+    en: str
+    hi: str
+    te: str
+
+
 class ProductImage(BaseModel):
     thumb: str | None = None
     large: str | None = None
     variant: str | None = None
     hi_res: str | None = None
+    alt_text: AltText | None = None
 
 
 class ProductReview(BaseModel):
@@ -34,12 +41,6 @@ class ProductReview(BaseModel):
 class ReviewDigest(BaseModel):
     pros: list[str] = Field(default_factory=list)
     cons: list[str] = Field(default_factory=list)
-
-
-class AltText(BaseModel):
-    en: str
-    hi: str
-    te: str
 
 
 class ReviewChunk(BaseModel):

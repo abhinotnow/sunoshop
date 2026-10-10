@@ -140,7 +140,7 @@ Both members start with their scaffold step. Sync points are marked **→ SYNC**
 
 **M1-04 Full test catalog (data only).** *Depends:* M1-03. *Files:* `data/products.json`, `eval/testset.json`. *Do:* grow to 30-40 electronics/clothing products with Telugu, Hindi, English and code-mixed reviews; plant ~15 prompt-injection reviews and label each in the testset. *Done when:* all products validate; testset lists every injection id.
 
-**M1-05 Alt-text.** *Depends:* M1-03. *Files:* `ingest.py`. *Do:* Gemini Flash Vision makes en/hi/te alt-text per image, cached by image hash. *Done when:* fixture test passes; second run makes zero API calls.
+**M1-05 Alt-text.** *Depends:* M1-03, M1-09. *Files:* `ingest.py`, `models.py`, `main.py`, `pipeline.py`, `.gitignore`, `tests/test_ingest.py`, `tests/test_models.py`, `tests/test_main.py`, `tests/test_pipeline.py` (scope expanded to carry image descriptions from dataset images into grounded answers). *Do:* Gemini Vision makes concise English alt-text per image, AnuvaadHub translates it to HI/TE, and a local SHA-256 cache avoids repeat model/MT calls. `main.py` merges cached descriptions into catalog image records and the answer context treats them as visual evidence. *Done when:* fixture tests pass; reruns make zero Gemini/MT calls for cached images. **Live smoke (2026-10-11):** one source image described and translated in EN/HI/TE; a customer image-background question answered “A white background” from that caption; see HANDOFF.
 
 **M1-06 Review sanitizer.** *Depends:* M1-04. *Files:* `ingest.py`. *Do:* quarantined LLM (no tools, no app context) returns JSON pros/cons/claims only; free text is rejected. *Done when:* all 15 injections are flagged and cause no action.
 
@@ -158,9 +158,9 @@ Both members start with their scaffold step. Sync points are marked **→ SYNC**
 
 **M1-13 Router.** *Depends:* M1-02. *Files:* `pipeline.py`. *Do:* `route(text)` maps `repeat / slower / simpler / track_order / checkout / cancel` to intents with no LLM and no network; anything else → `"rag"`. *Done when:* table-driven tests incl. paraphrases.
 
-**M1-14 Retrieval.** *Depends:* M1-07. *Files:* `pipeline.py`. *Do:* exact spec lookup plus top-k review chunks by cosine similarity. *Done when:* "battery of p_001" returns the spec and chunks.
+**M1-14 Retrieval.** *Depends:* M1-07. *Files:* `pipeline.py`. *Do:* exact product/spec lookup, query-matched source `features`, plus top-k review chunks by cosine similarity. Do not guess a product when multiple catalog entries exist and the query is vague. *Done when:* "battery of p_001" returns the spec and chunks.
 
-**M1-15 Grounded answer.** *Depends:* M1-14. *Files:* `pipeline.py`. *Do:* Gemini `gemini-3.5-flash-lite` answers from retrieved context only; `check_grounded()` rejects any number or claim not in that context and falls back to "I don't have that information." *Done when:* asking for a spec that doesn't exist never invents a value. **Live smoke (2026-10-11):** HTTP 200; synthetic battery fact returned grounded (1.36 s).
+**M1-15 Grounded answer.** *Depends:* M1-14. *Files:* `pipeline.py`. *Do:* Gemini `gemini-3.5-flash-lite` answers from bounded retrieved context only; `check_grounded()` checks numbers and evidence vocabulary, including spelled numbers only when the matching numeral exists in evidence, then falls back to "I don't have that information." Unknown-product/empty-evidence requests fail closed without an API call. *Done when:* asking for a spec that doesn't exist never invents a value. **Live smoke (2026-10-11):** HTTP 200; synthetic battery fact returned grounded (1.36 s).
 
 **M1-16 Chunker + plausibility.** *Depends:* M1-15, M1-08. *Files:* `pipeline.py`. *Do:* split replies into sentences ≤25 words; flag empty/gibberish ASR text as implausible. *Done when:* no sentence exceeds 25 words (test); silence is flagged.
 
@@ -174,17 +174,17 @@ Both members start with their scaffold step. Sync points are marked **→ SYNC**
 
 **M1-21 Checkout state machine.** *Depends:* M1-02. *Files:* `guardian.py`, `tests/test_guardian.py` (approved scope expansion for required tests). *Do:* define states and explicit allowed transitions: `start`, `guard`, `request_confirmation`, `verified_confirmation`, and `cancel`. *Done when:* illegal moves raise; tests confirm the order path, cancellation, and that `guardian.py` imports no LLM library.
 
-**M1-22 Dark-pattern stripper.** *Depends:* M1-21. *Files:* `guardian.py`. *Do:* remove pre-ticked add-ons and false-urgency timers; return `removed_fees[]`. *Done when:* fixture carts end with the correct total.
+**M1-22 Dark-pattern stripper.** *Depends:* M1-21. *Files:* `guardian.py`, `tests/test_guardian.py` (approved scope expansion for fixture coverage). *Do:* remove explicitly preselected optional add-ons and urgency/countdown fields; return `removed_fees[]` and recompute totals from remaining INR cart lines. *Done when:* fixture carts end with the correct total and user-selected add-ons remain.
 
-**M1-23 Verbal confirmation.** *Depends:* M1-21. *Files:* `guardian.py`. *Do:* random multi-word phrase per language; strict fuzzy match; limited retries. *Done when:* the right phrase passes; random speech, a different phrase and an LLM-forged "confirm" all fail.
+**M1-23 Verbal confirmation.** *Depends:* M1-21. *Files:* `guardian.py`, `tests/test_guardian.py` (approved scope expansion for required cases). *Do:* generate a random multi-word phrase per language; strict fuzzy match; limit attempts to three. *Done when:* the right phrase passes; random speech, a different phrase and a generic LLM-forged "confirm" all fail. Only verified phrase matches may advance `AWAITING_CONFIRM`.
 
-**M1-24 Orders + returns.** *Depends:* M1-09. *Files:* `guardian.py`, `data/orders.json`. *Do:* mock tracking (status → next step → date); returns check eligibility and translate the spoken reason into an English seller note. *Done when:* Telugu reason → English note. **→ SYNC-D**
+**M1-24 Orders + returns.** *Depends:* M1-09. *Files:* `guardian.py`, `data/orders.json`, `tests/test_guardian.py` (approved scope expansion for required tests), `.gitignore`. *Do:* load local mock orders; return tracking status → next step → date; check delivered-item return-window eligibility and translate an eligible spoken reason into an English seller note. Keep `backend/data/orders.json` ignored because it may contain local order data. *Done when:* Telugu reason → English note and tracking/eligibility fixture tests pass. **→ SYNC-D**
 
-**M1-25 Failure ladder.** *Depends:* M1-11, M1-16. *Files:* `main.py`, `pipeline.py`. *Do:* send `check_again`, `error{retry}` or `error{offline}` for implausible ASR, slow Bhashini, Bhashini down. *Done when:* each case emits the right message. **→ SYNC-E**
+**M1-25 Failure ladder.** *Depends:* M1-11, M1-16. *Files:* `main.py`, `pipeline.py`, `tests/test_main.py` (approved scope expansion for WebSocket regression coverage). *Do:* send `check_again`, `error{retry}` or `error{offline}` for implausible ASR, transient/slow Bhashini, and an open Bhashini circuit; keep unexpected worker failures on retry and do not expose exception details. *Done when:* each case emits the right message. **→ SYNC-E**
 
-**M1-26 Eval harness + baselines.** *Depends:* M1-17. *Files:* `eval/run_eval.py`. *Do:* hallucination rate, injection actions, entity survival, checkout false-accepts; baseline of a plain chatbot read through Bhashini. *Done when:* one command writes `eval/results.md`.
+**M1-26 Eval harness + baselines.** *Depends:* M1-17. *Files:* `eval/run_eval.py`, generated `eval/results.md`. *Do:* measure unsupported-answer rejection, injection-triggered actions, entity survival, and checkout false-accepts; support an opt-in plain-chatbot Gemini baseline translated through live Bhashini (`--live-baseline`). *Done when:* one command writes `eval/results.md`. The local smoke cases do not replace the missing labelled `eval/testset.json`; report that limitation explicitly.
 
-**M1-27 Final safety run.** *Depends:* M1-26. *Files:* `eval/results.md`. *Do:* run all injections and the adversarial grounding set. *Done when:* hallucination = 0 and injection actions = 0, or failures are documented and fixed.
+**M1-27 Final safety run.** *Depends:* M1-26. *Files:* `eval/run_eval.py`, `eval/results.md`, `eval/run_customer_simulation.py`, generated `eval/customer_simulation.md`, `pipeline.py`, `tests/test_pipeline.py`, `ARCHITECTURE.md`, `HANDOFF.md` (scope expanded for the requested debugging and regression coverage). *Do:* run all labelled injections and the adversarial grounding set; run live text-only Gemini/AnuvaadHub customer scenarios; keep source `features` query-matched, use generated image descriptions as visual evidence, fix false rejections of harmless answer framing, and keep unsupported/unknown-product cases fail-closed. *Done when:* hallucination = 0 and injection actions = 0, or failures are documented and fixed. Keep this step open while the labelled `eval/testset.json` is missing; available smoke probes are not full coverage.
 
 *Optional stretch (only if ahead):* size-chart OCR → `size_chart` in `ingest.py`; live-site adapter that reads schema.org JSON-LD.
 
@@ -275,7 +275,7 @@ Keep each entry under ~15 lines. A fresh LLM session (or a teammate) must be abl
 
 ## 8. Progress checklist
 
-**Member 1:** `M1-01` `M1-02` `M1-03` `M1-04` `M1-05` `M1-06` `M1-07` `✅ M1-08` `✅ M1-09` `✅ M1-10` `✅ M1-11` `✅ M1-12` `✅ M1-13` `✅ M1-14` `✅ M1-15` `✅ M1-16` `✅ M1-17` `✅ M1-18` `✅ M1-19` `✅ M1-20` `✅ M1-21` `M1-22` `M1-23` `M1-24` `M1-25` `M1-26` `M1-27`
+**Member 1:** `M1-01` `M1-02` `M1-03` `M1-04` `✅ M1-05` `M1-06` `M1-07` `✅ M1-08` `✅ M1-09` `✅ M1-10` `✅ M1-11` `✅ M1-12` `✅ M1-13` `✅ M1-14` `✅ M1-15` `✅ M1-16` `✅ M1-17` `✅ M1-18` `✅ M1-19` `✅ M1-20` `✅ M1-21` `✅ M1-22` `✅ M1-23` `✅ M1-24` `✅ M1-25` `✅ M1-26` `M1-27`
 *(replace with ✅ as you finish each)*
 
 **Member 2:** `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `✅` `M2-18` `M2-19` `M2-20` `M2-21` `M2-22` `M2-23` `M2-24` `M2-25`

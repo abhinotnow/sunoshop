@@ -50,6 +50,8 @@ htmlcov/
 # models/
 # *.pt
 # *.pth
+**/backend/data/orders.json
+**/backend/data/image_alt_text_cache.json
 # *.onnx
 # Node.js dependencies
 node_modules/

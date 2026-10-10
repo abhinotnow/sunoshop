@@ -12,6 +12,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
+from backend import bhashini
+from backend.ingest import CACHE_PATH as IMAGE_ALT_TEXT_CACHE_PATH, apply_cached_alt_text
 from backend.models import AudioUtterance, SessionStart
 from backend.pipeline import handle_utterance
 
@@ -51,7 +53,16 @@ def _load_catalog() -> list[dict[str, object]]:
         return []
     if isinstance(payload, dict):
         payload = payload.get("products", [])
-    return payload if isinstance(payload, list) else []
+    if not isinstance(payload, list):
+        return []
+    if IMAGE_ALT_TEXT_CACHE_PATH.exists():
+        try:
+            image_cache = json.loads(IMAGE_ALT_TEXT_CACHE_PATH.read_text(encoding="utf-8"))
+            payload = apply_cached_alt_text(payload, image_cache)
+        except (OSError, json.JSONDecodeError, AttributeError, TypeError):
+            # Catalog product answers remain available if the optional local cache is invalid.
+            pass
+    return payload
 
 
 CATALOG = _load_catalog()
@@ -93,14 +104,19 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 )
                 continue
 
-            events = await asyncio.to_thread(
-                handle_utterance,
-                wav_bytes,
-                language,
-                CATALOG,
-                rate,
-                session_state=session_state,
-            )
+            try:
+                events = await asyncio.to_thread(
+                    handle_utterance,
+                    wav_bytes,
+                    language,
+                    CATALOG,
+                    rate,
+                    session_state=session_state,
+                )
+            except bhashini.BhashiniOfflineError:
+                events = [{"type": "error", "code": "bhashini_offline", "fallback": "offline"}]
+            except Exception:
+                events = [{"type": "error", "code": "backend_service_error", "fallback": "retry"}]
             for event in events:
                 await websocket.send_json(event)
     except WebSocketDisconnect:

@@ -8,13 +8,77 @@
 ## Member 1 (Backend & AI)
 
 ### Current state
-- **Last completed step:** M1-21 Checkout state machine
-- **Next step:** M1-22 Dark-pattern stripper
-- **Works right now:** `GET /health` and `/ws`; mock ASR/MT/TTS; live ASR EN/HI/TE, all six MT directions, all three TTS models, and Gemini Flash-Lite returned successful responses. `guardian.transition()` enforces the checkout state table from browsing through order placement and allows cancellation from active checkout states. `search_shelf()` ranks up to three products, applies an optional strict INR limit, assigns spatial pans, and returns localized alt text; price-limited utterances emit `shelf.results`. `compare_claim_experience()` returns supported, contradicted, or mixed. Backend explicitly loads local `backend/.env`.
-- **Broken / blocked:** `backend/pipeline.py` is over 500 lines; per architecture, the human owner should decide whether to split it later. `backend/data/catalog.json` is absent because M1-07 is not complete; current raw prices are USD and INR conversion is deferred, so shelf output requires PKOs that already have `price_inr`. Query embeddings are not wired, so live review retrieval remains pending. Real SYNC-C has not been exercised end to end. ASR plausibility uses simple heuristics; TTS latency is near 3 s for Telugu; the breaker stays open until process restart. M1-04 injection reviews and `eval/testset.json` are missing; synthetic multilingual reviews and INR conversion are deferred per section 14. SYNC-A is marked complete, but frontend `types.ts` still differs from `CONTRACT.md` (including audio and product ID fields); reconcile before frontend integration.
+- **Last completed step:** M1-26 Eval harness + baselines; M1-05 image alt-text completed out of sequence
+- **Next step:** M1-27 Final safety run (open: labelled `eval/testset.json` is missing)
+- **Works right now:** `GET /health` and `/ws`; live AnuvaadHub/Gemini API configuration. `backend/ingest.py --max-images 1` generated and translated one dataset image description; cached English/Hindi/Telugu descriptions are merged into catalogs at startup and passed to grounded answers as visual evidence. `eval/run_eval.py --final-safety` reports available local guard checks; `eval/run_customer_simulation.py` made live text API calls against 40 raw dataset products and wrote the actual questions/candidates/guarded responses to `eval/customer_simulation.md`. The injection-bearing review probe produced a grounded product answer without a purchase instruction. Failure ladder and checkout guard tests pass.
+- **Broken / blocked:** M1-27 cannot run the full labelled-injection/adversarial set until `eval/testset.json` is created. The live customer sim's supported reusable-filter answers and Samsung/Waterdrop title comparison now pass the grounding guard; the token cap was raised and spelled numerals are checked against evidence numerals. Unknown products with no matching evidence fail closed before Gemini. Telugu MT still mistranslates “reusable” as “recycled,” though dataset evidence led to a correct answer. The full cache is not generated, so only the first main image has alt text locally; full visual availability depends on running `backend/ingest.py`. The current visual QA path uses generated descriptions, not question-time image understanding. Comparison has no dedicated route, and catalog/embeddings remain absent. `backend/pipeline.py` is over 500 lines; human owner decides whether to split. USD-to-INR and synthetic multilingual reviews remain deferred. SYNC-C/D/E and frontend contract reconciliation remain pending.
 - **Env needed:** `GEMINI_API_KEY` is configured in ignored `backend/.env`; Gemini live smoke passed with synthetic facts. ASR, all six MT, and all three TTS endpoint/token pairs are present there; their live smoke checks passed. Keep credentials local and use `MOCK_BHASHINI=1` for tests.
 
 ### Log (newest first)
+### M1-05: Image alt-text generation (2026-10-11)
+- **Changed:** Added `backend/ingest.py` to fetch approved Amazon image hosts, submit image bytes to Gemini Vision, translate concise captions EN→HI/TE, and cache by SHA-256. Descriptions are attached per image, merged into catalog records at startup, and made available as grounded visual evidence. Added the optional image alt-text schema field and ignored the local cache.
+- **How to run/test:** `.venv/bin/python backend/ingest.py --max-images 1` (live: 1 image, Vision + both translations, cache created); `.venv/bin/python eval/run_customer_simulation.py` (live: image background answered “A white background” from generated caption); `.venv/bin/python -m pytest backend/tests -q` (87 passed); `git diff --check`.
+- **Decisions:** Describe only visible content; do not infer material, identity, product functionality, or safety. Full run processes all image records; `--max-images 1` is the smoke option. Cache is local/ignored and content-addressed; the loader merges by source URL.
+- **Deviations / known issues:** Only one image was processed live; full dataset batch is not generated. Current runtime answers visual questions from cached alt text and does not perform open-ended vision calls per customer question. The alt-text does not guarantee every scene detail is captured.
+- **Needs from other member:** none
+- **Next step:** Run the full cache when ready, then ensure M1-07 catalog generation preserves `images[*].alt_text` and product-level main-image `alt_text`.
+
+### M1-27: Grounded-answer debugging and edge-case regression (2026-10-11; incomplete)
+- **Changed:** Source `features` are query-matched instead of dumping full feature/description arrays; guard now accepts harmless model framing such as “Based on the provided evidence,” and permits spelled numerals only when the corresponding number appears in evidence. Raised Gemini response cap to 256 tokens for comparisons. Unknown-product requests with empty evidence now return no-information without calling Gemini; vague queries still do not pick arbitrarily among multiple products. Added regression tests and reran the live API scenarios.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_pipeline.py -q` (25 passed); `.venv/bin/python -m pytest backend/tests -q` (80 passed); `.venv/bin/python eval/run_customer_simulation.py` (live APIs; reusable filter, Telugu question, comparison, and injection answers accepted; unsupported image, INR, and medical/safety questions fell back); `git diff --check`.
+- **Decisions:** The false rejection was caused by the guard treating harmless answer framing (“based,” “provided,” “evidence,” “no,” “titled,” “priced”) and number words like “three” as unsupported; the original answer context already contained the source feature text. Keep unsupported medical/image/INR questions conservative. The language model's answer must still pass local number and evidence vocabulary checks.
+- **Deviations / known issues:** Telugu translation still changes “reusable” to “recycled”; answer correctness in this example depends on retrieval evidence and does not resolve MT quality. The lexical guard is not a full semantic entailment verifier. The audio WebSocket contract also carries no selected product id, so multi-item conversational references like “this scoop” need product context from the frontend/session before end-to-end retrieval is reliable. Official `eval/testset.json` and labelled injection reviews remain missing, so M1-27 remains open.
+- **Needs from other member:** none
+- **Next step:** Rerun all backend tests and complete the labelled injection/adversarial set before closing M1-27.
+
+### M1-27: Available-case final safety + API customer simulation (2026-10-11; incomplete)
+- **Changed:** Ran available grounding/checkout probes; added `eval/run_customer_simulation.py` and captured live Gemini candidates, guard decisions, and Telugu-English translation results for product, comparison, image, unsupported-price/safety, and injection questions.
+- **How to run/test:** `.venv/bin/python eval/run_eval.py --final-safety`; `.venv/bin/python eval/run_customer_simulation.py` (live); `.venv/bin/python -m pytest backend/tests -q` (76 passed); `.venv/bin/python -m py_compile eval/run_eval.py eval/run_customer_simulation.py`; `git diff --check`.
+- **Decisions:** Used the existing 40-product raw dataset directly; did not fabricate the missing labelled M1-04 test set or INR prices.
+- **Deviations / known issues:** Full M1-27 remains open: official `eval/testset.json` and its ~15 labelled injection reviews are absent. The live run showed safe fallbacks but also rejected supported paraphrases and a truncated comparison answer; see `eval/customer_simulation.md`.
+- **Needs from other member:** none
+- **Next step:** Complete the labelled injection/adversarial set, then rerun M1-27.
+
+### M1-26: Eval harness + baselines (2026-10-11)
+- **Changed:** Added deterministic grounding/injection/entity/checkout smoke metrics and an opt-in plain Gemini-through-Bhashini baseline; generated `eval/results.md` and updated the architecture checklist.
+- **How to run/test:** `.venv/bin/python eval/run_eval.py`; `.venv/bin/python eval/run_eval.py --live-baseline` (live run completed: one Gemini request, Telugu-to-English and English-to-Telugu MT); `git diff --check`.
+- **Decisions:** Keep network calls opt-in. The baseline receives no catalog evidence; local control checks use small built-in probes and cannot represent dataset-level rates.
+- **Deviations / known issues:** Official `eval/testset.json` and its approximately 15 labelled injection reviews are missing. The baseline asked a clarifying question, so its verifier rejection is not evidence of hallucination; M1-27 still needs the labelled data.
+- **Needs from other member:** none
+- **Next step:** M1-27 Final safety run, pending the labelled eval set.
+
+### M1-25: Failure ladder (2026-10-11)
+- **Changed:** Made pipeline errors distinguish the Bhashini offline circuit from retryable service errors; added a final WebSocket worker boundary that returns safe retry/offline events without exception details. Added WebSocket regression cases and updated the architecture checklist.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_main.py -q` (7 passed); `.venv/bin/python -m pytest backend/tests -q` (76 passed); `git diff --check`.
+- **Decisions:** Only `BhashiniOfflineError` maps to `fallback: offline`; other errors request a retry. Implausible recognized speech keeps its existing `check_again` path.
+- **Deviations / known issues:** Failures are exercised through mocked service boundaries; live network outage behavior and frontend SYNC-E remain unverified.
+- **Needs from other member:** Frontend should treat `fallback: offline` as the offline-switch signal and `fallback: retry` as a retry prompt.
+- **Next step:** M1-26 Eval harness + baselines.
+
+### M1-24: Orders + returns (2026-10-11)
+- **Changed:** Added local mock order loading, tracking responses, delivered-item return-window checks, and AnuvaadHub translation of eligible spoken return reasons into English seller notes. Added two demo records to ignored `backend/data/orders.json`; added fixture tests and an explicit ignore rule.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_guardian.py -q`; `.venv/bin/python -m pytest backend/tests -q`; `git diff --check`.
+- **Decisions:** Only delivered orders with a matching product are checked for return eligibility. The return window is inclusive of the calculated deadline. Ineligible requests do not call translation.
+- **Deviations / known issues:** Tracking and orders are mock local data; the ignored JSON file is not shared with teammates. Translation uses configured Telugu-to-English AnuvaadHub MT in live mode and the existing mock MT response in mock mode. SYNC-D remains to be exercised with the frontend.
+- **Needs from other member:** none
+- **Next step:** M1-25 Failure ladder.
+
+### M1-23: Verbal confirmation (2026-10-11)
+- **Changed:** Added random English/Hindi/Telugu confirmation challenges, normalized strict fuzzy matching, and a three-attempt limit; tested correct phrases, transcription variation, random speech, generic confirmation, and exhausted attempts. Updated the architecture checklist.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_guardian.py -q` (15 passed); `.venv/bin/python -m pytest backend/tests -q` (69 passed); `git diff --check`.
+- **Decisions:** Use `secrets.choice`; only match phrases with the same word count and at least 0.9 normalized similarity. Decrement attempts for each spoken response.
+- **Deviations / known issues:** Challenge generation and verification are not yet wired to WebSocket checkout messages; callers must retain the server challenge and only transition on an accepted match.
+- **Needs from other member:** none
+- **Next step:** M1-24 Orders + returns.
+
+### M1-22: Dark-pattern stripper (2026-10-11)
+- **Changed:** Added `strip_dark_patterns()` to remove explicitly preselected optional add-ons and urgency/countdown fields, return removed fees, and recompute INR totals; added fixture tests. Expanded test scope with user approval and checked the architecture checklist.
+- **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_guardian.py -q` (8 passed); `.venv/bin/python -m pytest backend/tests -q` (62 passed); `git diff --check`.
+- **Decisions:** Add-ons are removed only when marked preselected and optional (or named as a known add-on); normal user-selected items remain. Invalid priced cart rows fail closed.
+- **Deviations / known issues:** Sanitizer is not connected to WebSocket checkout actions yet; M1-23 adds spoken verification, then later work can wire the flow.
+- **Needs from other member:** none
+- **Next step:** M1-23 Verbal confirmation.
+
 ### M1-21: Checkout state machine (2026-10-11)
 - **Changed:** Added `backend/guardian.py` with checkout states and an explicit transition table; added tests for legal flow, cancel, illegal moves, and imports. Expanded test scope with user approval.
 - **How to run/test:** `.venv/bin/python -m pytest backend/tests/test_guardian.py -q` (4 passed); `.venv/bin/python -m pytest backend/tests -q` (53 passed); `git diff --check`.
