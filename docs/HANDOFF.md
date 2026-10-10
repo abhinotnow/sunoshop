@@ -166,20 +166,28 @@
 ## Member 2 (Frontend & Accessibility)
 
 ### Current state
-- **Last completed step:** M2-11
-- **Next step:** M2-12
-- **Works right now:** Spatial audio panning via playSpatialShelf() using StereoPannerNode with exact pan values (-1.0 Left, 0.0 Center, +1.0 Right) and sequential mono fallback; Accessible Product Shelf with axe zero violations; Brutalist Coral Red design system; PWA app shell precache; IndexedDB catalog cache. All 39 tests pass.
+- **Last completed step:** M2-17
+- **Next step:** M2-18
+- **Works right now:** Accessible Checkout panel (Checkout.tsx) with Guardian dark-pattern fee stripping (M2-16), assertive live-region alerts, and error haptic feedback; Verbal confirmation challenge phrase (M2-17) displayed large (>=24px), spoken aloud, with attempt counters and cancel action; strict transition to ORDER_PLACED only after server ORDER_PLACED message; Explain Simpler control button & voice trigger (M2-15) with 0.8x playback rate and pause extension; reversible adaptation consent prompt modal (M2-14); button scaling to >= 72px; FrictionTracker sliding window (adapt.ts); WCAG 2.5.7 non-draggable voice price filter; spatial audio panning; accessible product shelf (axe 0 violations); brutalist coral red/black/grey UI; PWA precache. All 67 frontend tests and 6 backend tests pass.
 - **Broken / blocked:** nothing
 - **Env needed:** `VITE_USE_MOCK=true`
 
 ### Log (newest first)
-### M2-11: Spatial audio (2026-10-11)
-- **Changed:** frontend/src/audio.ts, frontend/src/audio.test.tsx, frontend/src/components/Shelf.tsx, docs/ARCHITECTURE.md
-- **How to run/test:** `cd frontend && npm test` (39 tests pass across 6 test suites), `npm run build` (0 TS errors)
-- **Decisions:** playSpatialShelf connects sine chime oscillators through gain nodes to StereoPannerNode at target pan values (-1, 0, +1); gracefully falls back to sequential mono when StereoPannerNode is unavailable; Shelf component exposes Spatial Audio preview button.
+### M2-16 & M2-17: Checkout panel & Verbal confirmation phrase (2026-10-11)
+- **Changed:** frontend/src/components/Checkout.tsx, frontend/src/components/Checkout.test.tsx, frontend/src/App.tsx, docs/ARCHITECTURE.md, docs/HANDOFF.md
+- **How to run/test:** `cd frontend && npm test` (67 tests pass across 10 test suites including axe accessibility audit), `npm run build` (0 TS errors)
+- **Decisions:** Built accessible Brutalist Checkout component; strips pre-selected non-consensual dark-pattern fees with visible strikethrough badges, assertive live-region alert, and triggerHaptic('error'); displays random challenge phrase large with retry limits; transitions to ORDER_PLACED strictly after server confirmation message with triggerHaptic('success'); buttons meet >=56px (and >=72px when largeTargets active); zero axe violations.
 - **Deviations / known issues:** None
-- **Needs from other member:** None (Backend shelf search emits spatial pan values in M1-20).
-- **Next step:** M2-12 (Voice price filter)
+- **Needs from other member:** None (Frontend mock server handles full flow; ready for backend guardian.py).
+- **Next step:** M2-18 (Tracking + returns)
+
+### M2-15: Explain Simpler control (2026-10-11)
+- **Changed:** frontend/src/audio.ts, frontend/src/components/Controls.tsx, frontend/src/components/Controls.test.tsx, docs/ARCHITECTURE.md
+- **How to run/test:** `cd frontend && npm test` (61 tests pass across 9 test suites), `npm run build` (0 TS errors)
+- **Decisions:** Extended SentencePlaybackQueue with override playbackRate and extraPauseMs; added large Explain Simpler button (min-h-[56px] / [72px]) and voice trigger keywords ("explain simpler", "simpler", "samjhao asan", "saralamga"); triggers ui.event explain_again and lowers playback rate to 0.8x.
+- **Deviations / known issues:** None
+- **Needs from other member:** None (Connects to backend M1-18 plain-language summaries).
+- **Next step:** M2-16 (Checkout panel)
 
 ### M2-10: Product shelf (2026-10-11)
 - **Changed:** frontend/src/components/Shelf.tsx, frontend/src/components/Shelf.test.tsx, frontend/src/App.tsx, frontend/package.json, docs/ARCHITECTURE.md
