@@ -3,6 +3,7 @@
 # Depends on pytest, FastAPI's test client, and backend modules.
 
 import base64
+import json
 
 from fastapi.testclient import TestClient
 
@@ -17,6 +18,27 @@ def test_health_returns_ok() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_catalog_loader_merges_generated_image_alt_text(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    cache_path = tmp_path / "image_alt_text_cache.json"
+    image_url = "https://m.media-amazon.com/image.jpg"
+    catalog_path.write_text(json.dumps([{
+        "parent_asin": "p_001",
+        "images": [{"variant": "MAIN", "large": image_url}],
+    }]), encoding="utf-8")
+    cache_path.write_text(json.dumps({
+        "urls": {image_url: "hash1"},
+        "images": {"hash1": {"en": "A mug on a table.", "hi": "मेज पर मग।", "te": "బల్లపై కప్పు."}},
+    }), encoding="utf-8")
+    monkeypatch.setattr(main, "CATALOG_PATH", catalog_path)
+    monkeypatch.setattr(main, "IMAGE_ALT_TEXT_CACHE_PATH", cache_path)
+
+    catalog = main._load_catalog()
+
+    assert catalog[0]["alt_text"]["en"] == "A mug on a table."
+    assert catalog[0]["images"][0]["alt_text"]["te"] == "బల్లపై కప్పు."
 
 
 def test_websocket_telugu_query_returns_grounded_spoken_entity(monkeypatch) -> None:
@@ -81,7 +103,54 @@ def test_websocket_requests_retry_for_implausible_asr(monkeypatch) -> None:
             }
         )
         assert websocket.receive_json()["plausible"] is False
-        assert websocket.receive_json()["type"] == "check_again"
+        assert websocket.receive_json() == {
+            "type": "check_again", "reason": "The audio was unclear. Please try again."
+        }
+
+
+def test_websocket_maps_transient_bhashini_failure_to_retry(monkeypatch) -> None:
+    def slow_asr(_audio, _lang):
+        raise TimeoutError("simulated slow Bhashini request")
+
+    monkeypatch.setattr(bhashini, "recognize_speech", slow_asr)
+    with client.websocket_connect("/ws") as websocket:
+        websocket.send_json({"type": "session.start", "lang": "en", "mode": "push_to_talk", "rate": 1.0})
+        websocket.send_json(
+            {"type": "audio.utterance", "audio_base64": base64.b64encode(b"audio").decode("ascii"), "duration_ms": 250}
+        )
+        assert websocket.receive_json() == {
+            "type": "error", "code": "backend_service_error", "fallback": "retry"
+        }
+
+
+def test_websocket_maps_open_bhashini_circuit_to_offline(monkeypatch) -> None:
+    def offline_asr(_audio, _lang):
+        raise bhashini.BhashiniOfflineError("simulated open circuit")
+
+    monkeypatch.setattr(bhashini, "recognize_speech", offline_asr)
+    with client.websocket_connect("/ws") as websocket:
+        websocket.send_json({"type": "session.start", "lang": "en", "mode": "push_to_talk", "rate": 1.0})
+        websocket.send_json(
+            {"type": "audio.utterance", "audio_base64": base64.b64encode(b"audio").decode("ascii"), "duration_ms": 250}
+        )
+        assert websocket.receive_json() == {
+            "type": "error", "code": "bhashini_offline", "fallback": "offline"
+        }
+
+
+def test_websocket_boundary_maps_unexpected_worker_failure_to_retry(monkeypatch) -> None:
+    def unexpected_failure(*_args, **_kwargs):
+        raise RuntimeError("private detail")
+
+    monkeypatch.setattr(main, "handle_utterance", unexpected_failure)
+    with client.websocket_connect("/ws") as websocket:
+        websocket.send_json({"type": "session.start", "lang": "en", "mode": "push_to_talk", "rate": 1.0})
+        websocket.send_json(
+            {"type": "audio.utterance", "audio_base64": base64.b64encode(b"audio").decode("ascii"), "duration_ms": 250}
+        )
+        assert websocket.receive_json() == {
+            "type": "error", "code": "backend_service_error", "fallback": "retry"
+        }
 
 
 def test_websocket_simpler_reuses_last_grounded_answer_with_speech_controls(monkeypatch) -> None:

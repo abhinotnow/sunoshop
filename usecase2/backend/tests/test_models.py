@@ -38,6 +38,11 @@ def sample_valid_pko_dict() -> dict:
                 "large": "https://example.com/large.jpg",
                 "variant": "MAIN",
                 "hi_res": None,
+                "alt_text": {
+                    "en": "A stainless steel scoop.",
+                    "hi": "स्टेनलेस स्टील का स्कूप।",
+                    "te": "స్టెయిన్‌లెస్ స్టీల్ స్కూప్.",
+                },
             }
         ],
         "store": "Coffee Craft",
@@ -89,6 +94,7 @@ def test_valid_pko_validates():
     assert pko.parent_asin == "B09CBF2XCF"
     assert pko.price_inr == 749
     assert pko.alt_text.en.startswith("A stainless steel")
+    assert pko.images[0].alt_text.en == "A stainless steel scoop."
 
 
 def test_invalid_pko_rejected_on_negative_price():

@@ -17,6 +17,7 @@ from backend.pipeline import (
     search_shelf,
     simplify_answer,
     unmask,
+    _answer_context,
 )
 from backend import bhashini
 from textstat import textstat
@@ -156,6 +157,79 @@ def test_check_grounded_accepts_supported_claim_and_rejects_new_number_or_claim(
     assert check_grounded("Battery capacity is 5000 mAh.", evidence) == "Battery capacity is 5000 mAh."
     assert check_grounded("Battery capacity is 6000 mAh.", evidence) == NO_INFORMATION
     assert check_grounded("Battery capacity is excellent.", evidence) == NO_INFORMATION
+
+
+def test_retrieve_uses_matching_dataset_features_and_allows_supported_paraphrase():
+    product = {
+        "parent_asin": "p_001",
+        "title": "Demo coffee scoop",
+        "features": [
+            "Includes the coffee scoop only; reusable K-Cup coffee filter sold separately.",
+            "Works with reusable coffee pods.",
+        ],
+    }
+
+    evidence = retrieve("Does the p_001 coffee scoop include the reusable filter?", [product])
+    answer = check_grounded(
+        "Based on the provided evidence, no. The reusable K-Cup coffee filter is sold separately.",
+        evidence,
+    )
+
+    assert evidence["product"] is product
+    assert evidence["features"] == product["features"]
+    assert answer.startswith("Based on the provided evidence")
+    assert check_grounded("It includes a stainless steel filter.", evidence) == NO_INFORMATION
+
+
+def test_grounding_accepts_spelled_number_only_when_dataset_has_matching_digit():
+    evidence = "Samsung Genuine Filters, 3 Pack."
+
+    assert check_grounded("The genuine Samsung three-pack.", evidence) != NO_INFORMATION
+    assert check_grounded("This filter has three stages.", evidence) == NO_INFORMATION
+
+
+def test_image_description_is_available_as_visual_question_evidence():
+    product = {
+        "parent_asin": "p_001",
+        "title": "Demo product",
+        "alt_text": {
+            "en": "A black coffee scoop on a white background.",
+            "hi": "सफेद पृष्ठभूमि पर काला कॉफी स्कूप।",
+            "te": "తెల్లని నేపథ్యంపై నల్ల కాఫీ స్కూప్.",
+        },
+        "images": [{
+            "variant": "MAIN",
+            "alt_text": {"en": "A black coffee scoop on a white background."},
+        }],
+    }
+
+    context = _answer_context({"product": product, "specs": {}, "features": [], "review_chunks": []})
+
+    assert "MAIN image: A black coffee scoop on a white background." in context
+    assert check_grounded("The image shows a black coffee scoop on a white background.", context) != NO_INFORMATION
+    assert check_grounded("The image shows a person holding the scoop.", context) == NO_INFORMATION
+
+
+def test_retrieve_does_not_guess_between_multiple_vague_products():
+    products = [
+        {"parent_asin": "a", "title": "Coffee scoop", "features": ["Metal scoop"]},
+        {"parent_asin": "b", "title": "Coffee filter", "features": ["Paper filter"]},
+    ]
+
+    result = retrieve("Does this include the filter?", products)
+
+    assert result["product"] is None
+    assert result["features"] == []
+
+
+def test_empty_retrieval_fails_closed_without_calling_gemini(monkeypatch):
+    monkeypatch.setattr(
+        "backend.pipeline.requests.post",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("unexpected API call")),
+    )
+
+    result = retrieve("unknown product", [{"parent_asin": "known", "title": "Known item"}])
+    assert answer_grounded("What is this?", result, api_key="test-key") == NO_INFORMATION
 
 
 def test_claim_experience_marks_bad_battery_reviews_as_contradicted():
