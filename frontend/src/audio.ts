@@ -318,6 +318,8 @@ export interface SentencePlaybackOptions {
   onSentenceStart?: (sentence: ReplySentenceMessage) => void;
   onSentenceEnd?: (sentence: ReplySentenceMessage) => void;
   onQueueEmpty?: () => void;
+  playbackRate?: number;
+  extraPauseMs?: number;
 }
 
 export class SentencePlaybackQueue {
@@ -329,12 +331,28 @@ export class SentencePlaybackQueue {
   private onSentenceStart?: (sentence: ReplySentenceMessage) => void;
   private onSentenceEnd?: (sentence: ReplySentenceMessage) => void;
   private onQueueEmpty?: () => void;
+  private overrideRate?: number;
+  private extraPauseMs: number = 0;
 
   constructor(options: SentencePlaybackOptions = {}) {
     this.playHandler = options.playHandler;
     this.onSentenceStart = options.onSentenceStart;
     this.onSentenceEnd = options.onSentenceEnd;
     this.onQueueEmpty = options.onQueueEmpty;
+    this.overrideRate = options.playbackRate;
+    this.extraPauseMs = options.extraPauseMs ?? 0;
+  }
+
+  public setPlaybackRate(rate: number | undefined): void {
+    this.overrideRate = rate;
+  }
+
+  public getPlaybackRate(): number {
+    return this.overrideRate ?? 1.0;
+  }
+
+  public setExtraPause(pauseMs: number): void {
+    this.extraPauseMs = pauseMs;
   }
 
   public enqueue(sentence: ReplySentenceMessage): void {
@@ -363,7 +381,7 @@ export class SentencePlaybackQueue {
 
       this.onSentenceEnd?.(sentence);
 
-      const pause = sentence.pause_ms ?? 100;
+      const pause = (sentence.pause_ms ?? 100) + this.extraPauseMs;
       if (pause > 0) {
         await new Promise((resolve) => setTimeout(resolve, pause));
       }
@@ -386,9 +404,8 @@ export class SentencePlaybackQueue {
       }
 
       const utterance = new SpeechSynthesisUtterance(sentence.text);
-      if (sentence.rate) {
-        utterance.rate = sentence.rate;
-      }
+      const effectiveRate = this.overrideRate ?? sentence.rate ?? 1.0;
+      utterance.rate = effectiveRate;
       utterance.onend = () => resolve();
       utterance.onerror = () => resolve();
       window.speechSynthesis.speak(utterance);

@@ -33,6 +33,7 @@ export interface ControlsProps {
   onDeclineOffer?: () => void;
   adaptationState?: AdaptationState;
   onRevertAdaptation?: (adaptation: AdaptationType) => void;
+  onExplainSimplerToggle?: (active: boolean) => void;
 }
 
 export default function Controls({
@@ -46,12 +47,14 @@ export default function Controls({
   onDeclineOffer,
   adaptationState: controlledAdaptationState,
   onRevertAdaptation,
+  onExplainSimplerToggle,
 }: ControlsProps): React.ReactElement {
   const [mode, setMode] = useState<AudioMode>('push-to-talk');
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('Ready to listen');
   const [activeCaption, setActiveCaption] = useState<string | null>(null);
+  const [isExplainSimpler, setIsExplainSimpler] = useState<boolean>(false);
 
   // Adaptation state & offer management
   const [internalOffer, setInternalOffer] = useState<AdaptationOffer | null>(null);
@@ -93,6 +96,16 @@ export default function Controls({
         triggerHaptic('success');
       } else if (msg.type === 'check_again' || msg.type === 'error') {
         triggerHaptic('error');
+      } else if (msg.type === 'asr.result') {
+        const lower = msg.text.toLowerCase();
+        if (
+          lower.includes('explain simpler') ||
+          lower.includes('simpler') ||
+          lower.includes('samjhao asan') ||
+          lower.includes('saralamga')
+        ) {
+          handleToggleExplainSimpler(true);
+        }
       } else if (msg.type === 'adapt.offer') {
         // Capture incoming adaptation offer from server
         const offer: AdaptationOffer = {
@@ -167,6 +180,37 @@ export default function Controls({
     }
 
     onAnnounce?.('Setting reverted to standard default.', 'polite');
+  };
+
+  const handleToggleExplainSimpler = (forcedState?: boolean) => {
+    const nextState = forcedState !== undefined ? forcedState : !isExplainSimpler;
+    setIsExplainSimpler(nextState);
+
+    if (nextState) {
+      playbackQueueRef.current?.setPlaybackRate(0.8);
+      playbackQueueRef.current?.setExtraPause(300);
+      apiClient.send({
+        type: 'ui.event',
+        kind: 'explain_again',
+      });
+      onAnnounce?.(
+        'Explain Simpler mode activated. Speech playback slowed to 0.8x with longer pauses.',
+        'polite'
+      );
+      setStatusMessage('Explain Simpler active (0.8x)');
+      onExplainSimplerToggle?.(true);
+    } else {
+      const fallbackRate =
+        currentAdaptationState.speechRate < 1.0 ? currentAdaptationState.speechRate : undefined;
+      playbackQueueRef.current?.setPlaybackRate(fallbackRate);
+      playbackQueueRef.current?.setExtraPause(0);
+      onAnnounce?.(
+        'Explain Simpler mode deactivated. Speech playback restored to standard speed.',
+        'polite'
+      );
+      setStatusMessage('Standard speech rate');
+      onExplainSimplerToggle?.(false);
+    }
   };
 
   const dispatchUtterance = async (wavBlob: Blob) => {
@@ -416,7 +460,31 @@ export default function Controls({
         </button>
       </div>
 
-      {/* 5. Main Microphone Action Button (Scales to >= 72px in Large Targets Mode) */}
+      {/* 5. Explain Simpler Accessible Action (M2-15) */}
+      <div className="w-full flex justify-center">
+        <button
+          type="button"
+          onClick={() => handleToggleExplainSimpler()}
+          aria-pressed={isExplainSimpler}
+          aria-label={
+            isExplainSimpler
+              ? 'Explain Simpler active. Click to restore normal speech rate.'
+              : 'Explain Simpler: slow down playback to 0.8x and add pauses.'
+          }
+          className={`${
+            isLargeTargets ? 'min-h-[72px] px-8 text-base' : 'min-h-[56px] px-6 text-sm'
+          } w-full sm:w-auto font-mono font-black uppercase tracking-wider flex items-center justify-center gap-2 border-2 transition-all shadow-brutalSm active:translate-x-0.5 active:translate-y-0.5 ${
+            isExplainSimpler
+              ? 'bg-coral-500 text-brutal-black border-white ring-2 ring-coral-400'
+              : 'bg-brutal-card hover:bg-brutal-muted text-coral-400 border-coral-500/80'
+          }`}
+        >
+          <span aria-hidden="true">{isExplainSimpler ? '💡' : '💬'}</span>
+          <span>{isExplainSimpler ? 'Explain Simpler: ON (0.8x)' : 'Explain Simpler'}</span>
+        </button>
+      </div>
+
+      {/* 6. Main Microphone Action Button (Scales to >= 72px in Large Targets Mode) */}
       <div className="relative my-2">
         <button
           type="button"

@@ -52,20 +52,20 @@
 ## Member 2 (Frontend & Accessibility)
 
 ### Current state
-- **Last completed step:** M2-14
-- **Next step:** M2-15
-- **Works right now:** Reversible adaptation consent prompt modal (Controls.tsx) asking aloud and visually before applying adaptations; declining changes nothing; accepting enlarges buttons to >= 72px (WCAG 2.5.5) or slows speech to 0.8x; instant reversibility via Revert badge; design.md documenting complete brutalist accessibility system; FrictionTracker sliding window (adapt.ts); WCAG 2.5.7 non-draggable voice price filter; spatial audio panning; accessible product shelf (axe 0 violations); brutalist coral red/black/grey UI; PWA precache. All 60 frontend tests and 6 backend tests pass.
+- **Last completed step:** M2-15
+- **Next step:** M2-16
+- **Works right now:** Explain Simpler control button and voice trigger in Controls.tsx; slows SentencePlaybackQueue playback rate to 0.8x and adds +300ms inter-sentence pauses; sends ui.event { kind: 'explain_again' }; speaks confirmation aloud via live-region; reversible adaptation consent prompt modal (M2-14); button scaling to >= 72px; FrictionTracker sliding window (adapt.ts); WCAG 2.5.7 non-draggable voice price filter; spatial audio panning; accessible product shelf (axe 0 violations); brutalist coral red/black/grey UI; PWA precache. All 61 frontend tests and 6 backend tests pass.
 - **Broken / blocked:** nothing
 - **Env needed:** `VITE_USE_MOCK=true`
 
 ### Log (newest first)
-### M2-14: Adaptation prompt (2026-10-11)
-- **Changed:** frontend/src/adapt.ts, frontend/src/components/Controls.tsx, frontend/src/components/Controls.test.tsx, frontend/src/App.tsx, design.md, docs/ARCHITECTURE.md
-- **How to run/test:** `cd frontend && npm test` (60 tests pass across 9 test suites), `npm run build` (0 TS errors)
-- **Decisions:** Implemented Adaptation Prompt modal banner requiring explicit user consent; speaks proposals aloud via live region; declining strictly changes nothing; accepting scales touch targets to >= 72px or slows speech rate to 0.8x; provides persistent Revert badge for 100% reversibility; created design.md documenting complete brutalist design tokens.
+### M2-15: Explain Simpler control (2026-10-11)
+- **Changed:** frontend/src/audio.ts, frontend/src/components/Controls.tsx, frontend/src/components/Controls.test.tsx, docs/ARCHITECTURE.md
+- **How to run/test:** `cd frontend && npm test` (61 tests pass across 9 test suites), `npm run build` (0 TS errors)
+- **Decisions:** Extended SentencePlaybackQueue with override playbackRate and extraPauseMs; added large Explain Simpler button (min-h-[56px] / [72px]) and voice trigger keywords ("explain simpler", "simpler", "samjhao asan", "saralamga"); triggers ui.event explain_again and lowers playback rate to 0.8x.
 - **Deviations / known issues:** None
-- **Needs from other member:** None
-- **Next step:** M2-15 (Explain Simpler control)
+- **Needs from other member:** None (Connects to backend M1-18 plain-language summaries).
+- **Next step:** M2-16 (Checkout panel)
 
 ### M2-10: Product shelf (2026-10-11)
 - **Changed:** frontend/src/components/Shelf.tsx, frontend/src/components/Shelf.test.tsx, frontend/src/App.tsx, frontend/package.json, docs/ARCHITECTURE.md

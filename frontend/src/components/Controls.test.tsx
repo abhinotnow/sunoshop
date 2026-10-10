@@ -158,4 +158,51 @@ describe('M2-14 Adaptation Prompt & Controls Tests', () => {
     fireEvent.click(revertBtn);
     expect(revertSpy).toHaveBeenCalledWith('larger_targets');
   });
+
+  it('pressing Explain Simpler button lowers playback rate to 0.8x and sends ui.event (M2-15)', () => {
+    const toggleSpy = vi.fn();
+    const announceSpy = vi.fn();
+    const sendSpy = vi.spyOn(apiClient, 'send');
+
+    render(
+      <Controls
+        apiClient={apiClient}
+        currentLang="en"
+        onExplainSimplerToggle={toggleSpy}
+        onAnnounce={announceSpy}
+      />
+    );
+
+    const simplerBtn = screen.getByRole('button', {
+      name: /explain simpler: slow down playback to 0.8x/i,
+    });
+    expect(simplerBtn).toBeDefined();
+
+    // Click Explain Simpler
+    fireEvent.click(simplerBtn);
+
+    // Verify toggle callback called with true
+    expect(toggleSpy).toHaveBeenCalledWith(true);
+
+    // Verify client sent ui.event explain_again
+    expect(sendSpy).toHaveBeenCalledWith({
+      type: 'ui.event',
+      kind: 'explain_again',
+    });
+
+    // Verify announcement
+    expect(announceSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/explain simpler mode activated.*slowed to 0.8x/i),
+      'polite'
+    );
+
+    // Click again to deactivate and restore speed
+    fireEvent.click(simplerBtn);
+    expect(toggleSpy).toHaveBeenCalledWith(false);
+    expect(announceSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/explain simpler mode deactivated.*restored to standard speed/i),
+      'polite'
+    );
+  });
 });
+
