@@ -295,3 +295,82 @@ Keep each entry under ~15 lines. A fresh LLM session (or a teammate) must be abl
 ## 10. Stated limitations (for the final deck)
 
 Catalog is a cached snapshot, not live-scraped · checkout and tracking are simulated · no medical or financial advice · condition inference is rule-based and always asks consent.
+
+## 11. API addendum (AnuvaadHub, overrides ULCA mentions in M1-08..M1-11)
+- Each model has its own endpoint + token: POST <endpoint>, header `access-token`. No language
+  parameter, so config is per task+language/pair in .env, e.g. BHASHINI_MT_EN_HI_URL / _TOKEN.
+- MT: JSON {"input_text"} -> data.output_text. Max 50 words.
+- ASR: multipart `audio_file` (WAV, <5MB, ~20 s) -> data.recognized_text.
+- TTS: JSON {"text","gender"} -> data.s3_url. Max 30 words, NO special characters. No rate param.
+- OCR: multipart `file` (jpg/png <5MB, white background) -> data.decoded_text.
+- Treat any response with status != "success" as a failure for the circuit breaker.
+- `rate` is applied by the client (playbackRate); backend only passes it through in reply.sentence.
+- Backend downloads the TTS wav from s3_url, caches it by text hash, and sends it as the
+  reply.sentence `audio` field (decide base64 vs URL in CONTRACT.md at M1-02).
+- Before TTS: unmask placeholders, convert currency/digits to words, strip brackets and symbols.
+- Breaker timeout is a starting value: measure real latency in M1-08 before fixing it.
+- MOCK_BHASHINI=1 must return the same response shapes as the real API.
+
+## 12. Change notes (agreed with the team, override earlier text)
+
+1. API: follow section 11 (AnuvaadHub). No language param; per task+language endpoints in .env;
+   TTS has no rate (client applies it); TTS returns s3_url (backend downloads, caches, sends audio).
+2. M1-05 changed: Gemini writes ENGLISH alt-text only. Hindi/Telugu alt-text come from Bhashini MT
+   at ingest (each description under 50 words), cached by image hash. M1-05 now depends on M1-09.
+   Ingest needs real Bhashini keys; its test runs in MOCK_BHASHINI=1.
+3. Ingest is an OFFLINE script run once by a developer (not per user). Add `if __name__ == "__main__":`
+   so `python backend/ingest.py` rebuilds data/catalog.json. It never runs on a user's query.
+4. One language per session. `session.start.lang` is set from a start-screen picker (three large
+   labelled buttons). No mid-session switching and no language detection for now.
+   Do not build a "script check" for wrong-language ASR (per-language endpoints always return their own script).
+5. M1-04 dataset: use McAuley Lab Amazon Reviews 2023. Join meta and review files on parent_asin.
+   Pick ~30-40 products (electronics, phones, a few clothing items) with price and 30+ reviews;
+   stream the files, don't download a whole category. Prices are USD: convert to INR with ONE fixed
+   declared rate and round. Hindi/Telugu/code-mixed reviews and the ~15 injection reviews are SYNTHETIC
+   and must be labelled synthetic in the data. M1-04 may add ONE script: backend/prepare_dataset.py.
+6. Before TTS: unmask placeholders, convert currency and digits to words per language, strip symbols.
+   Test TTS with digits early; if a language mispronounces them, write a small number-to-words helper.
+7. Build order for M1: M1-01, M1-02 (freeze contract fast), then M1-08 with a real smoke test
+   (record latency), then continue. Set the circuit-breaker timeout after measuring.
+8. Add .gitignore (.env, __pycache__, node_modules, data/orders.json) by hand. Never commit tokens.
+
+## 13. Dataset notation and download (overrides earlier field names)
+- Use McAuley Lab Amazon Reviews 2023 field names verbatim in models.py, catalog.json and CONTRACT.md.
+  Product: parent_asin (= product id), title, price, features, description, images, store,
+  average_rating, rating_number, categories, details. Review: rating, title, text, timestamp,
+  verified_purchase, helpful_vote, user_id, parent_asin.
+- Our added fields: price_inr, alt_text{en,hi,te}, review_digest{pros,cons}, size_chart;
+  on every review: synthetic (bool) and lang ("en"|"hi"|"te"|"hi-en"). Never rename dataset fields.
+- Wherever ARCHITECTURE.md earlier used other names (id, name, rating...), rename to the above in M1-02.
+- M1-04 produces backend/prepare_dataset.py: streams raw .jsonl over HTTP (requests, stream=True),
+  NEVER downloads a whole category, NEVER uses load_dataset(trust_remote_code). One category,
+  first N_REVIEWS reviews, products with >=30 reviews, a valid float price and large images,
+  keep 40 products x 30 reviews -> data/raw_subset.json. ingest.py reads this file.
+- price_inr = round(price_usd * RATE); RATE is one constant in prepare_dataset.py, declared in README.
+- Synthetic reviews (hi, te, hi-en) and the injection reviews are written by us and flagged synthetic=true.
+  Real reviews keep synthetic=false and original English text.
+
+## 14. Current dataset scope and secret handling
+
+### Dataset status
+- `data/raw_subset.json` currently contains 40 real English products/reviews and passed the subset checks.
+- The prompt-injection review set and its labelled `eval/testset.json` are still missing. Add about 15
+  labelled injection reviews and verify they cause no action before calling M1-04 complete.
+- For now, do not block on INR normalization or synthetic Hindi/Telugu/code-mixed reviews. Keep the
+  raw source `price` in USD and current real reviews marked `synthetic=false`, `lang="en"`.
+- Treat INR conversion and synthetic multilingual review generation as deferred follow-up work. Record
+  when they are resumed; do not claim those fields/data exist until implemented and checked.
+
+### Secrets and per-model credentials
+- Keep real credentials only in a developer-local `.env`, which `.gitignore` excludes. Copy names from
+  `backend/.env.example`; that example contains blank values only. Never commit `.env`, paste tokens in
+  chat, put them in source code, or print them in logs/test output.
+- AnuvaadHub credentials are per task and language/direction. Use `BHASHINI_ASR_<LANG>_URL/TOKEN`,
+  `BHASHINI_MT_<SOURCE>_<TARGET>_URL/TOKEN`, and `BHASHINI_TTS_<LANG>_URL/TOKEN`; OCR uses
+  `BHASHINI_OCR_URL/TOKEN`. Store the URL and token together under the matching name in local `.env`.
+- For deployed environments, use the platform's secret manager/environment secret facility, not a
+  checked-in file. Restrict access to the backend runtime and rotate any credential that is exposed.
+- Exact AnuvaadHub endpoints and tokens are needed for the real M1-08 ASR smoke test. Until then,
+  `MOCK_BHASHINI=1` allows development without credentials. Obtain values from AnuvaadHub and enter
+  them directly into local `.env`; do not send the values in messages or source files.
+- Cite Hou et al. 2024 (arXiv:2403.03952) in README. State that dataset terms are unverified.
