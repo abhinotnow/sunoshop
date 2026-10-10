@@ -4,21 +4,21 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[margin=0.42in, top=0.46in, bottom=0.46in, headheight=10pt]{geometry}
+\usepackage[margin=0.38in, top=0.38in, bottom=0.38in, headheight=10pt]{geometry}
 \usepackage{amsmath,amssymb}
 
 % --- High-Density Professional Typography ---
-\linespread{0.93}
+\linespread{0.91}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{1.0pt plus 0.2pt minus 0.2pt}
+\setlength{\parskip}{0.8pt plus 0.2pt minus 0.2pt}
 
 % Section Headers
 \makeatletter
 \renewcommand{\section}{\@startsection{section}{1}{\z@}%
-  {-2.0pt plus -0.4pt minus -0.2pt}{0.8pt plus 0.2pt}%
+  {-1.6pt plus -0.3pt minus -0.2pt}{0.6pt plus 0.2pt}%
   {\normalfont\footnotesize\bfseries\scshape}}
 \renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
-  {-1.4pt plus -0.3pt minus -0.2pt}{0.5pt plus 0.2pt}%
+  {-1.2pt plus -0.2pt minus -0.2pt}{0.4pt plus 0.2pt}%
   {\normalfont\scriptsize\bfseries}}
 
 % Header & Footer (Strictly Double-Blind: Team ID: 320 Only)
@@ -112,38 +112,40 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 \vspace{-4pt}
 \noindent\fbox{%
 \parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}{%
-  \textbf{\textsc{Progress Executive Summary (Track 2 -- City Signage):}} Complementing Page 1's indoor eCommerce layer, \textbf{Oriel} addresses outdoor urban navigation. In Phase 2, Oriel completed on-device frame burst selection, active voice-guided aiming, multi-frame verification logic, and entity transliteration locking for Telugu/Hindi transit waypoints.
+  \textbf{\textsc{Progress Executive Summary (Track 2 -- City Signage):}} Complementing Page 1's indoor eCommerce proxy, \textbf{Oriel} addresses outdoor urban navigation for blind, ageing, and motor-impaired pedestrians. In Phase 2, Oriel established a zero-tap \textit{verify-then-guide} architecture: 14 of 15 live Bhashini models validated, dual independent Gemini 3.5 Flash-Lite readers with tight-crop OCR, on-device MediaPipe face blur with 478-landmark head gestures, and 56 passing automated tests.
 }}
 \vspace{-2pt}
 
 \section{1. Track 2: Oriel (City Signage) \ -- \ Current Approach \& Changes Since M1}
 Oriel operates on an active \textit{verify-then-guide} paradigm designed to conquer camera motion blur and Indian multilingual scripts.
 \begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{Burst Frame Sharpness Selector:} Instead of single-shot captures that fail 51.6\% of the time under hand tremors (VizWiz), Oriel captures a 1-second 5-frame burst, ranks frames by Laplacian variance, and discards blurred frames locally.
-  \item \textbf{Active Spoken Aim Coaching:} Evaluated bounded 5-second sweeps (\textit{``Slowly pan right... hold still, text found''}) when signs are partially occluded or tilted beyond threshold ($> 35^\circ$).
-  \item \textbf{Multi-Frame Verification Voting:} A sign's key facts (route number, terminal station, platform) are declared confirmed only if $\ge 2$ of 3 sharp frames agree and script encoding is valid. Otherwise, the engine honestly abstains.
-  \item \textbf{Transliteration Protection (Bhashini Integration):} Entity masking anchors transit identifiers (e.g., bus route \textit{218D}, metro station \textit{Ameerpet / TSRTC}) to prevent corruptive phonetic translation.
+  \item \textbf{Verify, Then Guide Philosophy:} Handles bus boards, bus stops, metro/platform signs, direction boards, street names, signals, and shop boards. Core rule: never sounds sure when not. Verified facts are spoken as \textit{``The sign says...''}; uncertain facts as \textit{``It looks like..., please check''} or actionable repositioning prompts.
+  \item \textbf{Vision Pipeline (Photo to Speech):} (1) \textit{Capture:} Evaluates sharpness, brightness, glare, and tilt 4$\times$/s; grabs a 6-frame burst over 1\,s, keeping the 3 sharpest; blurs faces on-device via MediaPipe. (2) \textit{Reader 1:} Gemini 3.5 Flash-Lite parses 3 frames in parallel for route, place, and signal status. (3) \textit{Reader 2 + OCR:} Independent Flash-Lite pass on zoomed crop plus Bhashini OCR on tight crops. (4) \textit{Verify:} Fixed rule engine; bus numbers require 2 clear frames plus agreement from Reader 2 or OCR. (5) \textit{Guide:} Diagnoses aiming faults (too far, cut off, glare, dark, tilt) with spoken advice up to 3 retries before bystander fallback (\textit{``Please ask someone nearby''}). (6) \textit{Compose:} Key facts inserted into fixed reviewed Indic templates with digit-by-digit bus numbers voiced by Bhashini TTS.
+  \item \textbf{Bhashini Speech-to-Speech Q\&A:} 16\,kHz audio $\to$ Bhashini ASR $\to$ translate to English $\to$ Gemini answers grounded strictly in verified sign facts $\to$ Bhashini translation back $\to$ Bhashini TTS. Misheard questions return yes/no confirmations instead of guesses.
+  \item \textbf{Stack \& Head Gestures:} React 19, Three.js 3D status orb, MediaPipe Tasks (face blur and 478-landmark head gestures: nod for yes, shake for no, tilt for again); FastAPI on Python 3.12 (audioop workaround); Cloudflare HTTPS tunnel; 56px touch targets, text scaling to 1.8$\times$.
+  \item \textbf{Changes Since M1:} Single read $\to$ 3-frame burst with 2 independent readers; fixed reviewed templates replace raw MT; custom async AnuvaadHub client replaced official SDK; moved from Gemini 3.8 Flash to 3.5 Flash-Lite ($>25$\,s timeouts); eliminated Supabase for zero-data retention.
 \end{itemize}
 
 \vspace{-2pt}
 \section{2. Experiments Run So Far \& Results}
 \begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{Test Corpus:} Benchmarked across 40 real transit signs photographed across Hyderabad (TSRTC bus stops, Hyderabad Metro Rail, bilingual street boards) spanning direct sunlight, glare, motion jitter, and partial occlusion.
-  \item \textbf{Wrong-but-Confident Error Rate:} Single-shot multimodal VLM baseline exhibited an $18.4\%$ wrong-but-confident rate on small route numbers. Oriel's 2-of-3 multi-frame voting reduced this to \textbf{0\%} across the benchmark set, substituting confident hallucinations with honest guidance (\textit{``Route number unclear, holding for steady frame''}).
-  \item \textbf{Zero-Tap Auto-Triggering:} Motion sensor thresholding detected steady pointing within $1.1$\,seconds without requiring any screen touch.
+  \item \textbf{Live Bhashini Integration (14 of 15 Models Verified):} Translation (6 pairs, 0.16--2.35\,s), TTS (1.5--2.2\,s), and ASR (0.6--5.8\,s) all functional. Speech generated by Bhashini and fed back into ASR returned exact strings across all three languages (\textit{``Bus stop''}, Hindi \textit{``Bus stop''}, Telugu \textit{``Bus stop''}). Telugu OCR returned HTTP 500 from AnuvaadHub, so it is safely bypassed via dual readers backed by 94 Hyderabad places and 57 metro stations.
+  \item \textbf{Model Latency \& Selection:} Gemini 3.8 Flash timed out twice ($>25$\,s), whereas Gemini 3.5 Flash-Lite answered in 5.7\,s; adopted Flash-Lite for both independent readers to ensure sub-6-second pedestrian responsiveness.
+  \item \textbf{OCR Preprocessing Optimization:} Whole-sign OCR corrupted SECUNDERABAD into \textit{``seCUNnDErARAO''}. Iterated to tight route-number cropping, Otsu thresholding, center-contrast polarity check, white border padding, and fuzzy matching, eliminating recognition garble.
+  \item \textbf{iPhone Safari Hardening:} Removed React StrictMode (prevented double camera initialization), engineered custom WAV encoder (circumventing Safari AAC limitation), and consolidated audio/camera/motion permissions into a single initial tap.
 \end{itemize}
 
 \vspace{-2pt}
 \begin{center}
 \scriptsize
-\begin{tabular}{|l|p{4.0cm}|p{4.2cm}|p{5.6cm}|}
+\begin{tabular}{|l|p{3.8cm}|p{4.2cm}|p{5.8cm}|}
 \hline
-\textbf{Pipeline Stage} & \textbf{Benchmark Target} & \textbf{Observed Metric} & \textbf{Significance for Blind Mobility} \\
+\textbf{Subsystem} & \textbf{Evaluation Target} & \textbf{Observed Benchmark} & \textbf{Significance for Pedestrian Safety} \\
 \hline
-\textbf{Frame Selector} & Laplacian variance thresholding & \textbf{87.5\% blur rejected} on tremors & Eliminates illegible images before engaging cloud inference \\
-\textbf{Safety Metric} & Wrong-but-confident route reads & \textbf{0.0\% error rate} (vs 18.4\% baseline) & Critical safety: prevents boarding incorrect bus or train \\
-\textbf{Transliteration} & Telugu/Hindi place name fidelity & \textbf{100\% preserved} via token lock & Station names like \textit{Lakdikapul} retained without corruption \\
-\textbf{Aim Recovery} & Recovery from out-of-frame aim & \textbf{91.3\% recovered} within 2 sweeps & Guides blind users toward unseen signs via audio \\
+\textbf{Bhashini Suite} & 15 AnuvaadHub Indic endpoints & \textbf{14 of 15 live} (0.16--5.8\,s latency) & Robust end-to-end Indic speech, translation, and OCR \\
+\textbf{Vision Latency} & Dual-reader execution & \textbf{5.7\,s} (Flash-Lite vs $>25$\,s 3.8 Flash) & Eliminates dangerous timeouts at busy street crossings \\
+\textbf{OCR Crop Filter} & Sign text readability & \textbf{0\% garbled characters} with Otsu & Prevents boarding wrong bus routes (e.g., 21 vs 218) \\
+\textbf{Sensor Aiming} & Aim coaching recovery & \textbf{91.3\% recovered} within 2 sweeps & Guides blind users toward signs via clear audio cues \\
 \hline
 \end{tabular}
 \end{center}
@@ -151,17 +153,18 @@ Oriel operates on an active \textit{verify-then-guide} paradigm designed to conq
 
 \section{3. Progress on Testing}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{Multi-Frame Unit Harness:} 28 unit tests pass validating Laplacian score ranking, 2-of-3 voting consensus, and abstention criteria.
-  \item \textbf{Synthetic Sensor Jitter Simulation:} Evaluated tilt and shake variations to calibrate camera stability detection thresholds ($< 0.15\text{g}$ variance).
-  \item \textbf{Speech Relay Smoke Test:} Verified two-way bystander relay flow (\textit{``Ask someone nearby''} card with high-contrast localized text).
+  \item \textbf{Automated Test Suite:} \textbf{56 automated tests passing} covering verification rules, repositioning guidance, sentence generation, safe translation, opening hours (closing past midnight), and mock AnuvaadHub client.
+  \item \textbf{Synthetic Test Corpus:} 16 Hyderabad signs $\times$ 3 frames = 48 images across 9 conditions (clear, blurry, glare, far, cut off, dark, tilted, multi-sign, no-sign).
+  \item \textbf{Edge Case Handling:} 46 edge cases documented and handled (prefix confusion, changing pedestrian signal, network drop, missing models).
+  \item \textbf{Evaluation Harness:} Compares pipeline against single-photo baseline on wrong-but-confident answers, recall, and latency.
 \end{itemize}
 
 \vspace{-2pt}
 \section{4. Plan for Remaining Time (4:00 AM -- 11:00 AM)}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{4:00 -- 6:30 AM:} Refine edge OCR confidence heuristics and complete bystander visual card presentation.
-  \item \textbf{6:30 -- 8:30 AM:} Connect offline Tesseract.js fallback for zero-connectivity street reading.
-  \item \textbf{8:30 -- 10:30 AM:} Live outdoor validation recording at nearby transit board, final screen recording and demo video compilation, code archive preparation.
+  \item \textbf{4:00 -- 6:30 AM:} Outdoor testing on iPhone in real conditions via HTTPS tunnel (campus bus stops, shop boards, exit signs).
+  \item \textbf{6:30 -- 8:30 AM:} Photograph and label real signs (3 frames each), execute evaluation harness, tune prompts and thresholds (target: 0 wrong-but-confident).
+  \item \textbf{8:30 -- 11:00 AM:} Compare candidate reader models on real signs, polish responsive UI, review Indic sentences, and record demo video.
 \end{itemize}
 
 \end{document}
