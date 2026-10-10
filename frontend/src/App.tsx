@@ -8,7 +8,9 @@ import { createApiClient } from './api';
 import Controls from './components/Controls';
 import Logo from './components/Logo';
 import Shelf from './components/Shelf';
-import { ShelfProduct } from './types';
+import Checkout from './components/Checkout';
+import { ShelfProduct, CartItem } from './types';
+import { formatPriceINR } from './voiceFilter';
 
 // Initial default shelf recommendations for immediate accessibility
 const DEFAULT_SHELF_PRODUCTS: ShelfProduct[] = [
@@ -53,15 +55,27 @@ export default function App(): React.ReactElement {
   const t = getTranslation(lang);
   const apiClient = useMemo(() => createApiClient(), []);
 
+  const [cart, setCart] = useState<CartItem[]>([
+    {
+      product_id: 'p_001',
+      title: 'UltraCushion Pro Runner',
+      price_inr: 3499,
+      qty: 1,
+    },
+  ]);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  // Listen for dynamic shelf updates from API client
+  // Listen for dynamic shelf and checkout updates from API client
   useEffect(() => {
     const unsubscribe = apiClient.onMessage((msg) => {
       if (msg.type === 'shelf.results') {
         setProducts(msg.products);
+      } else if (msg.type === 'checkout.state' || msg.type === 'confirm.challenge') {
+        setIsCheckoutOpen(true);
       }
     });
     return () => unsubscribe();
@@ -78,8 +92,31 @@ export default function App(): React.ReactElement {
   };
 
   const handleAddToCart = (product: ShelfProduct) => {
+    setCart((prev) => {
+      const idx = prev.findIndex((item) => item.product_id === product.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = {
+          ...next[idx],
+          qty: (next[idx].qty ?? 1) + 1,
+        };
+        return next;
+      }
+      return [
+        ...prev,
+        {
+          product_id: product.id,
+          title: product.title,
+          price_inr: product.price_inr,
+          qty: 1,
+        },
+      ];
+    });
     announce(`Added ${product.title} to cart. Total: ₹${product.price_inr}`, 'assertive');
   };
+
+  const cartCount = cart.reduce((acc, item) => acc + (item.qty ?? 1), 0);
+  const cartTotal = cart.reduce((acc, item) => acc + item.price_inr * (item.qty ?? 1), 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-brutal-black text-brutal-white font-sans antialiased selection:bg-coral-500 selection:text-brutal-black">
@@ -109,8 +146,22 @@ export default function App(): React.ReactElement {
           <span className="sr-only">{t.appName}</span>
         </div>
 
-        {/* 4. Navigation Landmark / Language Switcher */}
+        {/* 4. Navigation Landmark / Language Switcher & Cart */}
         <nav aria-label={t.navLabel} className="flex items-center gap-3">
+          {/* Cart & Checkout Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsCheckoutOpen((prev) => !prev)}
+            aria-label={`Shopping cart containing ${cartCount} items totaling ${formatPriceINR(cartTotal)}. Click to ${isCheckoutOpen ? 'close' : 'open'} checkout.`}
+            className="min-h-[48px] px-3.5 py-2 bg-coral-500 hover:bg-coral-400 text-brutal-black border-2 border-white font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-brutalSm transition-all active:translate-x-0.5 active:translate-y-0.5"
+          >
+            <span aria-hidden="true">🛒</span>
+            <span>CART ({cartCount})</span>
+            <span className="bg-brutal-black text-coral-400 px-1.5 py-0.5 text-[11px]">
+              {formatPriceINR(cartTotal)}
+            </span>
+          </button>
+
           <label htmlFor="language-select" className="sr-only">
             {t.languageSelectLabel}
           </label>
@@ -165,6 +216,18 @@ export default function App(): React.ReactElement {
             onAnnounce={(msg, prio) => announce(msg, prio)}
           />
         </section>
+
+        {/* Accessible Checkout Panel with Guardian dark-pattern stripping and verbal confirmation */}
+        {isCheckoutOpen && (
+          <Checkout
+            apiClient={apiClient}
+            cart={cart}
+            isOpen={isCheckoutOpen}
+            onClose={() => setIsCheckoutOpen(false)}
+            onAnnounce={(msg, prio) => announce(msg, prio)}
+            currentLang={lang}
+          />
+        )}
 
         {/* Spatial Product Shelf */}
         <Shelf

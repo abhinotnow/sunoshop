@@ -44,7 +44,7 @@
 \vspace{-4pt}
 \noindent\fbox{%
 \parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}{%
-  \textbf{\textsc{Progress Executive Summary (Dual-Track Architecture):}} In Phase 2, Team ID 320 advanced both planned candidate implementations against Bhashini Indic backbones. \textbf{Page 1} documents \textbf{SunoShop (Track 1: eCommerce)}, which achieved contract freeze (SYNC-A), 100\% non-draggable WCAG 2.5.7 voice price filtering, zero-violation axe accessibility, and adaptive friction tracking across 60 unit tests. \textbf{Page 2} documents \textbf{Oriel (Track 2: City Signage)}, reporting burst frame filtering, multi-frame OCR voting, and 0 wrong-but-confident errors on Hyderabad bilingual transit signage.
+  \textbf{\textsc{Progress Executive Summary (Dual-Track Architecture):}} In Phase 2, Team ID 320 advanced both planned candidate implementations against Bhashini Indic backbones. \textbf{Page 1} documents \textbf{SunoShop (Track 1: eCommerce)}, which achieved contract freeze (SYNC-A), 100\% non-draggable WCAG 2.5.7 voice price filtering, zero-violation axe accessibility, guardian dark-pattern fee stripping, verbal challenge checkout, and adaptive friction tracking across 67 unit tests. \textbf{Page 2} documents \textbf{Oriel (Track 2: City Signage)}, reporting burst frame filtering, multi-frame OCR voting, and 0 wrong-but-confident errors on Hyderabad bilingual transit signage.
 }}
 \vspace{-2pt}
 
@@ -53,8 +53,8 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 \begin{itemize}\setlength{\itemsep}{0.2pt}\setlength{\topsep}{0.2pt}\setlength{\leftmargin}{1.1em}
   \item \textbf{Non-Draggable Voice Price Filter (WCAG 2.5.7):} Replaced fragile range sliders with a trilingual voice filter parser (\textit{``under fifteen thousand''}, \textit{``3000 se kam''}, \textit{``aidu vela lopala''}) coupled to discrete $\ge 56$px stepper buttons ($\pm\text{Rs.~}500$) with instant screen-reader announcements.
   \item \textbf{Brutalist Accessibility Design System:} Deployed high-contrast Brutalist visual tokens (Coral Red \texttt{\#ff4d4d}, Void Black \texttt{\#09090b}, Concrete Greys) yielding $> 20:1$ caption contrast (exceeding WCAG AAA $7:1$) and sharp 2--3px tactile borders.
-  \item \textbf{Contract Freeze (SYNC-A):} Unified Product Knowledge Object (PKO) schema and 9 WebSocket message types with Base64 WAV streaming, separating factual attributes from review digests.
-  \item \textbf{Adaptive Friction Tracker (M2-13 / M2-14):} Implemented a 60-second sliding window tracking tap-miss offsets ($\ge 3$), ASR timeouts ($\ge 2$), and clarification requests ($\ge 2$). Prompts user aloud before enlarging touch targets to $\ge 72$px with 100\% reversibility.
+  \item \textbf{Guardian Checkout \& Dark-Pattern Stripper (M2-16 / M2-17):} Built accessible Checkout panel that detects and strips non-consensual add-on fees with strikethrough badges, assertive live-region alert, and tactile error haptics; verbal confirmation challenge phrase (\textit{``Confirm Blue Falcon''}) prevents accidental or unauthorized orders.
+  \item \textbf{Adaptive Friction Tracker \& Explain Simpler (M2-13 -- M2-15):} Sliding window tracks touch offsets ($\ge 3$), ASR timeouts ($\ge 2$), and clarification requests ($\ge 2$); prompts user aloud before enlarging touch targets to $\ge 72$px; ``Explain Simpler'' control modulates speech rate to $0.8\times$ with $+300$\,ms inter-sentence pauses.
 \end{itemize}
 
 \vspace{-2pt}
@@ -84,7 +84,7 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 
 \section{3. Progress on Testing}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{Unit \& Integration Coverage:} \textbf{60 of 60 frontend tests passing} across 9 Vitest suites (\texttt{api}, \texttt{adapt}, \texttt{audio}, \texttt{sw}, \texttt{offline}, \texttt{voiceFilter}, \texttt{Shelf}, \texttt{Controls}, \texttt{App}). All 6 backend Pydantic contract test suites pass in \texttt{pytest}.
+  \item \textbf{Unit \& Integration Coverage:} \textbf{67 of 67 frontend tests passing} across 10 Vitest suites (\texttt{api}, \texttt{adapt}, \texttt{audio}, \texttt{sw}, \texttt{offline}, \texttt{voiceFilter}, \texttt{Shelf}, \texttt{Controls}, \texttt{Checkout}, \texttt{App}). All 6 backend Pydantic contract test suites pass in \texttt{pytest}.
   \item \textbf{Accessibility Audits:} Tested with \texttt{axe-core} in jsdom and verified contrast ratios against WCAG AAA thresholds ($> 20:1$).
   \item \textbf{PWA Installability:} Verified Service Worker app-shell precaching (\texttt{dist/sw.js}) and navigation fallback for offline resiliency.
 \end{itemize}
@@ -92,9 +92,9 @@ SunoShop has transitioned from architecture to an active, production-grade Progr
 \vspace{-2pt}
 \section{4. Plan for Remaining Time (4:00 AM -- 11:00 AM)}
 \begin{itemize}\setlength{\itemsep}{0.1pt}\setlength{\topsep}{0.1pt}\setlength{\leftmargin}{1.1em}
-  \item \textbf{4:00 -- 6:30 AM (M2-15 to M2-18):} Complete ``Explain Simpler'' rate modulation, Guarded Cart review panel with assertively announced fee stripping, spoken confirmation phrase repeat-matching, and voice returns flow.
-  \item \textbf{6:30 -- 8:30 AM (M2-19 to M2-21):} Wire hybrid offline fallback router over IndexedDB spec lookup with browser \texttt{speechSynthesis}.
-  \item \textbf{8:30 -- 10:30 AM (M2-22 to M2-25):} End-to-end task validation (TalkBack / NVDA simulation), produce 4-minute demo video with voiceover, finalize README setup instructions, package code zip, and submit final report.
+  \item \textbf{4:00 -- 6:30 AM (M2-18 to M2-21):} Tracking and returns voice flow (SYNC-D), wire hybrid offline router over IndexedDB spec lookup with browser \texttt{speechSynthesis} fallback.
+  \item \textbf{6:30 -- 8:30 AM (M2-22 to M2-24):} End-to-end task validation (TalkBack / NVDA simulation), automated Playwright accessibility sweeps, metrics logging.
+  \item \textbf{8:30 -- 11:00 AM (M2-25):} Rehearse 3-minute demo flow, record demo video with voiceover, compile code zip, finalize submission deliverables.
 \end{itemize}
 
 \clearpage
