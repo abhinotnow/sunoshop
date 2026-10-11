@@ -156,7 +156,7 @@ The user triggered the goal `/goal until its m2-25` to complete the remaining fr
 | Metric | Status | Details |
 |:---|:---:|:---|
 | **Frontend Tests** | **96 / 96 passed** | 13 Vitest suites (`npm test`) |
-| **Backend Tests** | **87 / 87 passed** | Pytest suites (`uv run pytest usecase2/backend/tests -q`) |
+| **Backend Tests** | **87 / 87 passed** | Pytest suites (`cd usecase2 && uv run pytest backend/tests -q`) |
 | **Axe Accessibility** | **0 Violations** | WCAG AAA compliant across all screens and modes |
 | **Production Build** | **Success** | `npm run build` generates PWA with 7 precached entries (250 KiB) |
 | **Git Working Tree** | **Clean** | Synced with `origin main` |

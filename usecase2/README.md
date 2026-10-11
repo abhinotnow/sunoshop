@@ -229,14 +229,14 @@ usecase2/
 
 ### 1. Backend Setup
 ```bash
-# Navigate to repo root
-cd "PPAP Megathon"
+# Navigate to usecase2 directory
+cd usecase2
 
 # Install Python dependencies using uv
 uv sync --all-groups
 
 # Start FastAPI backend (port 8000)
-uv run uvicorn usecase2.backend.main:app --port 8000 --reload
+uv run uvicorn backend.main:app --port 8000 --reload
 ```
 
 ### 2. Frontend Setup
@@ -272,8 +272,9 @@ npm run build
 
 ### Backend Pytest Suite (87 tests)
 ```bash
-# In repository root
-uv run pytest usecase2/backend/tests -q
+# In usecase2 directory
+cd usecase2
+uv run pytest backend/tests -q
 ```
 
 ---
