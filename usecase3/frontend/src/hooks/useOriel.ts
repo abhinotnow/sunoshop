@@ -107,6 +107,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const emptyReads = useRef(0);        // reads in a row that found no sign
   const autoPaused = useRef(false);    // zero-tap paused until the user taps or says "read" (saves quota)
   const lastReadEnd = useRef(0);
+  const lastGlareTip = useRef(0);
   // talking interrupts: the work in progress is held, then continued (same request) or dropped (new request)
   const readAbort = useRef<AbortController | null>(null);
   const holding = useRef(false);                    // a read that finishes now is kept, not spoken
@@ -504,10 +505,10 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
         void sayPhrases(["too_dark"]);
         return;
       }
-      if (q.glare > QUALITY.maxGlare && sinceGuidance > 6000) {
+      if (q.glare > QUALITY.maxGlare && sinceGuidance > 8000 && now - lastGlareTip.current > 30000) {
         lastGuidanceAt.current = now;
-        void sayPhrases(["glare"]);
-        return;
+        lastGlareTip.current = now; // at most every 30 s: in sunshine it would otherwise repeat
+        void sayPhrases(["glare"]); // advice only: the read below still goes ahead when the frame is usable
       }
       if (!S.current.autoCapture || autoPaused.current || now - lastReadEnd.current < 2500) return;
       const steady = motion.isSteady();

@@ -13,7 +13,7 @@ export interface FrameQuality {
 export const QUALITY = {
   minSharpness: 55,
   minBrightness: 45,
-  maxGlare: 0.08,
+  maxGlare: 0.35, // share of near-white pixels; 0.08 blocked every outdoor frame with sky behind the sign
 };
 
 const work = document.createElement("canvas");
@@ -54,5 +54,6 @@ export function measure(source: CanvasImageSource, srcW: number, srcH: number): 
 }
 
 export function isGoodFrame(q: FrameQuality): boolean {
-  return q.sharpness >= QUALITY.minSharpness && q.brightness >= QUALITY.minBrightness && q.glare <= QUALITY.maxGlare;
+  // glare is advice only (spoken), never a reason to skip a capture: the server reader judges glare on the sign
+  return q.sharpness >= QUALITY.minSharpness && q.brightness >= QUALITY.minBrightness;
 }
