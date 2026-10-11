@@ -188,3 +188,28 @@ html, body { overflow-x: hidden; }
   animation: breathe 1.6s ease-in-out infinite;
 }
 :root[data-contrast="high"] .tap-to-hear { background: #ffd400; color: #000; box-shadow: none; }
+
+/* ---------- the hologram ---------- */
+.holo { position: relative; padding: 0; overflow: hidden; height: clamp(340px, 46vh, 520px);
+  background: radial-gradient(ellipse at 50% 55%, rgba(76, 29, 149, 0.28), rgba(5, 8, 22, 0.55) 70%); }
+.holo-canvas { position: absolute; inset: 0; cursor: grab; }
+.holo-canvas:active { cursor: grabbing; }
+.holo-hud { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 6px; pointer-events: none; }
+.holo-chip { padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #c4f5ff; background: rgba(5, 8, 22, 0.66); border: 1px solid rgba(126, 249, 230, 0.35); }
+.holo-chip:first-child::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%;
+  background: #4ade80; box-shadow: 0 0 10px #4ade80; animation: pulse 1.2s ease-in-out infinite; vertical-align: 1px; }
+.holo-hint { position: absolute; top: 16px; right: 16px; max-width: 46%; text-align: right; font-size: 0.74rem; color: var(--text-faint);
+  pointer-events: none; text-shadow: 0 1px 8px #000; line-height: 1.3; }
+@media (max-width: 520px) { .holo-hint { top: auto; bottom: 8px; left: 12px; right: 12px; max-width: none; text-align: center; } }
+.holo-tip { position: absolute; z-index: 2; max-width: 280px; display: grid; gap: 4px; padding: 12px 14px; border-radius: 16px;
+  background: rgba(8, 12, 32, 0.92); border: 1px solid rgba(167, 139, 250, 0.55); pointer-events: none;
+  box-shadow: 0 18px 40px -12px #000, 0 0 30px -8px rgba(167, 139, 250, 0.6); font-size: 0.85rem; animation: pop 0.18s ease; }
+.holo-tip.is-pinned { left: 12px; bottom: 36px; top: auto; pointer-events: auto; }
+.holo-tip-sub { color: var(--text-faint); font-size: 0.78rem; }
+.holo-tip-status { font-weight: 800; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.08em; }
+.holo-tip-status.s-done { color: var(--ok); } .holo-tip-status.s-running, .holo-tip-status.s-progress { color: #c4b5fd; }
+.holo-tip-status.s-error { color: var(--bad); } .holo-tip-status.s-pending, .holo-tip-status.s-skipped { color: var(--text-faint); }
+.holo-tip-detail { color: var(--text-dim); word-break: break-word; }
+/* phones: the spoken result comes first, the hologram after it */
+@media (max-width: 959px) { .col-right .result { order: -1; } .holo { height: 340px; } }

@@ -18,7 +18,7 @@ export const PALETTE: Record<BeaconState, { a: string; b: string; speed: number;
   error:     { a: "#b91c1c", b: "#fecaca", speed: 0.5,  amp: 0.12, spin: 0.2 },
 };
 
-const VERT = /* glsl */ `
+export const VERT = /* glsl */ `
   uniform float uTime; uniform float uAmp;
   varying vec3 vNormal; varying vec3 vView; varying float vNoise;
   float hash(vec3 p){ p = fract(p * 0.3183099 + .1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
@@ -37,7 +37,7 @@ const VERT = /* glsl */ `
     gl_Position = projectionMatrix * mv;
   }`;
 
-const FRAG = /* glsl */ `
+export const FRAG = /* glsl */ `
   uniform vec3 uA; uniform vec3 uB; uniform float uTime;
   varying vec3 vNormal; varying vec3 vView; varying float vNoise;
   void main(){

@@ -4,6 +4,7 @@ import { CameraStage } from "./components/CameraStage";
 import { Captions } from "./components/Captions";
 import { ControlDock } from "./components/ControlDock";
 import { DialogCard } from "./components/DialogCard";
+import { HoloStage } from "./components/HoloStage";
 import { PipelinePanel } from "./components/PipelinePanel";
 import { ResultPanel } from "./components/ResultPanel";
 import { SettingsSheet } from "./components/SettingsSheet";
@@ -61,6 +62,7 @@ export default function App() {
           <ControlDock o={o} />
         </div>
         <div className="col-right">
+          {!settings.highContrast && <HoloStage o={o} lang={settings.outLang} />}
           <ResultPanel o={o} />
           <AskPanel o={o} />
           <PipelinePanel pipeline={o.pipeline} />

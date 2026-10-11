@@ -3,7 +3,7 @@ import { useSettings } from "../state/settings";
 import type { Pipeline } from "../hooks/useOriel";
 import type { Stage } from "../types";
 
-const LABELS: Record<string, { title: string; sub: string }> = {
+export const LABELS: Record<string, { title: string; sub: string }> = {
   quality: { title: "Frames", sub: "sharpest of the burst" },
   read: { title: "Reader 1", sub: "Gemini Flash-Lite × 3" },
   second_reader: { title: "Reader 2 + OCR", sub: "independent ultra-high-res read · AnuvaadHub OCR" },
@@ -17,7 +17,7 @@ const LABELS: Record<string, { title: string; sub: string }> = {
   translate_out: { title: "Translate", sub: "English → your language" },
 };
 
-function detailText(s: Stage): string {
+export function detailText(s: Stage): string {
   const d = s.detail ?? {};
   if (typeof d.text === "string" && d.text) return d.text;
   if (s.id === "quality" && Array.isArray(d.sharpness)) return `sharpness ${(d.sharpness as number[]).join(" / ")}`;
