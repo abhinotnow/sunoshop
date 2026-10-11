@@ -55,6 +55,8 @@ const UI = {
   watching: { en: "Watching", hi: "देख रहा हूँ", te: "చూస్తున్నాను" },
   watchSetting: { en: "Keep watching: obstacles and new signs", hi: "लगातार देखें: रुकावटें और नए बोर्ड",
     te: "నిరంతరం చూడు: అడ్డంకులు, కొత్త బోర్డులు" },
+  choiceHint: { en: "Say it, or tap 1, 2 or 3 times", hi: "बोलिए, या 1, 2 या 3 बार छुएँ",
+    te: "చెప్పండి, లేదా 1, 2 లేదా 3 సార్లు తాకండి" },
   tapToHear: { en: "Tap to hear", hi: "सुनने के लिए छुएँ", te: "వినడానికి తాకండి" },
   switchCamera: { en: "Switch camera", hi: "कैमरा बदलें", te: "కెమెరా మార్చండి" },
   frontCamera: { en: "Front camera", hi: "सामने का कैमरा", te: "ముందు కెమెరా" },

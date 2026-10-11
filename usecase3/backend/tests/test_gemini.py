@@ -36,6 +36,7 @@ def fake(monkeypatch):
         monkeypatch.setattr(gemini, "get_settings", lambda: s)
         monkeypatch.setattr(gemini, "client", lambda k=0: f.bind(k))
         monkeypatch.setattr(gemini, "_parked", {})
+        monkeypatch.setattr(gemini, "_health", {})
         return f
     return install
 
@@ -107,3 +108,16 @@ def test_a_hung_model_is_hedged_not_waited_out(fake, monkeypatch):
     assert run(retries=1) == {"ok": True}
     assert time.perf_counter() - t < 1.0
     assert [c[1] for c in f.calls] == ["a", "b"]
+
+
+
+def test_models_that_have_been_failing_go_after_healthy_ones(fake):
+    fake(fallbacks=("b", "c"))
+    for _ in range(3):
+        gemini.record("a", False, 10.0)
+        gemini.record("c", True, 1.0)
+    order = [m for _, m in gemini.model_chain("a")]
+    assert order[0] == "c" and order.index("a") > order.index("c")
+    gemini.record("a", True, 1.0)
+    gemini.record("a", True, 1.0)
+    assert [m for _, m in gemini.model_chain("a")][0] == "a"  # recovered: back to its own frame/role

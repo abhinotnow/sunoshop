@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT))
 os.environ.setdefault("GEMINI_API_KEY", "test-key")
 os.environ["ENABLE_PADDLEOCR"] = "false"  # tests use fakes only: never load the real OCR model
 os.environ["GOOGLE_VISION_API_KEY"] = ""
+os.environ["GEMINI_TRANSLATE_FALLBACK"] = "false"  # no network in tests; the fallback has its own test
 
 from backend.app.services.sign_reader import EMPTY_RECORD  # noqa: E402
 

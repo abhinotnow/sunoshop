@@ -54,7 +54,8 @@ class Settings:
     # False: reader 2 waits for reader 1's sign box and reads a zoomed crop (better for far, small signs).
     arbiter_parallel: bool = True
     gemini_timeout_s: float = 10.0
-    gemini_hedge_s: float = 3.0     # no answer after this long: also ask the next model, first answer wins
+    gemini_hedge_s: float = 3.0
+    gemini_translate_fallback: bool = True  # AnuvaadHub MT down: Gemini translates (same safety checks)     # no answer after this long: also ask the next model, first answer wins
     gemini_deadline_s: float = 18.0  # a whole Gemini call (all fallbacks) gives up after this  # calls take 4-8 s; a hung call is retried instead of waited out
 
     anuvaad_config: Path = BACKEND / "config" / "anuvaad.json"
@@ -98,6 +99,7 @@ def get_settings() -> Settings:
         arbiter_image_resolution=os.getenv("GEMINI_ARBITER_IMAGE_RESOLUTION", Settings.arbiter_image_resolution).strip(),
         gemini_timeout_s=float(os.getenv("GEMINI_TIMEOUT_S", Settings.gemini_timeout_s)),
         gemini_hedge_s=float(os.getenv("GEMINI_HEDGE_S", Settings.gemini_hedge_s)),
+        gemini_translate_fallback=_bool("GEMINI_TRANSLATE_FALLBACK", True),
         gemini_deadline_s=float(os.getenv("GEMINI_DEADLINE_S", Settings.gemini_deadline_s)),
         anuvaad_config=_path("ANUVAAD_CONFIG", Settings.anuvaad_config),
         anuvaad_verify_tls=_bool("ANUVAAD_VERIFY_TLS", True),

@@ -235,3 +235,24 @@ html, body { overflow-x: hidden; }
 .captions { pointer-events: none; }
 .tap-start { text-align: center; font-size: var(--fs-3); font-weight: 700; color: var(--accent); }
 :root[data-contrast="high"] .tap-hint { background: #000; border: 2px solid #fff; box-shadow: none; }
+
+/* ---------- spoken setup (first tap) ---------- */
+.tap-start { display: grid; gap: 2px; text-align: center; font-size: var(--fs-3); font-weight: 700; color: var(--accent); }
+.onboard {
+  position: fixed; inset: 0; z-index: 70; display: grid; place-content: center; justify-items: center; gap: 22px;
+  padding: 24px; background: rgba(5, 8, 22, 0.88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  cursor: pointer; animation: fade 0.3s ease;
+}
+.onboard-orb { width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--accent) 35%, rgba(46, 230, 197, 0.1) 70%);
+  box-shadow: 0 0 60px rgba(46, 230, 197, 0.6); animation: breathe 2.4s ease-in-out infinite; }
+.onboard-orb.is-listening { background: radial-gradient(circle at 35% 30%, #fff, #ef4444 35%, rgba(239, 68, 68, 0.1) 70%);
+  box-shadow: 0 0 70px rgba(239, 68, 68, 0.7); animation: livepulse 1s ease-in-out infinite; }
+.onboard-options { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.onboard-options li { display: flex; align-items: center; gap: 16px; font-size: var(--fs-5); font-weight: 800; }
+.onboard-options b { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink); font-size: var(--fs-4); }
+.onboard-hint { color: var(--text-dim); font-size: var(--fs-2); text-align: center; }
+.onboard-skip { position: absolute; top: calc(16px + var(--safe-top)); right: 16px; min-height: 48px; padding: 0 18px;
+  border-radius: 14px; border: 1px solid var(--border-strong); background: var(--surface-strong); font-weight: 700; }
+:root[data-contrast="high"] .onboard { background: #000; }

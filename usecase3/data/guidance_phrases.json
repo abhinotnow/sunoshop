@@ -305,6 +305,48 @@
       "en": "I will keep watching and tell you about obstacles and new signs.",
       "hi": "मैं लगातार देखता रहूँगा और रुकावटें व नए बोर्ड बताऊँगा।",
       "te": "నేను నిరంతరం చూస్తూ అడ్డంకులు, కొత్త బోర్డుల గురించి చెబుతాను."
+    },
+    {
+      "id": "choose_language",
+      "te": "ఓరియల్‌కు స్వాగతం. తెలుగు కోసం, తెలుగు అని చెప్పండి, లేదా ఒకసారి తాకండి.",
+      "hi": "हिंदी के लिए, हिंदी बोलिए, या दो बार छुएँ।",
+      "en": "For English, say English, or tap three times."
+    },
+    {
+      "id": "language_chosen",
+      "te": "తెలుగు ఎంచుకున్నారు.",
+      "hi": "हिंदी चुनी गई।",
+      "en": "English selected."
+    },
+    {
+      "id": "choose_mode",
+      "en": "How can I help you? Say: I can't see well. Or: I am older. Or: my hands shake. You can also tap once, twice or three times.",
+      "hi": "मैं आपकी कैसे मदद करूँ? बोलिए: मुझे ठीक से दिखता नहीं। या: मैं बुज़ुर्ग हूँ। या: मेरे हाथ काँपते हैं। आप एक, दो या तीन बार छू भी सकते हैं।",
+      "te": "నేను మీకు ఎలా సహాయం చేయాలి? చెప్పండి: నాకు సరిగ్గా కనిపించదు. లేదా: నేను వయసులో పెద్దవాడిని. లేదా: నా చేతులు వణుకుతాయి. ఒకసారి, రెండుసార్లు లేదా మూడుసార్లు తాకవచ్చు కూడా."
+    },
+    {
+      "id": "mode_set_visual",
+      "en": "Low vision mode.",
+      "hi": "कम दृष्टि मोड।",
+      "te": "తక్కువ చూపు మోడ్."
+    },
+    {
+      "id": "mode_set_ageing",
+      "en": "Mode for older people: slower speech and simpler words.",
+      "hi": "बुज़ुर्गों के लिए मोड: धीमी आवाज़ और आसान शब्द।",
+      "te": "వయసు పైబడిన వారి మోడ్: నెమ్మదిగా, సులభమైన మాటలతో."
+    },
+    {
+      "id": "mode_set_hand_motor",
+      "en": "Hands-free mode: you can use your voice and head movements.",
+      "hi": "हैंड्स-फ़्री मोड: आप आवाज़ और सिर हिलाकर चला सकते हैं।",
+      "te": "చేతులు అవసరం లేని మోడ్: మీ గొంతుతో, తల కదలికలతో ఉపయోగించవచ్చు."
+    },
+    {
+      "id": "onboard_retry",
+      "en": "Sorry, I did not get that. Please say it again, or tap.",
+      "hi": "माफ़ कीजिए, समझ नहीं आया। फिर से बोलिए, या छुएँ।",
+      "te": "క్షమించండి, అర్థం కాలేదు. మళ్ళీ చెప్పండి, లేదా తాకండి."
     }
   ]
 }

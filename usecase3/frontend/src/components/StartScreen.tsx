@@ -5,6 +5,7 @@ import { LANG_NAMES, t } from "../i18n/ui";
 import { useSettings } from "../state/settings";
 import { prefersReducedMotion } from "../lib/platform";
 import { useTilt } from "../hooks/useTilt";
+import type { Oriel } from "../hooks/useOriel";
 import type { Lang, Mode } from "../types";
 
 const MODES: { id: Mode; key: "modeVisual" | "modeAgeing" | "modeHandMotor" }[] = [
@@ -13,7 +14,8 @@ const MODES: { id: Mode; key: "modeVisual" | "modeAgeing" | "modeHandMotor" }[] 
   { id: "hand_motor", key: "modeHandMotor" },
 ];
 
-export function StartScreen({ onStart }: { onStart: () => void }) {
+export function StartScreen({ o }: { o: Oriel }) {
+  const onStart = () => void o.start();
   const { settings, update, setMode } = useSettings();
   // Wake the server while the user picks a language (free hosting sleeps and needs ~30-60 s to start).
   useEffect(() => {
@@ -24,8 +26,8 @@ export function StartScreen({ onStart }: { onStart: () => void }) {
 
   return (
     <main className="start" id="main" onClick={(e) => {
-      // a blind user cannot find the Start button: a tap anywhere else on the screen starts too
-      if (!(e.target as HTMLElement).closest("button, a, input, select, [role=radio]")) onStart();
+      // a blind user cannot find the buttons: a tap anywhere else starts the spoken setup
+      if (!(e.target as HTMLElement).closest("button, a, input, select, [role=radio]")) void o.onboard();
     }}>
       <div className="start-hero">
         <Beacon3D state="idle" reducedMotion={prefersReducedMotion()} className="start-beacon" />
@@ -63,9 +65,39 @@ export function StartScreen({ onStart }: { onStart: () => void }) {
         <button className="start-btn" onClick={onStart} autoFocus>
           {t("startButton", lang)}
         </button>
-        <p className="tap-start" lang={lang}>{t("start", lang)}</p>
+        <div className="tap-start">
+          <p lang="te">{t("start", "te")}</p>
+          <p lang="hi">{t("start", "hi")}</p>
+          <p lang="en">{t("start", "en")}</p>
+        </div>
         <p className="fine-print">{t("keyboardHint", lang)}</p>
       </section>
+      {o.onboardStep !== "idle" && (
+        <div className="onboard" onClick={(e) => { e.stopPropagation(); o.onboardTap(); }} role="dialog" aria-live="polite">
+          <div className={`onboard-orb ${o.listening ? "is-listening" : ""}`} aria-hidden="true" />
+          {o.onboardStep === "language" ? (
+            <ol className="onboard-options">
+              <li lang="te"><b>1</b> తెలుగు</li>
+              <li lang="hi"><b>2</b> हिंदी</li>
+              <li lang="en"><b>3</b> English</li>
+            </ol>
+          ) : (
+            <ol className="onboard-options" lang={settings.outLang}>
+              <li><b>1</b> {t("modeVisual", settings.outLang)}</li>
+              <li><b>2</b> {t("modeAgeing", settings.outLang)}</li>
+              <li><b>3</b> {t("modeHandMotor", settings.outLang)}</li>
+            </ol>
+          )}
+          {o.onboardStep === "language" ? (
+            <div className="onboard-hint">
+              {(["te", "hi", "en"] as Lang[]).map((l) => <p key={l} lang={l}>{t("choiceHint", l)}</p>)}
+            </div>
+          ) : (
+            <p className="onboard-hint" lang={settings.outLang}>{t("choiceHint", settings.outLang)}</p>
+          )}
+          <button className="onboard-skip" onClick={(e) => { e.stopPropagation(); o.skipOnboarding(); }}>Skip ›</button>
+        </div>
+      )}
     </main>
   );
 }

@@ -31,6 +31,23 @@ class GeminiError(RuntimeError):
 
 _clients: dict[int, genai.Client] = {}
 _parked: dict[tuple[int, str], float] = {}  # (key index, model) -> time.monotonic() until which it is skipped
+# (key index, model) -> (success rate, seconds per answer), both moving averages of recent calls. Google's load
+# moves between models during the day (measured 11 Oct: the "fast" model failed every call for an hour while
+# others answered in 1-2 s), so calls start with whichever model has been answering well lately.
+_health: dict[tuple[int, str], tuple[float, float]] = {}
+_UNTRIED = (0.7, 4.0)
+
+
+def record(model: str, ok: bool, seconds: float, key_index: int = 0) -> None:
+    rate, lat = _health.get((key_index, model), _UNTRIED)
+    a = 0.4
+    _health[(key_index, model)] = (rate * (1 - a) + (1.0 if ok else 0.0) * a,
+                                   lat * (1 - a) + seconds * a if ok else lat)
+
+
+def _score(c: tuple[int, str]) -> float:
+    rate, lat = _health.get(c, _UNTRIED)
+    return rate - min(lat, 20.0) / 20.0  # higher is better
 
 
 def keys() -> list[str]:
@@ -67,7 +84,10 @@ def model_chain(first: str) -> list[tuple[int, str]]:
         if m and m not in models:
             models.append(m)
     chain = [(k, m) for k in range(len(keys()) or 1) for m in models]
-    return [c for c in chain if not parked(c[1], c[0])] + [c for c in chain if parked(c[1], c[0])]
+    live = [c for c in chain if not parked(c[1], c[0])]
+    head = live[:1] if live and live[0] == (0, first) and _health.get(live[0], _UNTRIED)[0] >= 0.5 else []
+    rest = sorted((c for c in live if c not in head), key=_score, reverse=True)  # stable: ties keep the list order
+    return head + rest + [c for c in chain if parked(c[1], c[0])]
 
 
 _RES = {"low": "MEDIA_RESOLUTION_LOW", "medium": "MEDIA_RESOLUTION_MEDIUM", "high": "MEDIA_RESOLUTION_HIGH",
@@ -94,6 +114,7 @@ async def _attempt(k: int, m: str, parts: list, images: list[bytes], schema: dic
     """One model on one key. Options the model rejects (thinking level, resolution) are dropped and retried here."""
     s = get_settings()
     use_res, use_level = bool(res), bool(level)
+    started = time.monotonic()
     for _ in range(3):
         contents = parts + [_image_part(img, resolution=res if use_res else "") for img in images]
         cfg = types.GenerateContentConfig(response_mime_type="application/json", response_json_schema=schema)
@@ -104,7 +125,9 @@ async def _attempt(k: int, m: str, parts: list, images: list[bytes], schema: dic
                                        timeout=s.gemini_timeout_s)
             if not r.text:
                 raise GeminiError("empty response")
-            return json.loads(r.text)
+            out = json.loads(r.text)
+            record(m, True, time.monotonic() - started, k)
+            return out
         except Exception as e:  # noqa: BLE001 - classified below
             msg = str(e)
             low = msg.lower()
@@ -114,6 +137,7 @@ async def _attempt(k: int, m: str, parts: list, images: list[bytes], schema: dic
             if use_res and "resolution" in low and ("400" in low or "invalid" in low or "support" in low):
                 use_res = False
                 continue
+            record(m, False, time.monotonic() - started, k)
             if "429" in low or "resource_exhausted" in low or "quota" in low:
                 park(m, _retry_after(msg), k)
                 log.warning("Gemini %s (key %d) out of quota, parked", m, k)

@@ -50,7 +50,7 @@ export default function App() {
       reducedMotion={prefersReducedMotion()} />
   );
 
-  if (o.phase === "start") return <>{world}<StartScreen onStart={() => void o.start()} /></>;
+  if (o.phase === "start") return <>{world}<StartScreen o={o} /></>;
 
   return (
     <>{world}

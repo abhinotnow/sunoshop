@@ -101,6 +101,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const holding = useRef(false);                    // a read that finishes now is kept, not spoken
   const heldResult = useRef<ReadResult | null>(null);
   const paused = useRef<{ items: SpeakItem[]; reading: boolean } | null>(null);
+  const watchFailures = useRef(0); // quick looks failing in a row: after 2, automatic reading takes over again
   const conditions = useRef(new ConditionInference(() => S.current.mode, () => S.current.offersSeen));
 
   // ------------------------------------------------------------------ speech
@@ -189,6 +190,110 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     if (phase === "start") return;
     setFacing(wantsFront ? "user" : scanCamera);
   }, [wantsFront, phase, scanCamera]);
+
+  // ------------------------------------------------------------------ voice-first start
+
+  const [onboardStep, setOnboardStep] = useState<"idle" | "language" | "mode">("idle");
+  const onboarding = useRef(false);
+  const taps = useRef<{ count: number; last: number }>({ count: 0, last: 0 });
+
+  /** A tap during the opening conversation: counts as an answer (1, 2 or 3 taps) and cuts the prompt short. */
+  const onboardTap = useCallback(() => {
+    taps.current = { count: taps.current.count + 1, last: performance.now() };
+    audio.stop();
+    recorder.current.stop();
+  }, []);
+
+  /**
+   * Wait for an answer: taps (1, 2 or 3) or speech. Speech is transcribed in each of `langs` and matched against
+   * keywords, so "Telugu", "తెలుగు" or "तेलुगु" all work before Oriel knows which language the user speaks.
+   */
+  const hearChoice = useCallback(async <K extends string>(langs: Lang[], options: Record<K, string[]>,
+    byTaps: K[]): Promise<K | null> => {
+    const settle = async () => { // let a burst of taps finish (1.2 s after the last one)
+      while (performance.now() - taps.current.last < 1200) await sleep(150);
+      return byTaps[Math.min(taps.current.count, byTaps.length) - 1] ?? null;
+    };
+    if (taps.current.count) return settle();
+    let rec: Recording | null = null;
+    setListening(true);
+    try {
+      rec = await recorder.current.record({ maxMs: 7000, silenceMs: 1100, noSpeechMs: 6000 });
+    } catch {
+      rec = null;
+    }
+    setListening(false);
+    if (taps.current.count) return settle();
+    if (!rec?.hadSpeech) return null;
+    const heard = (await Promise.all(langs.map((l) => api.asr(rec!.wav, l).then((r) => r.text).catch(() => ""))))
+      .join(" ").toLowerCase();
+    for (const key of Object.keys(options) as K[]) {
+      if (options[key].some((w) => heard.includes(w))) return key;
+    }
+    return null;
+  }, []);
+
+  const LANG_WORDS: Record<Lang, string[]> = {
+    te: ["telugu", "telegu", "తెలుగు", "तेलुगु", "తెలుగ"],
+    hi: ["hindi", "हिंदी", "हिन्दी", "హిందీ", "హింది"],
+    en: ["english", "इंग्लिश", "अंग्रेज़ी", "अंग्रेजी", "ఇంగ్లీష్", "ఇంగ్లిష్", "ఆంగ్లం"],
+  };
+  const MODE_WORDS: Record<Mode, string[]> = {
+    hand_motor: ["hand", "shake", "shaking", "tremor", "finger", "हाथ", "काँप", "कांप", "చేతులు", "చేయి", "చెయ్యి", "వణుకు"],
+    ageing: ["old", "older", "elder", "senior", "age", "बुज़ुर्ग", "बुजुर्ग", "बूढ़", "बुढ़", "उम्र", "వృద్ధ", "వయసు", "ముసలి", "పెద్దవ"],
+    visual: ["see", "sight", "blind", "vision", "eye", "देख", "दिख", "आँख", "आंख", "अंध", "కనిపించ", "చూపు", "కళ్ళు", "కన్ను", "గుడ్డి"],
+  };
+
+  /**
+   * The first tap on the start screen begins a spoken setup: language (asked in Telugu, Hindi and English),
+   * then what help is needed, each answered by voice or by tapping 1, 2 or 3 times. Then Oriel starts.
+   * Browsers allow no sound before the first touch, so this tap is also what unlocks audio.
+   */
+  const onboard = useCallback(async () => {
+    if (onboarding.current) return onboardTap();
+    onboarding.current = true;
+    const unlockP = audio.unlock();           // inside the tap: iPhone audio and the phone voice
+    const motionP = motion.requestPermission();
+    await Promise.all([unlockP, motionP]);
+    const ALL: Lang[] = ["te", "hi", "en"];
+    const item = (id: string, l: Lang): SpeakItem => ({ clipId: id, text: phraseText(id, l), lang: l });
+
+    setOnboardStep("language");
+    let lang: Lang | null = null;
+    for (let attempt = 0; attempt < 2 && !lang; attempt++) {
+      taps.current = { count: 0, last: 0 };
+      if (attempt) await audio.say(ALL.map((l) => item("onboard_retry", l)));
+      if (!taps.current.count) await audio.say(ALL.map((l) => item("choose_language", l)));
+      lang = await hearChoice<Lang>(ALL, LANG_WORDS, ["te", "hi", "en"]);
+    }
+    lang = lang ?? S.current.outLang;
+    update({ inLang: lang, outLang: lang });
+    await audio.say([item("language_chosen", lang)]);
+
+    setOnboardStep("mode");
+    let mode: Mode | null = null;
+    for (let attempt = 0; attempt < 2 && !mode; attempt++) {
+      taps.current = { count: 0, last: 0 };
+      if (attempt) await audio.say([item("onboard_retry", lang)]);
+      if (!taps.current.count) await audio.say([item("choose_mode", lang)]);
+      mode = await hearChoice<Mode>(lang === "en" ? ["en"] : [lang, "en"], MODE_WORDS, ["visual", "ageing", "hand_motor"]);
+    }
+    mode = mode ?? "visual";
+    setMode(mode);
+    await audio.say([item(`mode_set_${mode}`, lang)]);
+    setOnboardStep("idle");
+    onboarding.current = false;
+    await start(true);
+  }, [hearChoice, onboardTap, setMode, update]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** A sighted helper skips the spoken setup (the language and mode buttons are already chosen). */
+  const skipOnboarding = useCallback(() => {
+    onboarding.current = false;
+    audio.stop();
+    recorder.current.stop();
+    setOnboardStep("idle");
+    void start(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ------------------------------------------------------------------ pipeline events
 
@@ -393,7 +498,8 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
         void sayPhrases(["glare"]);
         return;
       }
-      if (!S.current.autoCapture || S.current.watch || autoPaused.current || now - lastReadEnd.current < 2500) return;
+      const watching = S.current.watch && watchFailures.current < 2; // the watch starts reads while it works
+      if (!S.current.autoCapture || watching || autoPaused.current || now - lastReadEnd.current < 2500) return;
       const steady = motion.isSteady();
       if (isGoodFrame(q) && steady !== false && !tilt) {
         goodSince.current ||= now;
@@ -475,14 +581,16 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
           w = await api.watch(await canvasToJpeg(canvas, 0.8), S.current.outLang, recent,
             S.current.simpleWords ? "simple" : "standard");
         } catch {
-          continue; // quiet: the next look will try again
+          watchFailures.current += 1; // quiet; after 2 failures automatic reading takes over until a look works
+          continue;
         }
+        watchFailures.current = 0;
         if (cancelled) return;
         hazards.push(...w.hazards.map((text) => ({ text, at: now })));
         if (busyRef.current || recorder.current.active || holding.current) continue; // the user took over meanwhile
         if (w.lines.length) await sayLines(w.lines, S.current.outLang);
         const [y0, x0, y1, x1] = w.sign_box.length === 4 ? w.sign_box : [0, 0, 0, 0];
-        const bigEnough = ((y1 - y0) * (x1 - x0)) / 1_000_000 >= 0.015;
+        const bigEnough = ((y1 - y0) * (x1 - x0)) / 1_000_000 >= 0.01; // smaller: the full read guides "closer"
         const fresh = !signs.some((s) => now - s.at < 90000 && sameSign(s.key, w.sign_key));
         if (w.sign_visible && bigEnough && fresh && !cancelled && !busyRef.current && !holding.current) {
           signs.push({ key: w.sign_key, at: now });
@@ -536,7 +644,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const simpler = useCallback(() => void recompose(S.current.outLang, "simple"), [recompose]);
 
   const setOutLang = useCallback((lang: Lang) => {
-    update({ outLang: lang });
+    update({ outLang: lang, inLang: lang }); // speak and listen in the same language (no surprise switches)
     if (resultRef.current) void recompose(lang, S.current.simpleWords ? "simple" : "standard");
   }, [recompose, update]);
 
@@ -855,11 +963,14 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
 
   // ------------------------------------------------------------------ start, network, health
 
-  const start = useCallback(async () => {
-    // Everything that needs a user gesture on iPhone starts in this tap, before any await.
-    const unlockP = audio.unlock();
-    const motionP = motion.requestPermission();
-    await Promise.all([motionP, unlockP]);
+  const start = useCallback(async (unlocked = false) => {
+    // Everything that needs a user gesture on iPhone starts in this tap, before any await
+    // (or already happened in the first tap of the spoken setup).
+    if (!unlocked) {
+      const unlockP = audio.unlock();
+      const motionP = motion.requestPermission();
+      await Promise.all([motionP, unlockP]);
+    }
     setPhase("scan");
     void faceDetector().then((d) => setFaceBlur(d ? "on" : "off"));
     api.health().then(setHealth).catch(() => setHealth(null));
@@ -897,6 +1008,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     facing, pose, lastGesture, faceBlur, speaking, listening, busy, showSettings, audioBlocked, tapToHear,
     setShowSettings, start, readNow, readFiles, again, more, spell, simpler, stop, finishListening, newSign, startAsk, askText,
     setOutLang, runCommand, changeRate, flipCamera, setScanCamera, talk,
+    onboard, onboardTap, onboardStep, skipOnboarding,
   };
 }
 

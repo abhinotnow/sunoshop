@@ -57,3 +57,27 @@ def test_hours():
     assert hours.say_range("09:00", "21:30", "en") == "9 AM to 9:30 PM"
     assert hours.say_range("09:00", "21:00", "te") == "ఉదయం 9 నుండి రాత్రి 9 వరకు"
     assert hours.say_range("09:00", "21:00", "hi") == "सुबह 9 बजे से रात 9 बजे तक"
+
+
+def test_gemini_takes_over_when_anuvaad_is_down_and_keeps_numbers(monkeypatch):
+    import dataclasses
+    from backend.app.services import safe_translate
+
+    base = safe_translate.get_settings()
+    monkeypatch.setattr(safe_translate, "get_settings", lambda: dataclasses.replace(base, gemini_translate_fallback=True))
+
+    class DownMT:
+        async def translate(self, *a, **k):
+            raise RuntimeError("HTTP 500 from AnuvaadHub")
+
+    async def good(text, src, tgt):
+        return text.replace("Careful, there may be", "जाग्रत रहें").replace("steps", "सीढ़ियाँ")
+    monkeypatch.setattr(safe_translate, "gemini_translate", good)
+    out, path = asyncio.run(translate_protected(DownMT(), "Careful, there may be 3 steps", "en", "hi"))
+    assert path == "gemini" and "सीढ़ियाँ" in out and "3" in out
+
+    async def changes_number(text, src, tgt):
+        return "8 सीढ़ियाँ"
+    monkeypatch.setattr(safe_translate, "gemini_translate", changes_number)
+    with pytest.raises(RuntimeError):  # both failed: the original error reaches the caller (English fallback)
+        asyncio.run(translate_protected(DownMT(), "Careful, there may be 3 steps", "en", "hi"))

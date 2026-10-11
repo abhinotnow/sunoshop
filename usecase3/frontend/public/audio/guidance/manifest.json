@@ -49,6 +49,16 @@
   "hi": "/audio/guidance/hi/camera_front.wav",
   "te": "/audio/guidance/te/camera_front.wav"
  },
+ "choose_language": {
+  "en": "/audio/guidance/en/choose_language.wav",
+  "hi": "/audio/guidance/hi/choose_language.wav",
+  "te": "/audio/guidance/te/choose_language.wav"
+ },
+ "choose_mode": {
+  "en": "/audio/guidance/en/choose_mode.wav",
+  "hi": "/audio/guidance/hi/choose_mode.wav",
+  "te": "/audio/guidance/te/choose_mode.wav"
+ },
  "did_that_help": {
   "en": "/audio/guidance/en/did_that_help.wav",
   "hi": "/audio/guidance/hi/did_that_help.wav",
@@ -79,6 +89,11 @@
   "hi": "/audio/guidance/hi/keep_still.wav",
   "te": "/audio/guidance/te/keep_still.wav"
  },
+ "language_chosen": {
+  "en": "/audio/guidance/en/language_chosen.wav",
+  "hi": "/audio/guidance/hi/language_chosen.wav",
+  "te": "/audio/guidance/te/language_chosen.wav"
+ },
  "level_phone": {
   "en": "/audio/guidance/en/level_phone.wav",
   "hi": "/audio/guidance/hi/level_phone.wav",
@@ -103,6 +118,21 @@
   "en": "/audio/guidance/en/mode_on.wav",
   "hi": "/audio/guidance/hi/mode_on.wav",
   "te": "/audio/guidance/te/mode_on.wav"
+ },
+ "mode_set_ageing": {
+  "en": "/audio/guidance/en/mode_set_ageing.wav",
+  "hi": "/audio/guidance/hi/mode_set_ageing.wav",
+  "te": "/audio/guidance/te/mode_set_ageing.wav"
+ },
+ "mode_set_hand_motor": {
+  "en": "/audio/guidance/en/mode_set_hand_motor.wav",
+  "hi": "/audio/guidance/hi/mode_set_hand_motor.wav",
+  "te": "/audio/guidance/te/mode_set_hand_motor.wav"
+ },
+ "mode_set_visual": {
+  "en": "/audio/guidance/en/mode_set_visual.wav",
+  "hi": "/audio/guidance/hi/mode_set_visual.wav",
+  "te": "/audio/guidance/te/mode_set_visual.wav"
  },
  "move_closer": {
   "en": "/audio/guidance/en/move_closer.wav",
@@ -168,6 +198,11 @@
   "en": "/audio/guidance/en/offer_visual.wav",
   "hi": "/audio/guidance/hi/offer_visual.wav",
   "te": "/audio/guidance/te/offer_visual.wav"
+ },
+ "onboard_retry": {
+  "en": "/audio/guidance/en/onboard_retry.wav",
+  "hi": "/audio/guidance/hi/onboard_retry.wav",
+  "te": "/audio/guidance/te/onboard_retry.wav"
  },
  "reading": {
   "en": "/audio/guidance/en/reading.wav",

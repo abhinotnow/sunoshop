@@ -57,6 +57,7 @@ class AudioEngine {
   private silent = "";
   private lastItems: SpeakItem[] = [];
   private current: SpeakItem | null = null;
+  private release: (() => void) | null = null; // ends the line being played (pause() never fires "ended")
   /** true when the phone refused to play sound without a new tap (the UI then shows "Tap to hear") */
   blocked = false;
   private blockedListeners = new Set<(b: boolean) => void>();
@@ -148,6 +149,7 @@ class AudioEngine {
     this.queue = [];
     this.current = null;
     this.el.pause();
+    this.release?.(); // whoever waits for this line is told it ended, so nothing hangs after an interruption
     try {
       window.speechSynthesis?.cancel();
     } catch {
@@ -226,8 +228,10 @@ class AudioEngine {
       const el = this.el;
       const done = (ok: boolean) => {
         el.onended = el.onerror = null;
+        this.release = null;
         resolve(ok);
       };
+      this.release = () => done(false);
       el.onended = () => done(true);
       el.onerror = () => done(false);
       el.src = url;
