@@ -14,6 +14,8 @@ When there is no sign, Oriel still helps:
 - **Hazards first**: steps, kerbs, poles, vehicles, animals, drains: "Careful, there may be ... Check with your cane." A hazard line is always spoken, even after a sign. Any sentence claiming a way is clear or safe is removed (`verify._UNSAFE_CLAIM`).
 - **Labels and papers**: medicine strips, packets, menus, documents: "The label says: Parafix 650. It also says: 650 mg, Exp 08/2027".
 - **Money**: "This is a 500 rupee note" only when both frames and a second reader or OCR read the same value; otherwise "It looks like ..., please check".
+- **Keeps watching** (Settings, on by default): about every 4 s while the view changes, one quick low-detail look (`/api/watch`, 1 Gemini call). New hazards are spoken at once ("Careful, there may be ..."), never repeated within 30 s; a new sign big enough to read starts the full verified read. The watch never says what a sign says. It pauses while the user talks, while Oriel speaks and while a read runs.
+- **The whole screen is the talk button**: tap to talk, tap again to send. Talking pauses Oriel; "continue" (or the same request) resumes, anything else replaces the work in progress.
 
 Tested on real photos (Wikimedia Commons, `eval/labels_web.json`, licences in `eval/photos/web/CREDITS.json`): 0 wrong-but-confident, scene described 10/10, hazards warned 6/6, median 9.2 s on the free Gemini tier.
 

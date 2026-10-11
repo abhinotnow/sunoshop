@@ -13,7 +13,7 @@ export interface Burst {
   facesHidden: number; // -1 when the face detector is unavailable
 }
 
-export async function captureBurst(video: HTMLVideoElement, focusBox: number[] | null, shots = 6, gapMs = 160): Promise<Burst> {
+export async function captureBurst(video: HTMLVideoElement, focusBox: number[] | null, shots = 4, gapMs = 120): Promise<Burst> {
   const grabbed: { canvas: HTMLCanvasElement; sharp: number }[] = [];
   for (let i = 0; i < shots; i++) {
     const c = grabFrame(video, CAPTURE_MAX_SIDE, focusBox);

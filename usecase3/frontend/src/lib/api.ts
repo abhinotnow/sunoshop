@@ -1,4 +1,4 @@
-import type { Health, Lang, PipelineEvent, Speech, Verified } from "../types";
+import type { Health, Lang, Line, PipelineEvent, Speech, Verified } from "../types";
 
 const BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, "") ?? "";
 
@@ -92,7 +92,27 @@ function parseBlocks(text: string, onEvent: (ev: PipelineEvent) => void) {
   }
 }
 
+export interface WatchResult {
+  sign_visible: boolean;
+  sign_box: number[];
+  sign_kind: string;
+  sign_key: string;
+  hazards: string[];
+  lines: Line[];
+  ms: number;
+}
+
 export const api = {
+  /** Continuous watch: one quick look (hazards, and whether there is something to read). */
+  watch(frame: Blob, lang: Lang, recent: string[], mode: "standard" | "simple") {
+    const fd = new FormData();
+    fd.append("frame", frame, "look.jpg");
+    fd.append("lang", lang);
+    fd.append("recent", JSON.stringify(recent));
+    fd.append("mode", mode);
+    return request("/api/watch", { method: "POST", body: fd }, 15000).then((r) => r.json() as Promise<WatchResult>);
+  },
+
   // long timeout: a sleeping free server takes ~30-60 s to wake
   health: () => request("/api/health", {}, 60000).then((r) => r.json() as Promise<Health>),
 

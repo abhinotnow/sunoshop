@@ -1,4 +1,4 @@
-"""POST /api/read: read a sign from 1-3 frames (streamed)."""
+"""POST /api/read: read a sign from 1-3 frames (streamed). POST /api/watch: one quick look while walking."""
 
 from __future__ import annotations
 
@@ -6,7 +6,9 @@ import json
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
+from ..services.gemini import GeminiError
 from ..services.read_pipeline import run_read
+from ..services.watch import watch as run_watch
 from .common import MAX_IMAGE_BYTES, check_lang, sse
 
 router = APIRouter()
@@ -35,3 +37,21 @@ async def read(frames: list[UploadFile] = File(..., description="1-3 JPEG frames
     mode = mode if mode in ("standard", "simple") else "standard"
     style = digit_style if digit_style in ("native", "english") else None
     return sse(run_read(data, lang, mode, max(0, reads_used), dev, style))
+
+
+@router.post("/watch")
+async def watch(frame: UploadFile = File(..., description="one JPEG, faces already blurred"), lang: str = Form("en"),
+                recent: str = Form("[]", description="JSON list of hazards spoken in the last ~30 s (English)"),
+                mode: str = Form("standard")):
+    lang = check_lang(lang)
+    b = await frame.read()
+    if not b or len(b) > MAX_IMAGE_BYTES:
+        raise HTTPException(413, "frame missing or larger than 8 MB")
+    try:
+        rec = [str(x) for x in json.loads(recent or "[]")][:10]
+    except (json.JSONDecodeError, TypeError):
+        rec = []
+    try:
+        return await run_watch(b, lang, rec, mode if mode in ("standard", "simple") else "standard")
+    except GeminiError as e:
+        raise HTTPException(503, detail={"code": "watch_unavailable", "message": str(e)[:200]})

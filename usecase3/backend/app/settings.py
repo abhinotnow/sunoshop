@@ -54,7 +54,7 @@ class Settings:
     # False: reader 2 waits for reader 1's sign box and reads a zoomed crop (better for far, small signs).
     arbiter_parallel: bool = True
     gemini_timeout_s: float = 10.0
-    gemini_hedge_s: float = 4.0     # no answer after this long: also ask the next model, first answer wins
+    gemini_hedge_s: float = 3.0     # no answer after this long: also ask the next model, first answer wins
     gemini_deadline_s: float = 18.0  # a whole Gemini call (all fallbacks) gives up after this  # calls take 4-8 s; a hung call is retried instead of waited out
 
     anuvaad_config: Path = BACKEND / "config" / "anuvaad.json"

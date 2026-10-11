@@ -239,6 +239,11 @@
   "hi": "/audio/guidance/hi/too_dark.wav",
   "te": "/audio/guidance/te/too_dark.wav"
  },
+ "watch_on": {
+  "en": "/audio/guidance/en/watch_on.wav",
+  "hi": "/audio/guidance/hi/watch_on.wav",
+  "te": "/audio/guidance/te/watch_on.wav"
+ },
  "zooming_in": {
   "en": "/audio/guidance/en/zooming_in.wav",
   "hi": "/audio/guidance/hi/zooming_in.wav",

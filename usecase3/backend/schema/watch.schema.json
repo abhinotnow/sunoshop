@@ -1,0 +1,31 @@
+{
+ "$id": "oriel/watch/v1",
+ "title": "Watch",
+ "type": "object",
+ "description": "A quick look while the person walks: is there something to read, and what could they trip on or walk into. Never the contents of a sign.",
+ "properties": {
+  "sign_visible": {
+   "type": "boolean",
+   "description": "True if a sign, board, notice, label, packet, document, screen or currency note with readable writing is in view and big enough to read."
+  },
+  "sign_box": {
+   "type": "array",
+   "items": {"type": "integer"},
+   "description": "[ymin, xmin, ymax, xmax] of the most readable sign, normalized 0-1000. Empty if none."
+  },
+  "sign_kind": {
+   "type": "string",
+   "enum": ["bus_route_board", "bus_stop", "metro_rail", "direction", "street_name", "traffic_sign", "pedestrian_signal", "shop", "notice", "product", "document", "currency", "other", "none"]
+  },
+  "sign_key": {
+   "type": "string",
+   "description": "Two to five words that identify WHICH sign this is (for example 'green board Ameerpet', 'red shop board'), used only to avoid reading the same sign twice. Never spoken."
+  },
+  "hazards_en": {
+   "type": "array",
+   "items": {"type": "string"},
+   "description": "At most 2 things the person could trip on, walk into or be hit by, close to them, each 3 to 8 words with its position, e.g. 'steps going down just ahead'. Empty if none. Never say a way is clear or safe."
+  }
+ },
+ "required": ["sign_visible", "sign_box", "sign_kind", "sign_key", "hazards_en"]
+}

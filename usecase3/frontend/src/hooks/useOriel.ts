@@ -13,6 +13,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } fro
 import { api, ApiError } from "../lib/api";
 import { audio, type SpeakItem } from "../lib/audio";
 import { captureBurst, captureFiles } from "../lib/capture";
+import { canvasToJpeg, grabFrame } from "../lib/camera";
+import { blurFaces } from "../lib/vision";
 import { startCamera, stopStream, type Facing } from "../lib/camera";
 import { ConditionInference } from "../lib/conditions";
 import { HeadGestureTracker, type HeadGesture, type HeadPose } from "../lib/headGestures";
@@ -391,7 +393,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
         void sayPhrases(["glare"]);
         return;
       }
-      if (!S.current.autoCapture || autoPaused.current || now - lastReadEnd.current < 2500) return;
+      if (!S.current.autoCapture || S.current.watch || autoPaused.current || now - lastReadEnd.current < 2500) return;
       const steady = motion.isSteady();
       if (isGoodFrame(q) && steady !== false && !tilt) {
         goodSince.current ||= now;
@@ -406,7 +408,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
           void sayPhrases(["hold_still"]);
         }
       }
-      if (now - scanSince.current > 14000 && sinceGuidance > 9000) {
+      if (!S.current.watch && now - scanSince.current > 14000 && sinceGuidance > 9000) {
         lastGuidanceAt.current = now;
         conditions.current.noteAimFailure();
         void sayPhrases(["no_sign_try"]);
@@ -415,6 +417,89 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     }, 250);
     return () => clearInterval(id);
   }, [phase, facing, readNow, sayPhrases, offerIfNeeded, videoRef]);
+
+  // ------------------------------------------------------------------ continuous watch
+
+  /**
+   * Keep watching while the person walks: about every 4 s (only when the view changed and the phone is steady),
+   * one quick look. New hazards are spoken at once ("Careful, there may be ..."); a new sign that is big enough
+   * starts the full verified read, so what a sign says is still only ever spoken after verification.
+   * Never while the user talks, Oriel speaks, or a read is running.
+   */
+  useEffect(() => {
+    if (!settings.watch || phase === "start") return;
+    let cancelled = false;
+    const hazards: { text: string; at: number }[] = [];
+    const signs: { key: string; at: number }[] = [];
+    let lastLook = 0;
+    let lastThumb: Uint8ClampedArray | null = null;
+    const words = (s: string) => new Set(s.toLowerCase().split(/[^a-z0-9\u0900-\u0c7f]+/).filter(Boolean));
+    const sameSign = (a: string, b: string) => {
+      const x = words(a), y = words(b);
+      const common = [...x].filter((w) => y.has(w)).length;
+      return common / Math.max(1, Math.min(x.size, y.size)) >= 0.5;
+    };
+    const thumb = (video: HTMLVideoElement) => {
+      const c = document.createElement("canvas");
+      c.width = 32;
+      c.height = 24;
+      const g = c.getContext("2d", { willReadFrequently: true });
+      if (!g) return null;
+      g.drawImage(video, 0, 0, 32, 24);
+      return g.getImageData(0, 0, 32, 24).data;
+    };
+    const changed = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
+      let d = 0;
+      for (let i = 0; i < a.length; i += 4) d += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]);
+      return d / (a.length / 2) > 10; // mean change per channel: the person moved or turned
+    };
+    const loop = async () => {
+      while (!cancelled) {
+        await sleep(800);
+        const video = videoRef.current;
+        const now = performance.now();
+        if (!video?.videoWidth || now - lastLook < 4000) continue;
+        if (busyRef.current || recorder.current.active || holding.current || dialogRef.current || audio.isSpeaking) continue;
+        if (phaseRef.current !== "scan" && phaseRef.current !== "result") continue;
+        if (motion.isSteady() === false) continue;
+        const th = thumb(video);
+        if (th && lastThumb && !changed(th, lastThumb) && now - lastLook < 20000) continue; // same view: save a call
+        lastLook = now;
+        lastThumb = th;
+        const canvas = grabFrame(video, 896);
+        if (!canvas) continue;
+        await blurFaces(canvas);
+        const recent = hazards.filter((h) => now - h.at < 30000).map((h) => h.text);
+        let w;
+        try {
+          w = await api.watch(await canvasToJpeg(canvas, 0.8), S.current.outLang, recent,
+            S.current.simpleWords ? "simple" : "standard");
+        } catch {
+          continue; // quiet: the next look will try again
+        }
+        if (cancelled) return;
+        hazards.push(...w.hazards.map((text) => ({ text, at: now })));
+        if (busyRef.current || recorder.current.active || holding.current) continue; // the user took over meanwhile
+        if (w.lines.length) await sayLines(w.lines, S.current.outLang);
+        const [y0, x0, y1, x1] = w.sign_box.length === 4 ? w.sign_box : [0, 0, 0, 0];
+        const bigEnough = ((y1 - y0) * (x1 - x0)) / 1_000_000 >= 0.015;
+        const fresh = !signs.some((s) => now - s.at < 90000 && sameSign(s.key, w.sign_key));
+        if (w.sign_visible && bigEnough && fresh && !cancelled && !busyRef.current && !holding.current) {
+          signs.push({ key: w.sign_key, at: now });
+          if (phaseRef.current === "result") {
+            readsUsed.current = 0;
+            setFocusBox(null);
+            setPhase("scan");
+          }
+          readNow();
+        }
+      }
+    };
+    void loop();
+    return () => {
+      cancelled = true;
+    };
+  }, [settings.watch, phase === "start", readNow, sayLines, videoRef]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ------------------------------------------------------------------ result actions
 
@@ -778,7 +863,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     setPhase("scan");
     void faceDetector().then((d) => setFaceBlur(d ? "on" : "off"));
     api.health().then(setHealth).catch(() => setHealth(null));
-    await sayPhrases(S.current.tapAnywhere ? ["ready", "tap_to_speak"] : ["ready"]);
+    await sayPhrases(["ready", ...(S.current.tapAnywhere ? ["tap_to_speak"] : []), ...(S.current.watch ? ["watch_on"] : [])]);
     if (S.current.headGestures) void sayPhrases(["gestures_on"], false);
   }, [sayPhrases]);
 

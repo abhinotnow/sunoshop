@@ -184,7 +184,7 @@ async def run_read(frames: list[bytes], lang: str, mode: str = "standard", reads
 
     # ---- speech for the key lines (more / spell are synthesized when asked for)
     t = time.perf_counter()
-    provider = await attach_audio(speech["key"], lang) if speech["key"] else "none"
+    provider = await attach_audio(speech["key"], lang, budget_s=1.5) if speech["key"] else "none"
     timings["tts"] = round((time.perf_counter() - t) * 1000)
     yield stage("tts", "done", timings["tts"], provider=provider)
 

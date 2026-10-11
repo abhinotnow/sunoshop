@@ -8,7 +8,9 @@ export function TopBar({ o }: { o: Oriel }) {
   const { settings } = useSettings();
   const lang = settings.outLang;
   const status = o.speaking ? t("speaking", lang) : o.busy ? (o.phase === "asking" ? t("thinking", lang) : t("reading", lang))
-    : o.listening ? t("listening", lang) : o.phase === "scan" ? t("scanning", lang) : "";
+    : o.listening ? t("listening", lang)
+    : settings.watch && (o.phase === "scan" || o.phase === "result") ? t("watching", lang)
+    : o.phase === "scan" ? t("scanning", lang) : "";
   const missing = o.health && (!o.health.gemini.configured || !Object.values(o.health.anuvaad.tts ?? {}).some(Boolean));
 
   return (

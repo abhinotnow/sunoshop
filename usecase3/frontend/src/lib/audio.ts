@@ -206,8 +206,11 @@ class AudioEngine {
     const clip = item.clipId ? this.clipManifest[item.clipId]?.[item.lang] : undefined;
     let url = clip ?? item.audioUrl ?? null;
     if (!url && item.text) {
+      // Server speech can take seconds: when the phone has a voice for this language, wait at most 3 s for it.
+      const hasVoice = !!window.speechSynthesis?.getVoices().some((v) => v.lang.toLowerCase().startsWith(item.lang));
       try {
-        url = (await api.speak(item.text, item.lang)).audio_url;
+        const speak = api.speak(item.text, item.lang).then((r) => r.audio_url);
+        url = hasVoice ? await Promise.race([speak, wait(3000).then(() => null)]) : await speak;
       } catch {
         url = null;
       }

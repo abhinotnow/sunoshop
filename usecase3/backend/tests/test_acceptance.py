@@ -335,3 +335,55 @@ def test_scene_lines_are_spoken_in_the_users_language_or_marked_english(app, mon
     for line in res["speech"]["key"]:
         assert line["text"] and not line.get("pending")
         assert line.get("lang_fallback") in (None, "en")
+
+
+# ------------------------------------------------------------------ 8. continuous watch while walking
+
+@pytest.fixture
+def watcher(app, monkeypatch):
+    client, _ = app
+    from backend.app.services import watch as watch_mod
+    seen = {"raw": {}}
+
+    async def fake_json(*a, **k):
+        return seen["raw"]
+    monkeypatch.setattr(watch_mod.gemini, "generate_json", fake_json)
+    return client, seen
+
+
+def look(client, recent=(), lang="en"):
+    return client.post("/api/watch", files={"frame": ("f.jpg", jpeg(), "image/jpeg")},
+                       data={"lang": lang, "recent": json.dumps(list(recent))})
+
+
+def test_watch_warns_about_new_hazards_only(watcher):
+    client, seen = watcher
+    seen["raw"] = {"sign_visible": False, "sign_box": [], "sign_kind": "none", "sign_key": "",
+                   "hazards_en": ["Steps going down just ahead", "a moving bus on the right"]}
+    body = look(client).json()
+    assert body["lines"][0]["text"] == "Careful, there may be steps going down just ahead and a moving bus on the right. Check with your cane."
+    again = look(client, recent=body["hazards"]).json()  # the same view a moment later
+    assert again["lines"] == [] and again["hazards"] == []
+
+
+def test_watch_never_speaks_a_sign_or_a_safe_claim(watcher):
+    client, seen = watcher
+    seen["raw"] = {"sign_visible": True, "sign_box": [200, 100, 500, 900], "sign_kind": "bus_route_board",
+                   "sign_key": "blue board 218", "hazards_en": ["the road is clear to cross"]}
+    body = look(client).json()
+    assert body["sign_visible"] and body["sign_box"] == [200, 100, 500, 900]
+    assert body["lines"] == []  # the sign is read by the verified pipeline; the safe claim is dropped
+
+
+def test_watch_ignores_an_invalid_box_and_reports_outage(watcher, monkeypatch):
+    client, seen = watcher
+    seen["raw"] = {"sign_visible": True, "sign_box": [900, 900, 100, 100], "sign_kind": "shop", "sign_key": "x", "hazards_en": []}
+    assert look(client).json()["sign_visible"] is False
+    from backend.app.services import watch as watch_mod
+    from backend.app.services.gemini import GeminiError
+
+    async def down(*a, **k):
+        raise GeminiError("429 quota")
+    monkeypatch.setattr(watch_mod.gemini, "generate_json", down)
+    r = look(client)
+    assert r.status_code == 503 and r.json()["detail"]["code"] == "watch_unavailable"
