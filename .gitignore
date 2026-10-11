@@ -73,3 +73,5 @@ frontend/dist/
 **/.env
 **/anuvaad.json
 
+# Keep usecase2 available locally without tracking it on GitHub
+/usecase2/
