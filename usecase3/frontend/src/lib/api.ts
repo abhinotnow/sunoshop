@@ -140,24 +140,25 @@ export const api = {
     if (opts.context) fd.append("context", JSON.stringify(compactContext(opts.context)));
     if (opts.frame) fd.append("frame", opts.frame, "sign.jpg");
     fd.append("confirmed", String(Boolean(opts.confirmed)));
-    return withRetry(() => streamEvents("/api/ask", fd, onEvent), 1);
+    return streamEvents("/api/ask", fd, onEvent, 40000); // never resent: a retry doubled the wait
   },
 
   speak: (text: string, lang: Lang) =>
-    withRetry(() => request("/api/speak", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, lang }) }, 30000).then((r) => r.json() as Promise<{ audio_url: string | null; provider: string }>)),
+    request("/api/speak", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, lang }) }, 12000).then((r) => r.json() as Promise<{ audio_url: string | null; provider: string }>),
 
   asr(audio: Blob, lang: Lang) {
     const fd = new FormData();
     fd.append("audio", audio, "speech.wav");
     fd.append("lang", lang);
-    return withRetry(() => request("/api/asr", { method: "POST", body: fd }, 30000).then((r) => r.json() as Promise<{ text: string }>));
+    // one try, bounded: the user is waiting (the server gives AnuvaadHub ASR 12 s)
+    return request("/api/asr", { method: "POST", body: fd }, 16000).then((r) => r.json() as Promise<{ text: string }>);
   },
 
   compose: (verified: Verified, lang: Lang, mode: "standard" | "simple", digitStyle: string) =>
     withRetry(() => request("/api/compose", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ verified, lang, mode, digit_style: digitStyle }) }, 45000)
-      .then((r) => r.json() as Promise<{ speech: Speech; verified: Verified }>)),
+      body: JSON.stringify({ verified, lang, mode, digit_style: digitStyle }) }, 20000)
+      .then((r) => r.json() as Promise<{ speech: Speech; verified: Verified }>), 1),
 
   audioUrl: (path: string) => (path.startsWith("http") ? path : BASE + path),
 };

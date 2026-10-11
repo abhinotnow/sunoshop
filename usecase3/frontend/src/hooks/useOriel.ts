@@ -79,6 +79,17 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const busyRef = useRef(false);
   const dialogRef = useRef<Dialog | null>(null);
   dialogRef.current = dialog;
+  // A yes/no question pauses watching and reading, so it must never stay open: it expires after 20 s
+  // (as "no" for offers), and any other request replaces it.
+  useEffect(() => {
+    if (!dialog) return;
+    const t = setTimeout(() => {
+      if (dialogRef.current !== dialog) return;
+      if (dialog.kind === "offer") dialog.onNo();
+      else setDialog(null);
+    }, 20000);
+    return () => clearTimeout(t);
+  }, [dialog]);
   const resultRef = useRef<ReadResult | null>(null);
   resultRef.current = result;
   const readsUsed = useRef(0);
@@ -877,7 +888,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     const same = cmd === "continue" || (cmd === "read" && !!p?.reading) || (cmd === "again" && !!p?.items.length);
     if (same) return resumeHeld();
     await dropHeld();
-    if (dialogRef.current && cmd !== "yes" && cmd !== "no") return void sayPhrases(["say_yes_no"]);
+    if (dialogRef.current && cmd !== "yes" && cmd !== "no") setDialog(null); // a new request replaces the question
     if (cmd) runCommand(cmd);
     else await askQuestion({ text, asrText: text });
   }, [askQuestion, dropHeld, resumeHeld, runCommand, sayPhrases]);
@@ -922,7 +933,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
           setCaption(`“${text}”`);
           const cmd = matchCommand(text, S.current.inLang);
           if (cmd) runCommand(cmd);
-          else if (dialogRef.current) await sayPhrases(["say_yes_no"]);
+          else if (dialogRef.current) { setDialog(null); await askQuestion({ text, asrText: text }); }
           else await askQuestion({ text, asrText: text });
         } catch (e) {
           if ((e as ApiError).code === "asr_unavailable") {

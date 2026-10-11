@@ -212,7 +212,7 @@ class AudioEngine {
       const hasVoice = !!window.speechSynthesis?.getVoices().some((v) => v.lang.toLowerCase().startsWith(item.lang));
       try {
         const speak = api.speak(item.text, item.lang).then((r) => r.audio_url);
-        url = hasVoice ? await Promise.race([speak, wait(3000).then(() => null)]) : await speak;
+        url = await Promise.race([speak, wait(hasVoice ? 3000 : 8000).then(() => null)]);
       } catch {
         url = null;
       }
@@ -226,12 +226,26 @@ class AudioEngine {
   private playUrl(url: string): Promise<boolean> {
     return new Promise((resolve) => {
       const el = this.el;
+      let finished = false;
       const done = (ok: boolean) => {
-        el.onended = el.onerror = null;
+        if (finished) return;
+        finished = true;
+        el.onended = el.onerror = el.onloadedmetadata = null;
         this.release = null;
+        if (!ok) el.pause();
         resolve(ok);
       };
       this.release = () => done(false);
+      // Watchdog: a stalled download never fires "ended". Allow the clip's length plus a margin, and 5 s to start.
+      let guard = setTimeout(() => done(false), 5000);
+      el.onloadedmetadata = () => {
+        clearTimeout(guard);
+        const secs = Number.isFinite(el.duration) ? el.duration / Math.max(0.5, this.rate) : 20;
+        guard = setTimeout(() => done(false), (secs + 3) * 1000);
+      };
+      const clear = () => clearTimeout(guard);
+      el.addEventListener("ended", clear, { once: true });
+      el.addEventListener("error", clear, { once: true });
       el.onended = () => done(true);
       el.onerror = () => done(false);
       el.src = url;

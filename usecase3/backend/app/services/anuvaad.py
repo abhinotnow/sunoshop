@@ -88,9 +88,11 @@ class AnuvaadClient:
 
     # ---------- low level ----------
 
-    async def _post(self, m: Model, *, json_body: dict | None = None, files: dict | None = None) -> dict:
+    async def _post(self, m: Model, *, json_body: dict | None = None, files: dict | None = None,
+                    timeout: float | None = None) -> dict:
         try:
-            r = await self._http.post(m.endpoint, headers={"access-token": m.token}, json=json_body, files=files)
+            r = await self._http.post(m.endpoint, headers={"access-token": m.token}, json=json_body, files=files,
+                                      timeout=timeout if timeout else httpx.USE_CLIENT_DEFAULT)
         except httpx.ConnectError as e:
             if "CERTIFICATE" in str(e).upper() or "SSL" in str(e).upper():
                 raise AnuvaadError("TLS certificate check failed: set ANUVAAD_VERIFY_TLS=false in backend/.env") from e
@@ -120,7 +122,7 @@ class AnuvaadClient:
             raise AnuvaadUnavailable(f"mt {src}-{tgt}")
         outs = []
         for chunk in chunk_words(text, MT_MAX_WORDS):
-            data = await self._post(m, json_body={"input_text": chunk})
+            data = await self._post(m, json_body={"input_text": chunk}, timeout=10.0)  # MT answers in < 1 s
             out = (data.get("output_text") or "").strip()
             if not out:
                 raise AnuvaadError(f"mt {src}-{tgt} returned empty text")
@@ -144,7 +146,7 @@ class AnuvaadClient:
             raise AnuvaadUnavailable(f"asr {lang}")
         if len(wav) > ASR_MAX_BYTES:
             raise AnuvaadError("audio too long (max about 20 seconds)")
-        data = await self._post(m, files={"audio_file": ("speech.wav", wav, "audio/wav")})
+        data = await self._post(m, files={"audio_file": ("speech.wav", wav, "audio/wav")}, timeout=12.0)
         return (data.get("recognized_text") or "").strip()
 
     # ---------- TTS ----------
