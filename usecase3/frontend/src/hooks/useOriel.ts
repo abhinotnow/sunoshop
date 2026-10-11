@@ -509,8 +509,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
         void sayPhrases(["glare"]);
         return;
       }
-      const watching = S.current.watch && watchFailures.current < 2; // the watch starts reads while it works
-      if (!S.current.autoCapture || watching || autoPaused.current || now - lastReadEnd.current < 2500) return;
+      if (!S.current.autoCapture || autoPaused.current || now - lastReadEnd.current < 2500) return;
       const steady = motion.isSteady();
       if (isGoodFrame(q) && steady !== false && !tilt) {
         goodSince.current ||= now;
@@ -525,7 +524,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
           void sayPhrases(["hold_still"]);
         }
       }
-      if (!S.current.watch && now - scanSince.current > 14000 && sinceGuidance > 9000) {
+      if (now - scanSince.current > 14000 && sinceGuidance > 9000) {
         lastGuidanceAt.current = now;
         conditions.current.noteAimFailure();
         void sayPhrases(["no_sign_try"]);
@@ -544,7 +543,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
    * Never while the user talks, Oriel speaks, or a read is running.
    */
   useEffect(() => {
-    if (!settings.watch || phase === "start") return;
+    if (!settings.watchMode || phase === "start") return;
     let cancelled = false;
     const hazards: { text: string; at: number }[] = [];
     const signs: { key: string; at: number }[] = [];
@@ -618,7 +617,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     return () => {
       cancelled = true;
     };
-  }, [settings.watch, phase === "start", readNow, sayLines, videoRef]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings.watchMode, phase === "start", readNow, sayLines, videoRef]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ------------------------------------------------------------------ result actions
 
@@ -985,7 +984,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     setPhase("scan");
     void faceDetector().then((d) => setFaceBlur(d ? "on" : "off"));
     api.health().then(setHealth).catch(() => setHealth(null));
-    await sayPhrases(["ready", ...(S.current.tapAnywhere ? ["tap_to_speak"] : []), ...(S.current.watch ? ["watch_on"] : [])]);
+    await sayPhrases(["ready", ...(S.current.tapAnywhere ? ["tap_to_speak"] : []), ...(S.current.watchMode ? ["watch_on"] : [])]);
     if (S.current.headGestures) void sayPhrases(["gestures_on"], false);
   }, [sayPhrases]);
 

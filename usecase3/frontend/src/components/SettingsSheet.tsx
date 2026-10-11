@@ -72,7 +72,7 @@ export function SettingsSheet({ o }: { o: Oriel }) {
         </fieldset>
 
         <Toggle label={t("tapAnywhereSetting", lang)} value={s.tapAnywhere} onChange={set("tapAnywhere")} />
-        <Toggle label={t("watchSetting", lang)} value={s.watch} onChange={set("watch")} />
+        <Toggle label={t("watchSetting", lang)} value={s.watchMode} onChange={set("watchMode")} />
 
         <fieldset className="field">
           <legend>{t("readingCamera", lang)}</legend>
