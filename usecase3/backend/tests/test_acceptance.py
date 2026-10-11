@@ -80,7 +80,17 @@ def app(monkeypatch):
     monkeypatch.setattr(sign_reader, "arbiter_read", fake_arbiter)
     monkeypatch.setattr(vision_ocr, "configured", lambda: True)
     monkeypatch.setattr(vision_ocr, "read_words", fake_vision)
+    class FakeMT:  # translation without the network: marks the text so tests can see it was translated
+        gender = "female"
+
+        def can_translate(self, src, tgt):
+            return True
+
+        async def translate(self, text, src, tgt):
+            return f"[{tgt}] {text}"
+
     monkeypatch.setattr(speech, "synthesize", no_audio)
+    monkeypatch.setattr(speech, "anuvaad_client", lambda: FakeMT())
     return TestClient(main.app), state
 
 
@@ -266,3 +276,62 @@ def test_health_lists_every_reader(app):
     body = client.get("/api/health").json()
     for key in ("gemini", "anuvaad", "paddleocr", "cloud_vision", "gemini_keys", "known_places"):
         assert key in body
+
+
+# ------------------------------------------------------------------ 7. it helps with everything, not only signs
+
+def scene_rec(desc="A wooden table with a steel water bottle on the left and a door straight ahead.", hazards=()):
+    return rec(sign_found=False, sign_category="none", main_sign_box=[], route_numbers=[], places=[],
+               scene={"description_en": desc, "hazards_en": list(hazards), "objects_en": ["table", "bottle", "door"]})
+
+
+def test_no_sign_describes_what_is_in_front(app):
+    client, state = app
+    state["reader"] = scene_rec(hazards=["two steps going down in front"])
+    res = read(client)
+    texts = [l["text"] for l in res["speech"]["key"]]
+    assert res["next_step"]["action"] == "done"
+    assert texts[0].startswith("Careful, there may be two steps going down")  # hazard first
+    assert "water bottle" in texts[1]
+    assert all(l["status"] != "confirmed" for l in res["speech"]["key"])  # a description is never "the sign says"
+
+
+def test_scene_never_repeats_a_claim_that_the_way_is_safe():
+    v = verify([scene_rec("A zebra crossing ahead. The road is clear and it is safe to cross. A bus on the right.",
+                          hazards=["a bus on the right", "nothing in your way"])] * 2)
+    said = " ".join(l["text"] for l in compose(v, "en")["key"]).lower()
+    assert "safe" not in said and "road is clear" not in said and "nothing in your way" not in said
+    assert "zebra crossing" in said and "bus on the right" in said
+
+
+def test_currency_needs_frames_and_a_second_reader():
+    note = rec(sign_category="currency", currency=[{"value": "500", "legibility": "clear"}])
+    sure = verify([note] * 2, Evidence(arbiter=arb(currency_values=["500"]), arbiter_ran=True))
+    assert compose(sure, "en")["key"][0]["text"] == "This is a 500 rupee note."
+    unsure = verify([note] * 2, Evidence(arbiter=arb(currency_values=["200"]), arbiter_ran=True))
+    assert compose(unsure, "en")["key"][0]["text"] == "It looks like a 500 rupee note, please check."
+
+
+def test_medicine_strip_reads_name_and_dose(app):
+    client, state = app
+    state["reader"] = rec(sign_category="product", languages_present=["en"],
+                          business={"name_text": "DOLO 650", "name_script": "Latin", "name_romanized": "Dolo 650",
+                                    "category_en": "paracetamol tablets", "hours_text": "", "open_time": "",
+                                    "close_time": "", "open_hint": "none"},
+                          other_text=[{"text": "Paracetamol Tablets IP 650 mg", "script": "Latin", "legibility": "clear"},
+                                      {"text": "EXP 08/2027", "script": "Latin", "legibility": "clear"}])
+    state["arbiter"] = arb(business_name_romanized="DOLO 650", text_lines=["Paracetamol Tablets IP 650 mg", "EXP 08/2027"])
+    res = read(client)
+    said = " ".join(l["text"] for l in res["speech"]["key"] + res["speech"]["more"])
+    assert "Dolo 650" in said and "650 mg" in said and "08/2027" in said
+    assert res["speech"]["key"][0]["status"] == "confirmed"
+
+
+@pytest.mark.parametrize("lang", ["te", "hi"])
+def test_scene_lines_are_spoken_in_the_users_language_or_marked_english(app, monkeypatch, lang):
+    client, state = app
+    state["reader"] = scene_rec()
+    res = read(client, lang=lang)
+    for line in res["speech"]["key"]:
+        assert line["text"] and not line.get("pending")
+        assert line.get("lang_fallback") in (None, "en")

@@ -66,6 +66,24 @@ BOARDS = [
      '<div class="hi" style="font-size:78px">कृपया गेट नंबर 2 का उपयोग करें</div></div>',
      "clear", {"texts": ["Notice", "Please use gate no. 2", "कृपया गेट नंबर 2 का उपयोग करें"]}, ["en", "hi"],
      "notice board: the instruction must be read out"),
+    ("product_001", (1500, 560),
+     '<div class="b" style="background:linear-gradient(90deg,#d1d5db,#f3f4f6 40%,#cbd5e1);color:#0f172a;border-radius:8px">'
+     '<div class="en" style="font-size:120px;color:#b91c1c">PARAFIX 650</div>'
+     '<div class="en" style="font-size:62px">Paracetamol Tablets IP 650 mg</div>'
+     '<div class="en" style="font-size:50px">EXP 08/2027 &nbsp; MRP Rs 30.50</div></div>',
+     "clear", {"business": "Parafix 650", "texts": ["Paracetamol Tablets IP 650 mg", "EXP 08/2027", "MRP Rs 30.50",
+                                                    "EXP 08/2027 MRP Rs 30.50"]}, ["en"],
+     "medicine strip (invented brand): name, strength and expiry must be read"),
+    ("product_002", (1100, 1300),
+     '<div class="b" style="background:#1d4ed8;color:#fff;border-radius:60px">'
+     '<div class="en" style="font-size:120px">SUNRISE</div>'
+     '<div class="en" style="font-size:84px;color:#fde68a">TONED MILK</div>'
+     '<div class="te" style="font-size:80px">టోన్డ్ పాలు</div>'
+     '<div class="en" style="font-size:70px">500 ml</div>'
+     '<div class="en" style="font-size:52px">MRP Rs 28 &middot; Use by 12/10/2026</div></div>',
+     "clear", {"business": "Sunrise Toned Milk", "texts": ["Toned milk", "టోన్డ్ పాలు", "500 ml", "MRP Rs 28",
+                                                           "Use by 12/10/2026", "MRP Rs 28 · Use by 12/10/2026", "Sunrise"]},
+     ["en", "te"], "milk packet (invented brand): what it is, size and use-by date"),
 ]
 
 PAGE = """<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="{fonts}">
@@ -123,7 +141,8 @@ def main() -> int:
                 paths.append(str(p.relative_to(ROOT)).replace("\\", "/"))
             data["signs"].append({
                 "id": sid, "frames": paths, "location": "synthetic", "synthetic": True,
-                "sign_type": "shop" if "business" in expected else "information", "conditions": [cond],
+                "sign_type": ("product" if sid.startswith("product") else "shop") if "business" in expected else "information",
+                "conditions": [cond],
                 "languages_on_sign": langs,
                 "expected": {"sign_found": True, "routes": [], "places": [], "platform": None, "arrows": [],
                              "business": expected.get("business", ""), "texts": expected.get("texts", [])},

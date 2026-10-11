@@ -10,6 +10,7 @@ Line = {id, kind, status, text, pending?}
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 from ..content import templates, traffic_signs
@@ -19,7 +20,14 @@ from .verify import CONFIRMED, TRANSIT, UNCERTAIN, UNREADABLE
 
 MAX_KEY_LINES = 3
 # categories whose meaning is in their words (rather than a route, a shop name or a pictogram)
-TEXT_FIRST = {"information", "warning", "other", "emergency_exit"}
+TEXT_FIRST = {"information", "warning", "other", "emergency_exit", "direction", "product", "document"}
+
+
+def an_before_vowel(text: str) -> str:
+    """English article: 'a exit sign' -> 'an exit sign' (sign names are filled into 'a {sign} sign');
+    no article before a plural: 'like a paracetamol tablets' -> 'like paracetamol tablets'."""
+    text = re.sub(r"(?<=like )an? ((?:\w+ )*\w+[^s\W]s)(?=[.,]|$)", lambda m: m.group(1), text)
+    return re.sub(r"\b([Aa]) (?=[aeiouAEIOU])", lambda m: m.group(1) + "n ", text)
 
 
 def join_lines(lines: list[str], lang: str) -> str:
@@ -93,12 +101,16 @@ class Builder:
         self.spell: list[dict] = []
         self._n = 0
 
-    def line(self, where: str, kind: str, status: str, text: str = "", pending: dict | None = None) -> None:
+    def line(self, where: str, kind: str, status: str, text: str = "", pending: dict | None = None,
+             always: bool = False) -> None:
+        """`always`: a safety line that is spoken even when the key lines are full."""
         self._n += 1
+        if self.lang == "en" and text:
+            text = an_before_vowel(text)
         item = {"id": f"l{self._n}", "kind": kind, "status": status, "text": text}
         if pending:
             item["pending"] = pending
-        (self.key if where == "key" and len(self.key) < MAX_KEY_LINES else self.more).append(item)
+        (self.key if where == "key" and (always or len(self.key) < MAX_KEY_LINES) else self.more).append(item)
 
     def t(self, key: str) -> str:
         return T(key, self.lang, self.mode)
@@ -106,9 +118,9 @@ class Builder:
     def route(self, value: str) -> str:
         return route_words(value, self.lang, self.style)
 
-    def text_line(self, where: str, field: dict, kind: str = "text") -> None:
+    def text_line(self, where: str, field: dict, kind: str = "text", tpl: str | None = None) -> None:
         """Free text: read it directly if it is already in the user's language, else translate it."""
-        tpl_key = "says_text" if field["status"] == CONFIRMED else "looks_text"
+        tpl_key = tpl or ("says_text" if field["status"] == CONFIRMED else "looks_text")
         src = field.get("lang", "en")
         if src == self.lang:
             value = speakable_caps(field["value"], sentence=True) if src == "en" else field["value"]
@@ -124,8 +136,25 @@ def compose(verified: dict, lang: str, mode: str = "standard", style: str | None
     fields = verified.get("fields", [])
     by = lambda k: [f for f in fields if f["kind"] == k]  # noqa: E731
 
+    scene = verified.get("scene") or {}
+    hazards = scene.get("hazards") or []
+
+    def free_line(where: str, tpl: str, text: str, status: str = "info", always: bool = False) -> None:
+        """Model-written English (a description, not text read off a sign): translated, never 'confirmed'."""
+        if lang == "en":
+            b.line(where, "scene", status, fill(b.t(tpl), text=text), always=always)
+        else:
+            b.line(where, "scene", status, pending={"template": tpl, "slot": "text", "source": text, "src": "en",
+                                                    "mode": mode}, always=always)
+
     if not verified.get("sign_found"):
-        return {"key": [], "more": [], "spell": [], "empty": True}
+        # Nothing to read: say what is in front of the person instead, hazards first.
+        if hazards:
+            free_line("key", "scene_hazard", " and ".join(hazards), always=True)
+        if scene.get("description"):
+            free_line("key", "scene_see", scene["description"])
+        return {"key": b.key, "more": b.more, "spell": [], "empty": not b.key}
+
 
     cat = verified.get("category")
     routes, places = by("route"), by("place")
@@ -206,9 +235,18 @@ def compose(verified: dict, lang: str, mode: str = "standard", style: str | None
         if note:
             b.line("key", "safety", "info", note)
 
+    # ---- money
+    for f in by("currency"):
+        tpl = "currency_note" if f["status"] == CONFIRMED else "looks_currency"
+        b.line("key", "currency", f["status"], fill(b.t(tpl), value=f["value"]))
+
     # ---- shops
+    label = cat in ("product", "document")  # a pack, a medicine strip or a paper: "the label says", not "the board"
     for f in by("business"):
-        tpl = "shop_name" if f["status"] == CONFIRMED else "looks_shop_name"
+        if label:
+            tpl = "label_name" if f["status"] == CONFIRMED else "looks_label_name"
+        else:
+            tpl = "shop_name" if f["status"] == CONFIRMED else "looks_shop_name"
         b.line("key", "business", f["status"], fill(b.t(tpl), name=name_of(f, lang)))
     for f in by("business_category"):
         if lang == "en":
@@ -252,7 +290,8 @@ def compose(verified: dict, lang: str, mode: str = "standard", style: str | None
             sel = [f for f in groups[main_lang] if f["status"] == status][:4]
             if sel:
                 b.text_line("key", {"value": join_lines([f["value"] for f in sel], main_lang),
-                                    "status": status, "lang": main_lang})
+                                    "status": status, "lang": main_lang},
+                            tpl=("label_text" if status == CONFIRMED else "looks_label_text") if cat in ("product", "document") else None)
                 used.update(id(f) for f in sel)
     for f in texts:
         if id(f) not in used:
@@ -264,7 +303,11 @@ def compose(verified: dict, lang: str, mode: str = "standard", style: str | None
             b.line("more", "table", UNCERTAIN, pending={"template": "table_info", "slot": "text",
                                                           "source": f["value"], "src": "en", "mode": mode})
 
-    if not b.key:
+    if hazards:  # after the sign's own facts (a street is full of poles), still among the key lines when there is room
+        free_line("key", "scene_hazard", " and ".join(hazards), always=True)
+    if scene.get("description"):
+        free_line("more", "scene_see", scene["description"])
+    if not [ln for ln in b.key if ln["kind"] != "scene"]:
         b.line("key", "unclear", UNCERTAIN, b.t("sign_unclear"))
 
     # ---- spelling help for the key route and place

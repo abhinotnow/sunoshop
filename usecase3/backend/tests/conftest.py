@@ -8,6 +8,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("GEMINI_API_KEY", "test-key")
+os.environ["ENABLE_PADDLEOCR"] = "false"  # tests use fakes only: never load the real OCR model
+os.environ["GOOGLE_VISION_API_KEY"] = ""
 
 from backend.app.services.sign_reader import EMPTY_RECORD  # noqa: E402
 

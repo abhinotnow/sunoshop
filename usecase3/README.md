@@ -6,6 +6,17 @@ Oriel lets a blind, low-vision, older or hand-impaired person hold up a phone an
 
 **Core idea: verify, then speak.** A sign reader that is wrong while sounding sure can put a blind person on the wrong bus or into traffic. Oriel reads every sign at least twice, in independent ways, and only says "the sign says ..." when the readings agree. Everything else is said as "it looks like ..., please check", or Oriel asks for a better photo and explains how to take one.
 
+
+## Beyond signs: everything in front of the camera
+
+When there is no sign, Oriel still helps:
+- **What is in front**: a one- or two-sentence description ("two people leading three bulls along the road"), spoken as "Here is what I can see", never as a confirmed fact.
+- **Hazards first**: steps, kerbs, poles, vehicles, animals, drains: "Careful, there may be ... Check with your cane." A hazard line is always spoken, even after a sign. Any sentence claiming a way is clear or safe is removed (`verify._UNSAFE_CLAIM`).
+- **Labels and papers**: medicine strips, packets, menus, documents: "The label says: Parafix 650. It also says: 650 mg, Exp 08/2027".
+- **Money**: "This is a 500 rupee note" only when both frames and a second reader or OCR read the same value; otherwise "It looks like ..., please check".
+
+Tested on real photos (Wikimedia Commons, `eval/labels_web.json`, licences in `eval/photos/web/CREDITS.json`): 0 wrong-but-confident, scene described 10/10, hazards warned 6/6, median 9.2 s on the free Gemini tier.
+
 ---
 
 ## Contents

@@ -94,7 +94,7 @@ function paintBoard(canvas: HTMLCanvasElement, res: ReadResult | null, lang: Lan
   g.fillStyle = "#9fb3e8";
   g.font = `800 34px Inter, system-ui, sans-serif`;
   g.textBaseline = "top";
-  g.fillText(t("whatSignSays", lang).toUpperCase(), 48, 40);
+  g.fillText(t(res.verified.sign_found ? "whatSignSays" : "whatISee", lang).toUpperCase(), 48, 40);
   const cat = res.verified.category && res.verified.category !== "none" ? res.verified.category.replace(/_/g, " ") : "";
   if (cat) {
     g.font = `700 28px Inter, system-ui, sans-serif`;

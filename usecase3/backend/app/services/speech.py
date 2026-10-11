@@ -29,9 +29,9 @@ async def _tts_and_store(mt, text: str, lang: str, g: str, aid: str) -> dict:
         wav = await mt.tts(text, lang, g)
     except AnuvaadUnavailable:
         return {"audio_url": None, "provider": "device", "error": f"tts {lang} not configured"}
-    except AnuvaadError as e:
-        log.warning("TTS failed: %s", e)
-        return {"audio_url": None, "provider": "device", "error": str(e)}
+    except Exception as e:  # noqa: BLE001 - AnuvaadError, network errors, anything: the phone voice takes over
+        log.warning("TTS failed: %s", str(e)[:200])
+        return {"audio_url": None, "provider": "device", "error": str(e)[:200]}
     finally:
         _inflight.pop(aid, None)
     audio_store.put(aid, wav)

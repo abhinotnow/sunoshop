@@ -39,6 +39,9 @@ def next_step(verified: dict, reads_used: int, max_reads: int = 3, device: dict 
     elif tilt == "down":
         phrases.append("tilt_down")
 
+    scene = verified.get("scene") or {}
+    if not verified.get("sign_found") and (scene.get("description") or scene.get("hazards")):
+        return _plan("done", phrases, None, "nothing to read: described what is in front")
     if not verified.get("sign_found"):
         if can_reread:
             return _plan("guide", phrases + ["no_sign_try"], None, "no sign found yet")

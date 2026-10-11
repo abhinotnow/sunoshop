@@ -41,7 +41,7 @@ export function ResultPanel({ o }: { o: Oriel }) {
   return (
     <section ref={tilt} className="panel glass result" aria-labelledby="result-heading">
       <div className="panel-head">
-        <h2 id="result-heading">{t("whatSignSays", lang)}</h2>
+        <h2 id="result-heading">{t(r.verified.sign_found ? "whatSignSays" : "whatISee", lang)}</h2>
         {r.verified.category && r.verified.category !== "none" && (
           <span className="category">{r.verified.category.replace(/_/g, " ")}</span>
         )}

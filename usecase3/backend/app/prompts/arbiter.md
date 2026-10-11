@@ -8,5 +8,6 @@ Rules
 5. text_lines: every other line of words on the main sign in reading order, exactly as written in its original script: notices, instructions, building, school, hospital or office names, offers. Only lines you can read completely.
 6. symbols: traffic or facility pictograms visible (codes from the list), speed_limit_value if a speed limit number is fully readable, else empty string.
 7. pedestrian_signal_state: what a pedestrian signal shows, or "none".
-8. legible: false if the crop is too blurred, dark or covered to read anything with confidence.
+8. currency_values: the printed value of every Indian rupee note or coin you can read completely (digits only).
+9. legible: false if the crop is too blurred, dark or covered to read anything with confidence.
 Never guess a hidden character. Never use knowledge of real routes or places to fill gaps.

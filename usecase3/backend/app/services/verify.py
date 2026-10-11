@@ -15,6 +15,7 @@ Every rule is documented in README.md, section "Verification rules".
 
 from __future__ import annotations
 
+import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from statistics import median
@@ -391,6 +392,65 @@ def _free_text(frames, n, need, exclude: list[str], ev: Evidence | None = None) 
     return out[:10]
 
 
+# ---------------------------------------------------------------- money and the scene around the sign
+
+def _currency(frames, n, need, ev: Evidence) -> list[dict]:
+    """A rupee note: frames agree on the value AND reader 2 or OCR read the same digits (a mistake costs money)."""
+    votes: Counter = Counter()
+    clear: Counter = Counter()
+    for f in frames:
+        seen = set()
+        for c in f.get("currency", []):
+            v = (digit_sequences(str(c.get("value", ""))) or [""])[0]
+            if not v or c.get("legibility") == "unreadable" or v in seen:
+                continue
+            seen.add(v)
+            votes[v] += 1
+            if c.get("legibility") == "clear":
+                clear[v] += 1
+    arb_vals = {(digit_sequences(str(x)) or [""])[0] for x in (ev.arb or {}).get("currency_values", [])}
+    out = []
+    for v, k in votes.most_common(3):
+        if k < need:
+            continue
+        agree = v in arb_vals or (ev.ocr_ran and v in digit_sequences(ev.ocr_text))
+        ok = clear[v] >= need and agree
+        out.append({"kind": "currency", "value": v, "status": CONFIRMED if ok else UNCERTAIN, "votes": _votes_str(k, n),
+                    "checks": {"second_reader": "agree" if agree else "n/a"},
+                    "reason": "" if ok else "the value was not double-checked"})
+    return out
+
+
+# Never repeat a claim that a way is clear or safe: Oriel only describes, the user decides (CLAUDE.md rule 3).
+_UNSAFE_CLAIM = re.compile(r"\b(safe|safely|clear (?:to|of|path|road|way)|path is clear|road is clear|way is clear|"
+                           r"no (?:traffic|cars|vehicles|obstacles)|nothing in (?:the|your) way|you can (?:walk|cross|go))\b",
+                           re.IGNORECASE)
+
+
+def _clean_sentences(text: str) -> str:
+    parts = re.split(r"(?<=[.!?])\s+", (text or "").strip())
+    return " ".join(p for p in parts if p and not _UNSAFE_CLAIM.search(p)).strip()
+
+
+def scene_of(frames: list[dict]) -> dict:
+    """What is in front of the camera: a description (never 'confirmed', it is an interpretation) and hazards.
+    Hazards seen in ANY frame are kept: warning about a possible obstacle is the safe side."""
+    descs = [_clean_sentences((f.get("scene") or {}).get("description_en", "")) for f in frames]
+    descs = [d for d in descs if d]
+    # Hazards: the fullest list from one frame (frames word the same hazard differently; merging them made
+    # run-on sentences). Short phrases, lower case so they read as one sentence.
+    lists = []
+    for f in frames:
+        items = []
+        for h in (f.get("scene") or {}).get("hazards_en", []) or []:
+            h = _clean_sentences(str(h)).strip().rstrip(".")
+            if h and len(h.split()) <= 12 and not any(fuzzy_eq(h, x, 70) for x in items):
+                items.append(h[0].lower() + h[1:] if h[:2] != h[:2].upper() else h)
+        lists.append(items)
+    hazards = max(lists, key=len) if lists else []
+    return {"description": max(descs, key=len) if descs else "", "hazards": hazards[:2]}
+
+
 # ---------------------------------------------------------------- main
 
 def verify(frames: list[dict], ev: Evidence | None = None, gaz: Gazetteer | None = None) -> dict:
@@ -411,6 +471,7 @@ def verify(frames: list[dict], ev: Evidence | None = None, gaz: Gazetteer | None
             "second_reader": {"arbiter": "ran" if ev.arbiter_ran else "not run",
                               "arbiter_legible": ev.arb is not None, "ocr": "ran" if ev.ocr_ran else "not run"},
             "notes": ev.notes}
+    base["scene"] = scene_of(frames)
     if sign_votes < need:
         return {**base, "sign_found": False, "category": "none", "box": [], "languages": [], "fields": []}
 
@@ -420,7 +481,7 @@ def verify(frames: list[dict], ev: Evidence | None = None, gaz: Gazetteer | None
     fields = (_routes(sign_frames, n, need, ev) + places + _platform(sign_frames, n, need, ev)
               + _arrows(sign_frames, n, need, places) + _symbols(sign_frames, n, need, ev)
               + _signal(sign_frames, n, need, ev) + _business(sign_frames, n, need, ev)
-              + _advert(sign_frames, n, need))
+              + _advert(sign_frames, n, need) + _currency(sign_frames, n, need, ev))
     known_values = [f.get("value", "") for f in fields] + [t for f in fields for t in f.get("texts", {}).values()]
     fields += _free_text(sign_frames, n, need, known_values, ev)
     table = next((f.get("table_description") for f in sign_frames if f.get("table_description")), "")
@@ -437,11 +498,12 @@ def key_kind(verified: dict) -> str | None:
     kinds = {f["kind"] for f in verified.get("fields", [])}
     if cat in TRANSIT and "route" in kinds:
         return "route"
-    for kind, cats in (("pedestrian_signal", {"pedestrian_signal"}), ("traffic_sign", {"traffic_sign", "emergency_exit", "warning"}),
+    for kind, cats in (("currency", {"currency"}), ("pedestrian_signal", {"pedestrian_signal"}),
+                       ("traffic_sign", {"traffic_sign", "emergency_exit", "warning"}),
                        ("business", {"shop"}), ("advertisement", {"advertisement"})):
         if cat in cats and kind in kinds:
             return kind
-    for kind in ("route", "place", "pedestrian_signal", "traffic_sign", "business", "advertisement", "text"):
+    for kind in ("route", "place", "currency", "pedestrian_signal", "traffic_sign", "business", "advertisement", "text"):
         if kind in kinds:
             return kind
     return None

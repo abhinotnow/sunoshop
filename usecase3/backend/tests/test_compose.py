@@ -101,3 +101,22 @@ def test_shop_text_stays_under_more():
     out = compose(v, "en")
     assert out["key"][0]["text"] == "The board says: Gupta Sweets."
     assert any("Pure ghee" in l.get("text", "") for l in out["more"])
+
+
+def test_english_article_before_vowels_only_on_whole_words():
+    from backend.app.services.compose import an_before_vowel
+    assert an_before_vowel("This is a exit sign.") == "This is an exit sign."
+    assert an_before_vowel("A old bus stop, via Ameerpet") == "An old bus stop, via Ameerpet"
+    assert an_before_vowel("a bus") == "a bus"
+
+
+def test_no_article_before_plurals_and_label_wording_for_products():
+    from backend.app.services.compose import an_before_vowel
+    assert an_before_vowel("It looks like a paracetamol tablets.") == "It looks like paracetamol tablets."
+    assert an_before_vowel("It looks like a sweet shop.") == "It looks like a sweet shop."
+    assert an_before_vowel("It looks like a glass.") == "It looks like a glass."
+    biz = {"name_text": "PARAFIX 650", "name_script": "Latin", "name_romanized": "Parafix 650", "category_en": "",
+           "hours_text": "", "open_time": "", "close_time": "", "open_hint": "none"}
+    v = verify([rec(sign_category="product", business=biz)] * 2,
+               Evidence(arbiter=arb(business_name_romanized="PARAFIX 650"), arbiter_ran=True))
+    assert compose(v, "en")["key"][0]["text"] == "The label says: Parafix 650."

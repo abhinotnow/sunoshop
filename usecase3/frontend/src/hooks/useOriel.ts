@@ -232,7 +232,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     const key = res.speech.key;
     const anyConfirmed = key.some((l) => l.status === "confirmed");
 
-    emptyReads.current = res.verified.sign_found ? 0 : emptyReads.current + 1;
+    emptyReads.current = res.speech.key.length ? 0 : emptyReads.current + 1; // a described scene is not "empty"
     if (step.action === "guide" && emptyReads.current >= 2) {
       // two empty reads in a row: stop auto-reading until the user is ready (every read costs quota and time)
       autoPaused.current = true;

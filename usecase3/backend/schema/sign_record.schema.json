@@ -28,10 +28,13 @@
     "emergency_exit",
     "warning",
     "information",
+    "product",
+    "document",
+    "currency",
     "other",
     "none"
    ],
-   "description": "Category of the MAIN sign (largest, most central)."
+   "description": "Category of the MAIN item (largest, most central): a sign or board, or, when there is none, printed text on a product, medicine, menu, document or screen, or a currency note."
   },
   "main_sign_box": {
    "type": "array",
@@ -431,6 +434,60 @@
    "items": {
     "type": "string"
    }
+  },
+  "currency": {
+   "type": "array",
+   "description": "Indian rupee notes or coins clearly visible, with the printed value.",
+   "items": {
+    "type": "object",
+    "properties": {
+     "value": {
+      "type": "string",
+      "description": "Digits only, e.g. 500"
+     },
+     "legibility": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "partial",
+       "unreadable"
+      ]
+     }
+    },
+    "required": [
+     "value",
+     "legibility"
+    ]
+   }
+  },
+  "scene": {
+   "type": "object",
+   "description": "What is in front of the camera, for a blind person. Always filled, sign or not.",
+   "properties": {
+    "description_en": {
+     "type": "string",
+     "description": "One or two short plain-English sentences: the main things in view and where they are (left, centre, right, near, far). Never say that a path, road or crossing is clear or safe."
+    },
+    "hazards_en": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Things a blind person could trip on, walk into or be hit by, with where they are: steps, kerb, pole, open drain, pothole, parked or moving vehicle, wet floor, low branch, glass door. Empty if none seen."
+    },
+    "objects_en": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Up to 6 main objects, a few words each."
+    }
+   },
+   "required": [
+    "description_en",
+    "hazards_en",
+    "objects_en"
+   ]
   }
  },
  "required": [
@@ -451,6 +508,8 @@
   "table_description",
   "cut_off_sides",
   "quality_issues",
-  "unclear_parts"
+  "unclear_parts",
+  "currency",
+  "scene"
  ]
 }

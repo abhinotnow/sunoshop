@@ -14,6 +14,7 @@ EMPTY_RECORD = {
                  "hours_text": "", "open_time": "", "close_time": "", "open_hint": "none"},
     "advertisement": {"brand": "", "product_en": "", "offer_text": ""},
     "other_text": [], "table_description": "", "cut_off_sides": [], "quality_issues": [], "unclear_parts": [],
+    "currency": [], "scene": {"description_en": "", "hazards_en": [], "objects_en": []},
 }
 
 
@@ -23,8 +24,9 @@ def normalize_record(rec: dict) -> dict:
     out["pedestrian_signal"] = {**EMPTY_RECORD["pedestrian_signal"], **(out.get("pedestrian_signal") or {})}
     out["business"] = {**EMPTY_RECORD["business"], **(out.get("business") or {})}
     out["advertisement"] = {**EMPTY_RECORD["advertisement"], **(out.get("advertisement") or {})}
+    out["scene"] = {**EMPTY_RECORD["scene"], **(out.get("scene") or {})}
     for key in ("route_numbers", "places", "arrows", "symbols", "other_text", "cut_off_sides",
-                "quality_issues", "unclear_parts", "languages_present", "main_sign_box"):
+                "quality_issues", "unclear_parts", "languages_present", "main_sign_box", "currency"):
         if not isinstance(out.get(key), list):
             out[key] = []
     return out

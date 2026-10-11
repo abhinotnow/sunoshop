@@ -1,0 +1,444 @@
+{
+  "_about": "Real photos from Wikimedia Commons, labelled by hand. Licences: eval/photos/web/CREDITS.json.",
+  "signs": [
+    {
+      "id": "web_bus_tsrtc",
+      "frames": [
+        "eval/photos/web/frames/web_bus_tsrtc_a.jpg",
+        "eval/photos/web/frames/web_bus_tsrtc_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "traffic_sign",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Wave Rock"
+        ],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "TSRTC Bus Point Wave Rock",
+          "HCU Depot",
+          "No entry",
+          "Private vehicles are not allowed at point",
+          "If parked fine may be imposed upto 1000",
+          "under section TSMV at 1988 u/s 189/c",
+          "Strictly traffic police instructions",
+          "HCU Depot DMI"
+        ],
+        "symbols": [
+          "no_entry"
+        ],
+        "currency": "",
+        "scene": [
+          "bus",
+          "sign",
+          "board"
+        ],
+        "hazards": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_busstop_tarnaka",
+      "frames": [
+        "eval/photos/web/frames/web_busstop_tarnaka_a.jpg",
+        "eval/photos/web/frames/web_busstop_tarnaka_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "traffic_sign",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Tarnaka"
+        ],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "No parking",
+          "TSRTC",
+          "Tarnaka",
+          "T.S.R.T.C",
+          "ZEE5"
+        ],
+        "symbols": [
+          "no_parking"
+        ],
+        "currency": "",
+        "scene": [
+          "road",
+          "bus",
+          "shelter",
+          "sign"
+        ],
+        "hazards": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_busstop_jubilee",
+      "frames": [
+        "eval/photos/web/frames/web_busstop_jubilee_a.jpg",
+        "eval/photos/web/frames/web_busstop_jubilee_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "scene",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": null,
+        "routes": [],
+        "places": [
+          "Jubilee Bus Station"
+        ],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "Jubilee Bus Station",
+          "TSRTC"
+        ],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "auto",
+          "rickshaw",
+          "motor",
+          "scooter",
+          "bike",
+          "building",
+          "road"
+        ],
+        "hazards": [
+          "motor",
+          "scooter",
+          "bike",
+          "auto",
+          "vehicle",
+          "rickshaw",
+          "traffic"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_busstop_streets",
+      "frames": [
+        "eval/photos/web/frames/web_busstop_streets_a.jpg",
+        "eval/photos/web/frames/web_busstop_streets_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "scene",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": null,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "Horn please OK",
+          "STOP",
+          "Manhattan"
+        ],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "bus",
+          "people",
+          "crowd",
+          "flyover",
+          "road"
+        ],
+        "hazards": [
+          "bus",
+          "vehicle",
+          "people",
+          "crowd",
+          "auto",
+          "traffic"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_metro_gates",
+      "frames": [
+        "eval/photos/web/frames/web_metro_gates_a.jpg",
+        "eval/photos/web/frames/web_metro_gates_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "direction",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "Bawarchi Restaurant",
+          "Sandhya 70mm",
+          "JBS Parade Ground"
+        ],
+        "platform": null,
+        "arrows": [
+          "up_left",
+          "up"
+        ],
+        "business": "",
+        "texts": [
+          "Bawarchi Restaurant / Sandhya 70mm",
+          "B",
+          "1",
+          "about mobile data"
+        ],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "stair",
+          "sign",
+          "metro",
+          "exit"
+        ],
+        "hazards": [
+          "stair",
+          "step"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_note_2000",
+      "frames": [
+        "eval/photos/web/frames/web_note_2000_a.jpg",
+        "eval/photos/web/frames/web_note_2000_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "currency",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "Reserve Bank of India",
+          "Specimen",
+          "2000",
+          "Guaranteed by the Central Government",
+          "Mahatma Gandhi",
+          "भारतीय रिज़र्व बैंक",
+          "दो हज़ार रुपये",
+          "केंद्रीय सरकार द्वारा प्रत्याभूत",
+          "0AA 000000"
+        ],
+        "symbols": [],
+        "currency": "2000",
+        "scene": [
+          "note",
+          "rupee",
+          "currency",
+          "gandhi"
+        ],
+        "hazards": []
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_steps",
+      "frames": [
+        "eval/photos/web/frames/web_steps_a.jpg",
+        "eval/photos/web/frames/web_steps_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "scene",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": null,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "step",
+          "stair",
+          "mosque",
+          "gate",
+          "building"
+        ],
+        "hazards": [
+          "step",
+          "stair"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_street_charminar",
+      "frames": [
+        "eval/photos/web/frames/web_street_charminar_a.jpg",
+        "eval/photos/web/frames/web_street_charminar_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "scene",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": null,
+        "routes": [],
+        "places": [
+          "HITEX"
+        ],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "HITEX",
+          "HITEX Hyderabad"
+        ],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "arch",
+          "gate",
+          "road",
+          "crane",
+          "vehicle",
+          "tree"
+        ],
+        "hazards": [
+          "crane",
+          "vehicle",
+          "truck",
+          "machine"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_street_hyd",
+      "frames": [
+        "eval/photos/web/frames/web_street_hyd_a.jpg",
+        "eval/photos/web/frames/web_street_hyd_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "scene",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": null,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "",
+        "texts": [
+          "11-02-2017 10:39",
+          "BAR"
+        ],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "cow",
+          "bull",
+          "cattle",
+          "ox",
+          "oxen",
+          "animal",
+          "road"
+        ],
+        "hazards": [
+          "cow",
+          "bull",
+          "cattle",
+          "ox",
+          "animal"
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "id": "web_streetsign",
+      "frames": [
+        "eval/photos/web/frames/web_streetsign_a.jpg",
+        "eval/photos/web/frames/web_streetsign_b.jpg"
+      ],
+      "location": "web (Wikimedia Commons)",
+      "synthetic": false,
+      "sign_type": "direction",
+      "conditions": [
+        "real_photo"
+      ],
+      "languages_on_sign": [],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [
+          "NTR Garden",
+          "Secretariat",
+          "Khairatabad",
+          "Sachivalayam"
+        ],
+        "platform": null,
+        "arrows": [
+          "up"
+        ],
+        "business": "",
+        "texts": [],
+        "symbols": [],
+        "currency": "",
+        "scene": [
+          "sign",
+          "board",
+          "tree"
+        ],
+        "hazards": []
+      },
+      "notes": ""
+    }
+  ]
+}

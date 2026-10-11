@@ -39,8 +39,9 @@ class Settings:
     # Tried in order when a model is out of quota (429), unavailable (404) or hangs. Each model has its own
     # free-tier daily quota, so a longer chain means more reads per day.
     gemini_fallback_models: tuple[str, ...] = ("gemini-3.1-flash-lite", "gemini-3-flash-preview",
-                                               "gemini-3.1-flash-lite-preview", "gemini-3.5-flash-lite",
-                                               "gemini-3.5-flash", "gemini-3.6-flash")
+                                               "gemini-3.1-flash-lite-preview", "gemini-3.7-flash",
+                                               "gemini-3.5-flash-lite", "gemini-flash-latest", "gemini-3.5-flash",
+                                               "gemini-3.6-flash", "gemini-3.8-flash")
     # Measured 11 Oct 2026 (generateContent): 3.1-flash-lite read a route in 1.7 s. Exhausted models fall back.
     reader_model: str = "gemini-3.1-flash-lite"   # reads every frame (fast, cheap)
     arbiter_model: str = "gemini-3-flash-preview" # independent second read: a different model family

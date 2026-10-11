@@ -56,7 +56,7 @@ def facts_from_verified(verified: dict) -> list[dict]:
     """Key facts in a comparable shape: kind, value, status (texts: every script the name was read in)."""
     out = []
     for f in verified.get("fields", []):
-        if f["kind"] in ("route", "place", "platform", "arrow", "business", "text") and f.get("value"):
+        if f["kind"] in ("route", "place", "platform", "arrow", "business", "text", "currency", "traffic_sign") and f.get("value"):
             out.append({"kind": f["kind"], "value": str(f["value"]), "status": f["status"],
                         "alts": list((f.get("texts") or {}).values())})
     return out
@@ -94,7 +94,12 @@ def matches(fact: dict, expected: dict) -> bool:
     if k == "route":
         return any(same_route(v, e) for e in expected.get("routes", []))
     if k == "place":
-        return any(same_place(v, e) for e in expected.get("places", []))
+        return any(same_place(v, e) for e in expected.get("places", [])) or any(
+            same_text(c, t) for c in [v] + fact.get("alts", []) for t in expected.get("texts", []))
+    if k == "currency":
+        return str(expected.get("currency", "")) == v
+    if k == "traffic_sign":
+        return v in expected.get("symbols", [])
     if k == "platform":
         return expected.get("platform") is not None and str(expected["platform"]).strip().lower() == v.strip().lower()
     if k == "arrow":
@@ -108,13 +113,21 @@ def matches(fact: dict, expected: dict) -> bool:
 
 
 def counted(fact: dict, expected: dict) -> bool:
-    """Shop names and free text count only on signs whose labels list them."""
-    return fact["kind"] not in ("business", "text") or bool(expected.get("business") or expected.get("texts"))
+    """Shop names, free text, money and pictograms count only on signs whose labels list them."""
+    k = fact["kind"]
+    if k in ("business", "text"):
+        return bool(expected.get("business") or expected.get("texts"))
+    if k == "currency":
+        return bool(expected.get("currency"))
+    if k == "traffic_sign":
+        return bool(expected.get("symbols"))
+    return True
 
 
 def score(facts: list[dict], expected: dict, found: bool) -> dict:
     exp_total = (len(expected.get("routes", [])) + len(expected.get("places", [])) + (1 if expected.get("platform") else 0)
-                 + len(expected.get("arrows", [])) + (1 if expected.get("business") else 0) + len(expected.get("texts", [])))
+                 + len(expected.get("arrows", [])) + (1 if expected.get("business") else 0) + len(expected.get("texts", []))
+                 + (1 if expected.get("currency") else 0) + len(expected.get("symbols", [])))
     facts = [f for f in facts if counted(f, expected)]
     confirmed = [f for f in facts if f["status"] == "confirmed"]
     uncertain = [f for f in facts if f["status"] == "uncertain"]
@@ -128,7 +141,7 @@ def score(facts: list[dict], expected: dict, found: bool) -> dict:
         "wrong_details": [f"{f['kind']}={f['value']}" for f in wrong_conf],
         "hedged_right": len(hedged_right),
         "uncertain_total": len(uncertain),
-        "sign_found_ok": found == bool(expected.get("sign_found")),
+        "sign_found_ok": expected.get("sign_found") is None or found == bool(expected.get("sign_found")),
     }
 
 
@@ -153,6 +166,13 @@ async def run_one(sign: dict, lang: str, baseline: bool) -> dict:
     row["oriel"] = score(facts_from_verified(v), sign["expected"], v.get("sign_found", False))
     row["oriel"]["action"] = result["next_step"]["action"]
     row["oriel"]["said"] = [l.get("text", "") for l in result["speech"].get("key", [])]
+    everything = " ".join(l.get("text", "") for l in result["speech"].get("key", []) + result["speech"].get("more", [])).lower()
+    hazard_said = " ".join(l.get("text", "") for l in result["speech"].get("key", []) if l.get("text", "").startswith("Careful")).lower()
+    exp = sign["expected"]
+    if exp.get("scene"):
+        row["oriel"]["scene_ok"] = any(k in everything for k in exp["scene"])
+    if exp.get("hazards"):
+        row["oriel"]["hazard_ok"] = any(k in hazard_said for k in exp["hazards"])
 
     if baseline:
         try:
@@ -176,6 +196,8 @@ def summarize(rows: list[dict], key: str) -> dict:
         "hedged_right": sum(r["hedged_right"] for r in ok),
         "sign_found_accuracy": round(sum(r["sign_found_ok"] for r in ok) / len(ok), 3),
         "abstained": sum(1 for r in ok if r.get("action") in ("reread", "guide", "give_up")),
+        "scene_described": f"{sum(1 for r in ok if r.get('scene_ok'))}/{sum(1 for r in ok if 'scene_ok' in r)}",
+        "hazard_warned": f"{sum(1 for r in ok if r.get('hazard_ok'))}/{sum(1 for r in ok if 'hazard_ok' in r)}",
     }
 
 
@@ -187,6 +209,7 @@ async def main() -> int:
     ap.add_argument("--no-baseline", action="store_true")
     ap.add_argument("--only", default="", help="comma-separated sign ids, e.g. shop_001,notice_001")
     ap.add_argument("--say", action="store_true", help="print what Oriel would say for each sign")
+    ap.add_argument("--pause", type=float, default=0, help="seconds between signs (free-tier per-minute limits)")
     args = ap.parse_args()
 
     from backend.app.services import anuvaad
@@ -204,7 +227,9 @@ async def main() -> int:
     print(f"Evaluating {len(signs)} signs from {args.labels} (lang={args.lang})\n")
     rows = []
     try:
-        for s in signs:  # one at a time: realistic latency and no rate-limit bursts
+        for i, s in enumerate(signs):  # one at a time: realistic latency and no rate-limit bursts
+            if i and args.pause:
+                await asyncio.sleep(args.pause)
             row = await run_one(s, args.lang, not args.no_baseline)
             rows.append(row)
             if "error" in row:
@@ -213,6 +238,8 @@ async def main() -> int:
             o = row["oriel"]
             b = row.get("baseline", {})
             flag = "  <-- WRONG BUT CONFIDENT" if o["wrong_but_confident"] else ""
+            flag += "" if o.get("scene_ok", True) else "  <-- scene not described"
+            flag += "" if o.get("hazard_ok", True) else "  <-- hazard missed"
             print(f"  {row['id']:<14} {','.join(row['conditions']):<14} {row['ms']:>6} ms  "
                   f"confirmed {o['confirmed_right']}/{o['expected_facts']}  hedged {o['hedged_right']}  "
                   f"action={o['action']:<8} baseline-wrong={b.get('wrong_but_confident', '-')}{flag}")

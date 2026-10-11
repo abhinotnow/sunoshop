@@ -250,6 +250,46 @@
       "en": "Bus number {route}.",
       "hi": "बस नंबर {route}।",
       "te": "బస్సు నంబర్ {route}."
+    },
+    "scene_see": {
+      "en": "Here is what I can see: {text}",
+      "hi": "मुझे यह दिख रहा है: {text}",
+      "te": "నాకు ఇది కనిపిస్తోంది: {text}"
+    },
+    "scene_hazard": {
+      "en": "Careful, there may be {text}. Check with your cane.",
+      "hi": "सावधान, रास्ते में हो सकता है: {text}। छड़ी से जाँच लीजिए।",
+      "te": "జాగ్రత్త, దారిలో ఉండవచ్చు: {text}. కర్రతో సరిచూసుకోండి."
+    },
+    "currency_note": {
+      "en": "This is a {value} rupee note.",
+      "hi": "यह {value} रुपये का नोट है।",
+      "te": "ఇది {value} రూపాయల నోటు."
+    },
+    "looks_currency": {
+      "en": "It looks like a {value} rupee note, please check.",
+      "hi": "यह {value} रुपये का नोट लगता है, कृपया जाँच लीजिए।",
+      "te": "ఇది {value} రూపాయల నోటులా ఉంది, దయచేసి సరిచూసుకోండి."
+    },
+    "label_name": {
+      "en": "The label says: {name}.",
+      "hi": "लेबल पर लिखा है: {name}।",
+      "te": "లేబుల్‌పై ఉంది: {name}."
+    },
+    "looks_label_name": {
+      "en": "The label looks like it says {name}, please check.",
+      "hi": "लेबल पर {name} लिखा लगता है, कृपया जाँच लीजिए।",
+      "te": "లేబుల్‌పై {name} అని ఉన్నట్టుంది, దయచేసి సరిచూసుకోండి."
+    },
+    "label_text": {
+      "en": "It also says: {text}.",
+      "hi": "इस पर यह भी लिखा है: {text}।",
+      "te": "దీనిపై ఇది కూడా ఉంది: {text}."
+    },
+    "looks_label_text": {
+      "en": "It also seems to say {text}, please check.",
+      "hi": "इस पर {text} भी लिखा लगता है, कृपया जाँच लीजिए।",
+      "te": "దీనిపై {text} అని కూడా ఉన్నట్టుంది, దయచేసి సరిచూసుకోండి."
     }
   },
   "directions": {

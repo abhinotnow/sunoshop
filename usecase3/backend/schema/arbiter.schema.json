@@ -107,6 +107,13 @@
     "off",
     "none"
    ]
+  },
+  "currency_values": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   },
+   "description": "Printed value of every Indian rupee note or coin you can read completely, digits only."
   }
  },
  "required": [
@@ -119,6 +126,7 @@
   "text_lines",
   "symbols",
   "speed_limit_value",
-  "pedestrian_signal_state"
+  "pedestrian_signal_state",
+  "currency_values"
  ]
 }

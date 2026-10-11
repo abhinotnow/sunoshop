@@ -603,6 +603,74 @@
         ]
       },
       "notes": "notice board: the instruction must be read out"
+    },
+    {
+      "id": "product_001",
+      "frames": [
+        "eval/photos/synthetic/product_001_a.jpg",
+        "eval/photos/synthetic/product_001_b.jpg",
+        "eval/photos/synthetic/product_001_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "product",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "en"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "Parafix 650",
+        "texts": [
+          "Paracetamol Tablets IP 650 mg",
+          "EXP 08/2027",
+          "MRP Rs 30.50",
+          "EXP 08/2027 MRP Rs 30.50"
+        ]
+      },
+      "notes": "medicine strip (invented brand): name, strength and expiry must be read"
+    },
+    {
+      "id": "product_002",
+      "frames": [
+        "eval/photos/synthetic/product_002_a.jpg",
+        "eval/photos/synthetic/product_002_b.jpg",
+        "eval/photos/synthetic/product_002_c.jpg"
+      ],
+      "location": "synthetic",
+      "synthetic": true,
+      "sign_type": "product",
+      "conditions": [
+        "clear"
+      ],
+      "languages_on_sign": [
+        "en",
+        "te"
+      ],
+      "expected": {
+        "sign_found": true,
+        "routes": [],
+        "places": [],
+        "platform": null,
+        "arrows": [],
+        "business": "Sunrise Toned Milk",
+        "texts": [
+          "Toned milk",
+          "టోన్డ్ పాలు",
+          "500 ml",
+          "MRP Rs 28",
+          "Use by 12/10/2026",
+          "MRP Rs 28 · Use by 12/10/2026",
+          "Sunrise"
+        ]
+      },
+      "notes": "milk packet (invented brand): what it is, size and use-by date"
     }
   ]
 }
