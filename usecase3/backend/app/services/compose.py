@@ -15,6 +15,7 @@ from datetime import datetime
 
 from ..content import templates, traffic_signs
 from . import hours
+from ..settings import get_settings
 from .text_utils import speakable_caps
 from .verify import CONFIRMED, TRANSIT, UNCERTAIN, UNREADABLE
 
@@ -136,7 +137,9 @@ def compose(verified: dict, lang: str, mode: str = "standard", style: str | None
     fields = verified.get("fields", [])
     by = lambda k: [f for f in fields if f["kind"] == k]  # noqa: E731
 
-    scene = verified.get("scene") or {}
+    # Main pipeline only: the verified sign reading. Model-written scene descriptions and hazard lines are
+    # spoken only when SCENE_DESCRIPTIONS=true.
+    scene = (verified.get("scene") or {}) if get_settings().scene_descriptions else {}
     hazards = scene.get("hazards") or []
 
     def free_line(where: str, tpl: str, text: str, status: str = "info", always: bool = False) -> None:
