@@ -11,6 +11,8 @@ Misheard questions come back as a yes/no confirmation instead of a guess.
 
 from __future__ import annotations
 
+import asyncio
+
 import json
 import logging
 import time
@@ -159,7 +161,11 @@ async def run_ask(*, audio: bytes | None, text: str | None, in_lang: str, out_la
     # ---- 5. TTS
     t = time.perf_counter()
     speak_lang = out_lang if path != "untranslated" else "en"
-    res = await synthesize(answer_out, speak_lang)
+    task = asyncio.ensure_future(synthesize(answer_out, speak_lang))
+    try:
+        res = await asyncio.wait_for(asyncio.shield(task), timeout=2.5)
+    except asyncio.TimeoutError:  # still synthesizing: keeps running; /api/speak joins the same request
+        res = {"audio_url": None, "provider": "pending"}
     timings["tts"] = round((time.perf_counter() - t) * 1000)
     yield stage("tts", "done", timings["tts"], provider=res.get("provider"))
 

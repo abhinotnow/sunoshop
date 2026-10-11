@@ -71,6 +71,8 @@ export function SettingsSheet({ o }: { o: Oriel }) {
           </div>
         </fieldset>
 
+        <Toggle label={t("tapAnywhereSetting", lang)} value={s.tapAnywhere} onChange={set("tapAnywhere")} />
+
         <fieldset className="field">
           <legend>{t("readingCamera", lang)}</legend>
           <div className="seg wide two">

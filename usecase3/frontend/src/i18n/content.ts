@@ -25,7 +25,7 @@ export function hasPhrase(id: string): boolean {
 
 export type Command =
   | "read" | "more" | "again" | "spell" | "slower" | "faster" | "simpler"
-  | "yes" | "no" | "stop" | "settings" | "help" | "ask" | "camera" | "front_camera" | "back_camera";
+  | "yes" | "no" | "stop" | "settings" | "help" | "ask" | "camera" | "front_camera" | "back_camera" | "continue";
 
 const COMMANDS = commandsJson.commands as Record<Command, Record<Lang, string[]>>;
 

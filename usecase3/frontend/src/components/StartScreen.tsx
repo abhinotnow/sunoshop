@@ -23,7 +23,10 @@ export function StartScreen({ onStart }: { onStart: () => void }) {
   const tilt = useTilt<HTMLElement>(4);
 
   return (
-    <main className="start" id="main">
+    <main className="start" id="main" onClick={(e) => {
+      // a blind user cannot find the Start button: a tap anywhere else on the screen starts too
+      if (!(e.target as HTMLElement).closest("button, a, input, select, [role=radio]")) onStart();
+    }}>
       <div className="start-hero">
         <Beacon3D state="idle" reducedMotion={prefersReducedMotion()} className="start-beacon" />
         <div className="start-copy">
@@ -60,6 +63,7 @@ export function StartScreen({ onStart }: { onStart: () => void }) {
         <button className="start-btn" onClick={onStart} autoFocus>
           {t("startButton", lang)}
         </button>
+        <p className="tap-start" lang={lang}>{t("start", lang)}</p>
         <p className="fine-print">{t("keyboardHint", lang)}</p>
       </section>
     </main>

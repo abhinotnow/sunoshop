@@ -219,6 +219,11 @@
   "hi": "/audio/guidance/hi/sweep_right.wav",
   "te": "/audio/guidance/te/sweep_right.wav"
  },
+ "tap_to_speak": {
+  "en": "/audio/guidance/en/tap_to_speak.wav",
+  "hi": "/audio/guidance/hi/tap_to_speak.wav",
+  "te": "/audio/guidance/te/tap_to_speak.wav"
+ },
  "tilt_down": {
   "en": "/audio/guidance/en/tilt_down.wav",
   "hi": "/audio/guidance/hi/tilt_down.wav",

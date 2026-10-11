@@ -213,3 +213,25 @@ html, body { overflow-x: hidden; }
 .holo-tip-detail { color: var(--text-dim); word-break: break-word; }
 /* phones: the spoken result comes first, the hologram after it */
 @media (max-width: 959px) { .col-right .result { order: -1; } .holo { height: 340px; } }
+
+/* ---------- the whole screen is the talk button ---------- */
+.tap-layer {
+  position: fixed; inset: 0; z-index: 15; /* under the top bar (20), captions (30), sheets (50), tap-to-hear (60) */
+  display: flex; align-items: flex-end; justify-content: center; padding-bottom: calc(92px + var(--safe-bottom));
+  background: transparent; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.tap-layer:focus-visible { outline: 4px solid var(--accent); outline-offset: -8px; border-radius: 24px; }
+.tap-hint {
+  position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 14px 24px; border-radius: 999px;
+  font-size: var(--fs-3); font-weight: 800; color: var(--text); pointer-events: none;
+  background: rgba(5, 8, 22, 0.82); border: 1px solid var(--border-strong);
+  box-shadow: 0 12px 40px -10px #000, 0 0 30px -10px var(--accent);
+}
+.tap-ring { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(46, 230, 197, 0.6);
+  animation: livepulse 1.8s ease-in-out infinite; }
+.tap-layer.is-listening { background: radial-gradient(ellipse at 50% 100%, rgba(239, 68, 68, 0.22), transparent 60%); }
+.tap-layer.is-listening .tap-hint { border-color: #f87171; box-shadow: 0 12px 40px -10px #000, 0 0 40px -6px rgba(239, 68, 68, 0.8); }
+.tap-layer.is-listening .tap-ring { background: #ef4444; animation-duration: 0.9s; }
+.captions { pointer-events: none; }
+.tap-start { text-align: center; font-size: var(--fs-3); font-weight: 700; color: var(--accent); }
+:root[data-contrast="high"] .tap-hint { background: #000; border: 2px solid #fff; box-shadow: none; }

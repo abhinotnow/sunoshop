@@ -19,6 +19,7 @@ export interface Settings {
   screenReader: boolean; // VoiceOver users: Oriel's own voice only reads signs, captions go to VoiceOver
   englishDigits: boolean;
   scanCamera: Facing;    // which camera reads signs: rear (default) or front (selfie, laptop webcam)
+  tapAnywhere: boolean;  // the whole screen is one "talk" button (a sighted helper can turn it off to use buttons)
   offersSeen: Partial<Record<Mode, boolean>>;
 }
 
@@ -38,6 +39,7 @@ export const DEFAULTS: Settings = {
   screenReader: false,
   englishDigits: false,
   scanCamera: "environment",
+  tapAnywhere: true,
   offersSeen: {},
 };
 

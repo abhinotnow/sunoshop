@@ -56,6 +56,7 @@ class AudioEngine {
   private clipManifest: Record<string, Partial<Record<Lang, string>>> = {};
   private silent = "";
   private lastItems: SpeakItem[] = [];
+  private current: SpeakItem | null = null;
   /** true when the phone refused to play sound without a new tap (the UI then shows "Tap to hear") */
   blocked = false;
   private blockedListeners = new Set<(b: boolean) => void>();
@@ -145,6 +146,7 @@ class AudioEngine {
   stop(): void {
     this.generation++;
     this.queue = [];
+    this.current = null;
     this.el.pause();
     try {
       window.speechSynthesis?.cancel();
@@ -157,6 +159,13 @@ class AudioEngine {
     }
   }
 
+  /** Stop now, but hand back what was left (the line being spoken and the rest) so it can be resumed. */
+  pause(): SpeakItem[] {
+    const left = [...(this.current ? [this.current] : []), ...this.queue];
+    this.stop();
+    return left;
+  }
+
   /** Speak items in order. Resolves when all are done (or when stop() interrupts). */
   async say(items: SpeakItem[], interrupt = true): Promise<void> {
     if (interrupt) this.stop();
@@ -167,8 +176,10 @@ class AudioEngine {
     this.playing = true;
     while (this.queue.length && gen === this.generation) {
       const item = this.queue.shift()!;
+      this.current = item;
       this.emit(true, item.text);
       await this.playOne(item, gen);
+      if (gen === this.generation) this.current = null;
     }
     if (gen === this.generation) {
       this.playing = false;

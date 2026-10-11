@@ -20,6 +20,7 @@ import { motion } from "../lib/motion";
 import { isGoodFrame, measure, QUALITY } from "../lib/quality";
 import { MicRecorder, type Recording } from "../lib/recorder";
 import { faceDetector } from "../lib/vision";
+import { sleep } from "../lib/platform";
 import { matchCommand, phraseText, type Command } from "../i18n/content";
 import { useSettings } from "../state/settings";
 import type { AskResult, BeaconState, Health, Lang, Line, Mode, Phase, PipelineEvent, ReadResult, Stage } from "../types";
@@ -93,6 +94,11 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const emptyReads = useRef(0);        // reads in a row that found no sign
   const autoPaused = useRef(false);    // zero-tap paused until the user taps or says "read" (saves quota)
   const lastReadEnd = useRef(0);
+  // talking interrupts: the work in progress is held, then continued (same request) or dropped (new request)
+  const readAbort = useRef<AbortController | null>(null);
+  const holding = useRef(false);                    // a read that finishes now is kept, not spoken
+  const heldResult = useRef<ReadResult | null>(null);
+  const paused = useRef<{ items: SpeakItem[]; reading: boolean } | null>(null);
   const conditions = useRef(new ConditionInference(() => S.current.mode, () => S.current.offersSeen));
 
   // ------------------------------------------------------------------ speech
@@ -232,13 +238,13 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     const key = res.speech.key;
     const anyConfirmed = key.some((l) => l.status === "confirmed");
 
-    emptyReads.current = res.speech.key.length ? 0 : emptyReads.current + 1; // a described scene is not "empty"
+    emptyReads.current = res.verified.sign_found ? 0 : emptyReads.current + 1;
     if (step.action === "guide" && emptyReads.current >= 2) {
       // two empty reads in a row: stop auto-reading until the user is ready (every read costs quota and time)
       autoPaused.current = true;
       setFocusBox(null);
       setPhase("scan");
-      await sayPhrases(["auto_paused"]);
+      await sayLines(key, res.lang, ["auto_paused"]); // hazards and what is there, then how to go on
       lastGuidanceAt.current = performance.now();
       return;
     }
@@ -248,7 +254,8 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
       setPhase("scan");
       scanSince.current = performance.now();
       goodSince.current = 0;
-      await sayLines(step.action === "reread" ? key : [], res.lang, step.phrase_ids);
+      // reread: what was read so far; no sign: hazards and what is there; then how to move the phone
+      await sayLines(step.action === "reread" || !res.verified.sign_found ? key : [], res.lang, step.phrase_ids);
       lastGuidanceAt.current = performance.now();
       return;
     }
@@ -271,8 +278,11 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     audio.stop();
     void sayPhrases(["hold_still"]);
     setPipeline({ kind: "read", stages: freshStages(READ_STAGES), startedAt: performance.now() });
+    const ctrl = new AbortController();
+    readAbort.current = ctrl;
     try {
       const burst = await getFrames();
+      if (ctrl.signal.aborted) throw new ApiError("cancelled", "cancelled");
       if (!burst.frames.length) throw new ApiError("no frames", "no_frames");
       bestFrame.current = burst.best;
       setFaceBlur(burst.facesHidden < 0 ? "off" : "on");
@@ -284,19 +294,30 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
         device: { tilt: S.current.scanCamera === "environment" ? motion.tiltAdvice() : null },
         digitStyle: S.current.englishDigits ? "english" : "native",
       }, (ev) => {
+        if (ctrl.signal.aborted) return;
         if (ev.type === "stage") applyStage(ev);
         else if (ev.type === "result") {
           gotResult = true;
           const res = ev as unknown as ReadResult;
           setPipeline((p) => (p ? { ...p, totalMs: res.timings_ms?.total } : p));
-          void handleResult(res);
+          if (holding.current) heldResult.current = res; // the user is talking: decide after they finish
+          else void handleResult(res);
         } else if (ev.type === "error") {
           throw new ApiError(ev.message ?? "error", ev.code ?? "server_error");
         }
-      });
+      }, ctrl.signal);
       if (!gotResult) throw new ApiError("no result", "server_error");
     } catch (e) {
       const err = e as ApiError;
+      if (ctrl.signal.aborted) {  // dropped on purpose: the user asked for something else
+        failPipeline("cancelled");
+        return;
+      }
+      if (holding.current) {      // never talk over the user
+        failPipeline(err.message);
+        setPhase(resultRef.current ? "result" : "scan");
+        return;
+      }
       failPipeline(err.message);
       flashError();
       setPhase(resultRef.current ? "result" : "scan");
@@ -306,6 +327,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
       await sayPhrases([phrase]);
       lastGuidanceAt.current = performance.now();
     } finally {
+      if (readAbort.current === ctrl) readAbort.current = null;
       busyRef.current = false;
       lastReadEnd.current = performance.now();
       setBusy(false);
@@ -342,7 +364,8 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     let jitterAt = 0;
     const id = setInterval(() => {
       const video = videoRef.current;
-      if (!video || busyRef.current || audio.isSpeaking || dialogRef.current || facing !== S.current.scanCamera) return;
+      if (!video || busyRef.current || audio.isSpeaking || dialogRef.current || facing !== S.current.scanCamera
+        || recorder.current.active || holding.current) return;
       const now = performance.now();
       if (now - jitterAt > 5000) {
         conditions.current.noteJitter(motion.jitter());
@@ -522,7 +545,11 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
       setPhase(resultRef.current ? "result" : "scan");
       if (err.code === "no_speech") await sayPhrases(["didnt_catch"]);
       else if (err.code === "asr_unavailable") { setCaption(err.message); flashError(); }
-      else { flashError(); await sayPhrases([err.code === "offline" ? "network_offline" : "network_slow"]); }
+      else {
+        flashError();
+        await sayPhrases([err.code === "offline" ? "network_offline"
+          : err.code === "timeout" || err.code === "network" ? "network_slow" : "service_busy"]);
+      }
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -580,10 +607,87 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
       case "camera": return flipCamera();
       case "front_camera": return setScanCamera("user");
       case "back_camera": return setScanCamera("environment");
+      case "continue": return again();
       case "yes": return more();
       case "no": return stop();
     }
   }, [again, changeRate, flipCamera, more, newSign, readNow, sayPhrases, setScanCamera, simpler, spell, startAsk, stop]);
+
+  // ------------------------------------------------------------------ tap anywhere to talk
+
+  /** Carry on with what was going on before the user spoke. */
+  const resumeHeld = useCallback(() => {
+    const p = paused.current;
+    paused.current = null;
+    holding.current = false;
+    const held = heldResult.current;
+    heldResult.current = null;
+    if (held) return void handleResult(held);       // the read finished while they talked: say it now
+    if (p?.reading && busyRef.current) return;      // still reading: it will speak when it finishes
+    if (p?.items.length) void say(p.items, { essential: true });
+  }, [handleResult, say]);
+
+  /** Drop what was going on: the user asked for something else. */
+  const dropHeld = useCallback(async () => {
+    paused.current = null;
+    holding.current = false;
+    heldResult.current = null;
+    readAbort.current?.abort();
+    for (let i = 0; busyRef.current && i < 60; i++) await sleep(50); // let the cancelled read finish
+  }, []);
+
+  /**
+   * The whole screen is the talk button. First tap: Oriel goes quiet and holds its work, then listens.
+   * Second tap (or a pause in speech): sends. The same request (or "continue") resumes the held work;
+   * anything else drops it and is done instead: a command, or a question about the sign.
+   */
+  const talk = useCallback(async () => {
+    if (phaseRef.current === "start") return;
+    if (recorder.current.active) {  // second tap: finished speaking
+      recorder.current.stop();
+      return;
+    }
+    const wasReading = busyRef.current && phaseRef.current === "reading";
+    if (busyRef.current && !wasReading) return; // an answer is being prepared: wait for it
+    paused.current = { items: audio.pause(), reading: wasReading };
+    holding.current = true;
+    discardRecording.current = false;
+    await sayPhrases(["listening"]);
+    setListening(true);
+    let rec: Recording;
+    try {
+      rec = await recorder.current.record({
+        maxMs: 15000, silenceMs: S.current.mode === "ageing" ? 1600 : 1100,
+        noSpeechMs: S.current.mode === "ageing" ? 10000 : 7000,
+      });
+    } catch {
+      setListening(false);
+      resumeHeld();
+      return void sayPhrases(["mic_blocked"]);
+    }
+    setListening(false);
+    if (discardRecording.current || !rec.hadSpeech || rec.durationMs < 300) return resumeHeld(); // nothing said
+    let text = "";
+    try {
+      text = (await api.asr(rec.wav, S.current.inLang)).text.trim();
+    } catch (e) {
+      resumeHeld();
+      return void sayPhrases([(e as ApiError).code === "offline" ? "network_offline" : "service_busy"]);
+    }
+    if (!text) {
+      await sayPhrases(["didnt_catch"]);
+      return resumeHeld();
+    }
+    setCaption(`“${text}”`);
+    const cmd = matchCommand(text, S.current.inLang);
+    const p = paused.current;
+    const same = cmd === "continue" || (cmd === "read" && !!p?.reading) || (cmd === "again" && !!p?.items.length);
+    if (same) return resumeHeld();
+    await dropHeld();
+    if (dialogRef.current && cmd !== "yes" && cmd !== "no") return void sayPhrases(["say_yes_no"]);
+    if (cmd) runCommand(cmd);
+    else await askQuestion({ text, asrText: text });
+  }, [askQuestion, dropHeld, resumeHeld, runCommand, sayPhrases]);
 
   const onGesture = useCallback((g: HeadGesture) => {
     setLastGesture(g);
@@ -674,7 +778,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     setPhase("scan");
     void faceDetector().then((d) => setFaceBlur(d ? "on" : "off"));
     api.health().then(setHealth).catch(() => setHealth(null));
-    await sayPhrases(["ready"]);
+    await sayPhrases(S.current.tapAnywhere ? ["ready", "tap_to_speak"] : ["ready"]);
     if (S.current.headGestures) void sayPhrases(["gestures_on"], false);
   }, [sayPhrases]);
 
@@ -707,7 +811,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     phase, beacon, level, caption, pipeline, result, askResult, dialog, focusBox, cameraError, online, health,
     facing, pose, lastGesture, faceBlur, speaking, listening, busy, showSettings, audioBlocked, tapToHear,
     setShowSettings, start, readNow, readFiles, again, more, spell, simpler, stop, finishListening, newSign, startAsk, askText,
-    setOutLang, runCommand, changeRate, flipCamera, setScanCamera,
+    setOutLang, runCommand, changeRate, flipCamera, setScanCamera, talk,
   };
 }
 

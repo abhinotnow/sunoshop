@@ -30,6 +30,7 @@ export default function App() {
       const k = e.key.toLowerCase();
       const map: Record<string, () => void> = {
         " ": () => (o.phase === "result" ? o.newSign() : o.readNow()),
+        t: () => void o.talk(),
         a: o.again, m: o.more, s: o.spell, q: () => void o.startAsk(), c: o.flipCamera, escape: o.stop,
         y: () => o.runCommand("yes"), n: () => o.runCommand("no"),
       };
@@ -68,6 +69,15 @@ export default function App() {
           <PipelinePanel pipeline={o.pipeline} />
         </div>
       </main>
+      {settings.tapAnywhere && (
+        <button className={`tap-layer ${o.listening ? "is-listening" : ""}`} onClick={() => void o.talk()}
+          aria-label={t(o.listening ? "tapToSend" : "tapToSpeak", settings.outLang)}>
+          <span className="tap-hint" lang={settings.outLang}>
+            <span className="tap-ring" aria-hidden="true" />
+            {t(o.listening ? "tapToSend" : "tapToSpeak", settings.outLang)}
+          </span>
+        </button>
+      )}
       <Captions text={o.caption} lang={settings.outLang} />
       {o.audioBlocked && (
         <button className="tap-to-hear" onClick={o.tapToHear} lang={settings.outLang} autoFocus>

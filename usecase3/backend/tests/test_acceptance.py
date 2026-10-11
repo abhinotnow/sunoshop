@@ -290,7 +290,7 @@ def test_no_sign_describes_what_is_in_front(app):
     state["reader"] = scene_rec(hazards=["two steps going down in front"])
     res = read(client)
     texts = [l["text"] for l in res["speech"]["key"]]
-    assert res["next_step"]["action"] == "done"
+    assert res["next_step"]["action"] == "guide" and "no_sign_try" in res["next_step"]["phrase_ids"]  # reposition
     assert texts[0].startswith("Careful, there may be two steps going down")  # hazard first
     assert "water bottle" in texts[1]
     assert all(l["status"] != "confirmed" for l in res["speech"]["key"])  # a description is never "the sign says"

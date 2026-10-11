@@ -11,6 +11,8 @@ export class ApiError extends Error {
 async function request(path: string, init: RequestInit, timeoutMs: number): Promise<Response> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  const outer = init.signal; // the caller may cancel too (the user asked for something else)
+  outer?.addEventListener("abort", () => ctrl.abort());
   try {
     const res = await fetch(BASE + path, { ...init, signal: ctrl.signal });
     if (!res.ok) {
@@ -29,6 +31,7 @@ async function request(path: string, init: RequestInit, timeoutMs: number): Prom
     return res;
   } catch (e) {
     if (e instanceof ApiError) throw e;
+    if (outer?.aborted) throw new ApiError("cancelled", "cancelled");
     if ((e as Error).name === "AbortError") throw new ApiError("The server took too long to answer.", "timeout");
     throw new ApiError("Cannot reach the Oriel server.", navigator.onLine ? "network" : "offline");
   } finally {
@@ -53,8 +56,9 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
 }
 
 /** Reads a server-sent-event stream and calls onEvent for each `data:` block, live. */
-async function streamEvents(path: string, body: FormData, onEvent: (ev: PipelineEvent) => void, timeoutMs = 45000) {
-  const res = await request(path, { method: "POST", body }, timeoutMs);
+async function streamEvents(path: string, body: FormData, onEvent: (ev: PipelineEvent) => void, timeoutMs = 45000,
+  signal?: AbortSignal) {
+  const res = await request(path, { method: "POST", body, signal }, timeoutMs);
   if (!res.body) {
     // very old browsers: no streaming, parse the whole body at once
     parseBlocks(await res.text(), onEvent);
@@ -93,7 +97,7 @@ export const api = {
   health: () => request("/api/health", {}, 60000).then((r) => r.json() as Promise<Health>),
 
   read(frames: Blob[], opts: { lang: Lang; mode: "standard" | "simple"; readsUsed: number; device: object; digitStyle: string },
-    onEvent: (ev: PipelineEvent) => void) {
+    onEvent: (ev: PipelineEvent) => void, signal?: AbortSignal) {
     const fd = new FormData();
     frames.forEach((f, i) => fd.append("frames", f, `frame${i}.jpg`));
     fd.append("lang", opts.lang);
@@ -103,7 +107,7 @@ export const api = {
     fd.append("digit_style", opts.digitStyle);
     // never retried automatically: a retry re-uploads the photos and runs every model again while the first
     // attempt is usually still being processed on the server
-    return streamEvents("/api/read", fd, onEvent);
+    return streamEvents("/api/read", fd, onEvent, 45000, signal);
   },
 
   ask(opts: { audio?: Blob; text?: string; inLang: Lang; outLang: Lang; context: Verified | null; frame?: Blob | null; confirmed?: boolean },
