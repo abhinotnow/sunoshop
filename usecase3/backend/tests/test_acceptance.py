@@ -56,11 +56,12 @@ def arb(**kw) -> dict:
 def app(monkeypatch):
     """The real app with fake readers. Set READER / ARBITER / VISION to change what they 'see'."""
     state = {"reader": rec(route_numbers=[route("218")], places=SECUNDERABAD),
-             "arbiter": arb(route_numbers=["218"]), "vision": [], "delay": 0.0, "reader_fail": set()}
+             "arbiter": arb(route_numbers=["218"]), "vision": [], "delay": 0.0, "reader_fail": set(), "calls": 0}
 
     async def fake_read(jpeg_bytes, model=None):
         await asyncio.sleep(state["delay"])
-        if model in state["reader_fail"]:
+        state["calls"] += 1
+        if state["reader_fail"] == "all" or (state["reader_fail"] == "first" and state["calls"] == 1):
             from backend.app.services.gemini import GeminiError
             raise GeminiError(f"{model}: 429 quota")
         return state["reader"]
@@ -245,8 +246,7 @@ def test_readers_run_in_parallel(app):
 
 def test_one_frame_failing_still_gives_an_honest_answer(app):
     client, state = app
-    models = read_pipeline.get_settings().reader_models
-    state["reader_fail"] = {models[1]}  # the second frame's model is out of quota
+    state["reader_fail"] = "first"  # one frame's read fails (quota, overload)
     res = read(client)
     assert res["type"] == "result"
     assert res["speech"]["key"], "something useful is still said"
@@ -255,7 +255,7 @@ def test_one_frame_failing_still_gives_an_honest_answer(app):
 
 def test_all_readers_down_is_reported_not_hidden(app):
     client, state = app
-    state["reader_fail"] = set(read_pipeline.get_settings().reader_models)
+    state["reader_fail"] = "all"
     res = read(client)
     assert res["type"] == "error" and res["code"] == "reader_unavailable"
 

@@ -35,17 +35,17 @@ class Settings:
     gemini_extra_keys: tuple[str, ...] = ()
     # Reader 1: frame k is read by reader_models[k]. Different models per frame avoid the free tier's per-model
     # burst throttle, spread the daily quota, and make "frames agree" stronger (different models, different slips).
-    reader_models: tuple[str, ...] = ("gemini-3.1-flash-lite", "gemini-3.1-flash-lite-preview")
+    reader_models: tuple[str, ...] = ()  # empty: frame 1 and frame 2 are both read by reader_model
     # Tried in order when a model is out of quota (429), unavailable (404) or hangs. Each model has its own
     # free-tier daily quota, so a longer chain means more reads per day.
-    gemini_fallback_models: tuple[str, ...] = ("gemini-3.1-flash-lite", "gemini-3-flash-preview",
-                                               "gemini-3.1-flash-lite-preview", "gemini-3.7-flash",
-                                               "gemini-3.5-flash-lite", "gemini-flash-latest", "gemini-3.5-flash",
-                                               "gemini-3.6-flash", "gemini-3.8-flash")
+    gemini_fallback_models: tuple[str, ...] = ("gemini-3.1-flash-lite", "gemini-3.5-flash-lite",
+                                               "gemini-3.1-flash-lite-preview", "gemini-flash-lite-latest",
+                                               "gemini-3-flash-preview", "gemini-3.5-flash", "gemini-3.6-flash",
+                                               "gemini-3.7-flash", "gemini-3.8-flash", "gemini-flash-latest")
     # Measured 11 Oct 2026 (generateContent): 3.1-flash-lite read a route in 1.7 s. Exhausted models fall back.
     reader_model: str = "gemini-3.1-flash-lite"   # reads every frame (fast, cheap)
-    arbiter_model: str = "gemini-3-flash-preview" # independent second read: a different model family
-    ask_model: str = "gemini-3-flash-preview"     # answers spoken questions
+    arbiter_model: str = "gemini-3.5-flash-lite"  # independent second read: a different model from reader 1
+    ask_model: str = "gemini-3.5-flash-lite"      # answers spoken questions
     thinking_level: str = "minimal"              # reader 1 and ask: speed matters
     arbiter_thinking_level: str = "low"          # reader 2 checks every character, so it may think a little
     image_resolution: str = "high"               # tokens per frame for reader 1 (low|medium|high|ultra_high)
@@ -54,7 +54,7 @@ class Settings:
     # False: reader 2 waits for reader 1's sign box and reads a zoomed crop (better for far, small signs).
     arbiter_parallel: bool = True
     gemini_timeout_s: float = 10.0
-    gemini_hedge_s: float = 3.0
+    gemini_hedge_s: float = 0.0  # 0 = off: a failed model is replaced one at a time, never in parallel
     gemini_translate_fallback: bool = True  # AnuvaadHub MT down: Gemini translates (same safety checks)     # no answer after this long: also ask the next model, first answer wins
     gemini_deadline_s: float = 18.0  # a whole Gemini call (all fallbacks) gives up after this  # calls take 4-8 s; a hung call is retried instead of waited out
 

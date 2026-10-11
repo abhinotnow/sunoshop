@@ -194,9 +194,11 @@ async def generate_json(model: str, prompt: str, schema: dict, images: list[byte
             if left <= 0:
                 last_err = last_err or GeminiError("deadline")
                 break
-            done, _ = await asyncio.wait(running, timeout=min(s.gemini_hedge_s, left), return_when=asyncio.FIRST_COMPLETED)
-            if not done:  # slow: hedge with the next model, keep waiting for both
-                if len(running) < 2:
+            hedge = s.gemini_hedge_s > 0
+            done, _ = await asyncio.wait(running, timeout=min(s.gemini_hedge_s, left) if hedge else left,
+                                         return_when=asyncio.FIRST_COMPLETED)
+            if not done:  # slow: with hedging on, also ask the next model; otherwise keep waiting
+                if hedge and len(running) < 2:
                     launch()
                 continue
             for task in done:
