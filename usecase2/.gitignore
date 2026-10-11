@@ -1,0 +1,52 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python packaging and build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Lint and type-check caches
+.mypy_cache/
+.pytype/
+.ruff_cache/
+
+# Local environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Node dependencies and frontend build output
+node_modules/
+frontend/dist/
+
+# Logs and local runtime data
+*.log
+backend/data/orders.json
+backend/data/image_alt_text_cache.json
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Editor and operating system files
+.DS_Store
+.idea/
+.vscode/
+
+data/
