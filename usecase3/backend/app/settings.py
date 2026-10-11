@@ -44,7 +44,7 @@ class Settings:
                                                "gemini-3.7-flash", "gemini-3.8-flash", "gemini-flash-latest")
     # Measured 11 Oct 2026 (generateContent): 3.1-flash-lite read a route in 1.7 s. Exhausted models fall back.
     reader_model: str = "gemini-3.1-flash-lite"   # reads every frame (fast, cheap)
-    arbiter_model: str = "gemini-3.1-flash-lite-preview"  # independent second read: a different model from reader 1
+    arbiter_model: str = "gemini-3.5-flash-lite"  # reader 2: a different model from reader 1 (falls back when out of quota)
     ask_model: str = "gemini-3.1-flash-lite-preview"      # answers spoken questions
     thinking_level: str = "minimal"              # reader 1 and ask: speed matters
     arbiter_thinking_level: str = "low"          # reader 2 checks every character, so it may think a little
@@ -54,7 +54,7 @@ class Settings:
     # False: reader 2 waits for reader 1's sign box and reads a zoomed crop (better for far, small signs).
     arbiter_parallel: bool = True
     gemini_timeout_s: float = 10.0
-    scene_descriptions: bool = False  # off: speak only the verified sign reading (no "I can see" / "Careful")
+    scene_descriptions: bool = True  # hazards ("Careful, there may be ...") and "Here is what I can see"
     gemini_hedge_s: float = 0.0  # 0 = off: a failed model is replaced one at a time, never in parallel
     gemini_translate_fallback: bool = True  # AnuvaadHub MT down: Gemini translates (same safety checks)     # no answer after this long: also ask the next model, first answer wins
     gemini_deadline_s: float = 18.0  # a whole Gemini call (all fallbacks) gives up after this  # calls take 4-8 s; a hung call is retried instead of waited out
@@ -100,7 +100,7 @@ def get_settings() -> Settings:
         arbiter_image_resolution=os.getenv("GEMINI_ARBITER_IMAGE_RESOLUTION", Settings.arbiter_image_resolution).strip(),
         gemini_timeout_s=float(os.getenv("GEMINI_TIMEOUT_S", Settings.gemini_timeout_s)),
         gemini_hedge_s=float(os.getenv("GEMINI_HEDGE_S", Settings.gemini_hedge_s)),
-        scene_descriptions=_bool("SCENE_DESCRIPTIONS", False),
+        scene_descriptions=_bool("SCENE_DESCRIPTIONS", True),
         gemini_translate_fallback=_bool("GEMINI_TRANSLATE_FALLBACK", True),
         gemini_deadline_s=float(os.getenv("GEMINI_DEADLINE_S", Settings.gemini_deadline_s)),
         anuvaad_config=_path("ANUVAAD_CONFIG", Settings.anuvaad_config),

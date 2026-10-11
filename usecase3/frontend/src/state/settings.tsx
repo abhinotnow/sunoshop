@@ -20,7 +20,7 @@ export interface Settings {
   englishDigits: boolean;
   scanCamera: Facing;    // which camera reads signs: rear (default) or front (selfie, laptop webcam)
   tapAnywhere: boolean;
-  watchMode: boolean;    // optional: also warn about obstacles between readings (off by default)  // the whole screen is one "talk" button (a sighted helper can turn it off to use buttons)
+  watchMode: boolean;    // optional: also warn about obstacles between readings (off by default: uses quota)
   offersSeen: Partial<Record<Mode, boolean>>;
 }
 

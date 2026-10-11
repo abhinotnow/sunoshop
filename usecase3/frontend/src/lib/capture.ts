@@ -24,7 +24,7 @@ export async function captureBurst(video: HTMLVideoElement, focusBox: number[] |
     if (i < shots - 1) await sleep(gapMs);
   }
   grabbed.sort((a, b) => b.sharp - a.sharp);
-  return finish(grabbed.slice(0, 2).map((g) => g.canvas)); // the server reads 2 frames (2 different models)
+  return finish(grabbed.slice(0, 2).map((g) => g.canvas)); // the 2 sharpest; reader 1 reads both with one model
 }
 
 export async function captureFiles(files: File[]): Promise<Burst> {
