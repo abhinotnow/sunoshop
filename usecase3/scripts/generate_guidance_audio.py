@@ -33,7 +33,7 @@ OUT = ROOT / "frontend" / "public" / "audio" / "guidance"
 
 
 async def main() -> int:
-    from backend.app.services import anuvaad
+    from backend.app.services import anuvaad, audio_store
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--langs", nargs="*", default=["te", "hi", "en"])
@@ -83,7 +83,7 @@ async def main() -> int:
                 print(f"  FAIL {lang}/{pid}: {e}")
                 return
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(wav)
+        path.write_bytes(audio_store.shrink_wav(wav))
         manifest.setdefault(pid, {})[lang] = url
         made += 1
         print(f"  ok   {lang}/{pid}  ({len(wav) // 1024} KB)")

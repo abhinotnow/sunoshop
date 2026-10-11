@@ -29,7 +29,7 @@ def events(resp):
 
 @pytest.fixture
 def client(monkeypatch):
-    async def fake_read(_):
+    async def fake_read(*_):
         return rec(route_numbers=[route("218")], places=SECUNDERABAD)
 
     async def fake_arbiter(_):
@@ -66,7 +66,7 @@ def test_read_rejects_bad_input(client):
 
 
 def test_read_reports_reader_outage(client, monkeypatch):
-    async def down(_):
+    async def down(*_):
         raise gemini.GeminiError("503 unavailable")
     monkeypatch.setattr(sign_reader, "read_frame", down)
     evs = events(client.post("/api/read", files=[("frames", ("a.jpg", jpeg(), "image/jpeg"))], data={"lang": "te"}))
@@ -118,7 +118,7 @@ def test_second_reader_modes(client, monkeypatch, parallel):
     import io
     seen: list[tuple[int, int]] = []
 
-    async def fake_read(_):
+    async def fake_read(*_):
         return rec(route_numbers=[route("218")], places=SECUNDERABAD, main_sign_box=[250, 250, 750, 750])
 
     async def spy_arbiter(jpeg_bytes):

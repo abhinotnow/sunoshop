@@ -5,6 +5,7 @@
  * PCM with Web Audio and encode WAV ourselves, which works identically on iPhone, Android and laptops.
  * The microphone is fully released between questions, so iPhone playback stays at normal volume.
  */
+import { setAudioSession } from "./audio";
 
 export interface RecordOptions {
   maxMs?: number;          // hard stop (AnuvaadHub ASR limit is ~20 s)
@@ -48,6 +49,7 @@ export class MicRecorder {
     const silenceMs = opts.silenceMs ?? 900;
     const noSpeechMs = opts.noSpeechMs ?? 7000;
 
+    setAudioSession("play-and-record");
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
     });
@@ -114,6 +116,7 @@ export class MicRecorder {
   private release(): void {
     this.stream?.getTracks().forEach((t) => t.stop());
     this.stream = null;
+    setAudioSession("playback"); // back to the loudspeaker as soon as the mic is released
     this.ctx?.close().catch(() => undefined);
     this.ctx = null;
   }

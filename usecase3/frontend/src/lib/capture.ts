@@ -24,11 +24,11 @@ export async function captureBurst(video: HTMLVideoElement, focusBox: number[] |
     if (i < shots - 1) await sleep(gapMs);
   }
   grabbed.sort((a, b) => b.sharp - a.sharp);
-  return finish(grabbed.slice(0, 3).map((g) => g.canvas));
+  return finish(grabbed.slice(0, 2).map((g) => g.canvas)); // the server reads 2 frames (2 different models)
 }
 
 export async function captureFiles(files: File[]): Promise<Burst> {
-  const canvases = await Promise.all(files.slice(0, 3).map((f) => fileToCanvas(f)));
+  const canvases = await Promise.all(files.slice(0, 2).map((f) => fileToCanvas(f)));
   return finish(canvases);
 }
 

@@ -53,7 +53,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
 }
 
 /** Reads a server-sent-event stream and calls onEvent for each `data:` block, live. */
-async function streamEvents(path: string, body: FormData, onEvent: (ev: PipelineEvent) => void, timeoutMs = 90000) {
+async function streamEvents(path: string, body: FormData, onEvent: (ev: PipelineEvent) => void, timeoutMs = 45000) {
   const res = await request(path, { method: "POST", body }, timeoutMs);
   if (!res.body) {
     // very old browsers: no streaming, parse the whole body at once
@@ -89,7 +89,8 @@ function parseBlocks(text: string, onEvent: (ev: PipelineEvent) => void) {
 }
 
 export const api = {
-  health: () => request("/api/health", {}, 8000).then((r) => r.json() as Promise<Health>),
+  // long timeout: a sleeping free server takes ~30-60 s to wake
+  health: () => request("/api/health", {}, 60000).then((r) => r.json() as Promise<Health>),
 
   read(frames: Blob[], opts: { lang: Lang; mode: "standard" | "simple"; readsUsed: number; device: object; digitStyle: string },
     onEvent: (ev: PipelineEvent) => void) {
@@ -100,7 +101,9 @@ export const api = {
     fd.append("reads_used", String(opts.readsUsed));
     fd.append("device", JSON.stringify(opts.device));
     fd.append("digit_style", opts.digitStyle);
-    return withRetry(() => streamEvents("/api/read", fd, onEvent), 1);
+    // never retried automatically: a retry re-uploads the photos and runs every model again while the first
+    // attempt is usually still being processed on the server
+    return streamEvents("/api/read", fd, onEvent);
   },
 
   ask(opts: { audio?: Blob; text?: string; inLang: Lang; outLang: Lang; context: Verified | null; frame?: Blob | null; confirmed?: boolean },

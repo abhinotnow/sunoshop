@@ -12,7 +12,8 @@ import { TopBar } from "./components/TopBar";
 import { World3D } from "./components/World3D";
 import { useOriel } from "./hooks/useOriel";
 import { useSettings } from "./state/settings";
-import { prefersReducedMotion } from "./lib/platform";
+import { isTouch, prefersReducedMotion } from "./lib/platform";
+import { t } from "./i18n/ui";
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -41,7 +42,8 @@ export default function App() {
   }, [o]);
 
   // One 3D world for the whole session (kept mounted from Start to reading), never in high contrast.
-  const world = settings.highContrast ? null : (
+  // Phones: the 3D street only on the start screen, so it never competes with the camera and capture.
+  const world = settings.highContrast || (isTouch && o.phase !== "start") ? null : (
     <World3D state={o.phase === "start" ? "idle" : o.beacon} intensity={o.phase === "start" ? "hero" : "ambient"}
       reducedMotion={prefersReducedMotion()} />
   );
@@ -65,6 +67,11 @@ export default function App() {
         </div>
       </main>
       <Captions text={o.caption} lang={settings.outLang} />
+      {o.audioBlocked && (
+        <button className="tap-to-hear" onClick={o.tapToHear} lang={settings.outLang} autoFocus>
+          {t("tapToHear", settings.outLang)}
+        </button>
+      )}
       <SettingsSheet o={o} />
       <DialogCard dialog={o.dialog} lang={settings.outLang} />
     </div>

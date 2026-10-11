@@ -3,9 +3,9 @@
   frames (1-3, face-blurred on the phone)
    -> quality: sharpness + brightness per frame, pick the sharpest
    -> reader 1: Gemini Flash-Lite reads every frame in parallel (SignRecord each)
+   -> OCR: Google Cloud Vision on the sharpest frame (words inside the sign box) + PaddleOCR on the crop (optional)
    -> reader 2: an independent read of the sharpest frame at ultra-high resolution; it starts in parallel with
       reader 1 (ARBITER_PARALLEL=true) or waits for reader 1's sign box and reads a zoomed crop (false)
-      + AnuvaadHub OCR on a white-background version of the crop (+ PaddleOCR if enabled)
    -> verify: agreement across frames + independent check -> confirmed / uncertain / unreadable
    -> guidance: repositioning advice and whether to read again
    -> compose: sentences in the user's language from templates (names in their script)
@@ -22,8 +22,7 @@ from typing import AsyncIterator
 
 from ..settings import get_settings
 from . import guidance as guidance_mod
-from . import images, ocr_prep, sign_reader
-from .anuvaad import AnuvaadError, AnuvaadUnavailable, client as anuvaad_client, model as anuvaad_model
+from . import images, sign_reader, vision_ocr
 from .compose import compose
 from .gemini import GeminiError
 from .speech import attach_audio, fill_names, finalize
@@ -51,36 +50,6 @@ def _summary(rec: dict) -> str:
     if rec.get("business", {}).get("name_romanized"):
         bits.append(rec["business"]["name_romanized"])
     return ", ".join(b for b in bits if b)
-
-
-def _route_boxes(recs: list[dict], best_rec: dict | None) -> list[list[int]]:
-    """Boxes of route numbers, preferring the sharpest frame's reading (max 2)."""
-    for r in ([best_rec] if best_rec else []) + recs:
-        boxes = [x.get("box") for x in (r or {}).get("route_numbers", []) if images.valid_box(x.get("box"))]
-        if boxes:
-            return boxes[:2]
-    return []
-
-
-async def _ocr(sign_crop, route_crops: list, langs: list[str]) -> tuple[str, list[str]]:
-    """AnuvaadHub OCR: tight route-number crops in English, the whole sign in its own script(s).
-
-    Each crop is converted to black-on-white separately (see ocr_prep for why)."""
-    mt = anuvaad_client()
-    jobs, used = [], []
-    if anuvaad_model("ocr", "en"):
-        used.append("en")
-        for c in route_crops:
-            jobs.append(mt.ocr(ocr_prep.prepare_for_ocr(c), "en"))
-        if not route_crops:
-            jobs.append(mt.ocr(ocr_prep.prepare_for_ocr(sign_crop), "en"))
-    for l in ("te", "hi"):
-        if l in langs and anuvaad_model("ocr", l):
-            used.append(l)
-            jobs.append(mt.ocr(ocr_prep.prepare_for_ocr(sign_crop), l))
-    results = await asyncio.gather(*jobs, return_exceptions=True)
-    texts = [r for r in results if isinstance(r, str) and r]
-    return " \n".join(texts), used
 
 
 async def _paddle(crop) -> str:
@@ -117,16 +86,22 @@ async def run_read(frames: list[bytes], lang: str, mode: str = "standard", reads
     if s.arbiter_parallel:
         full = images.encode_jpeg(images.fit(imgs[best], images.MAX_SIDE_ARBITER))
         early_arb = asyncio.create_task(sign_reader.arbiter_read(full))
-    if early_arb:  # if it is cancelled or never awaited (no sign), its error must not be logged as unhandled
-        early_arb.add_done_callback(lambda task: task.cancelled() or task.exception())
+    # ---- OCR reader (different technology): Cloud Vision on the same full frame, also started now; only the words
+    # inside reader 1's sign box are used later, so a neighbouring board cannot confirm anything
+    vision_task = (asyncio.create_task(vision_ocr.read_words(images.fit(imgs[best], images.MAX_SIDE_ARBITER)))
+                   if vision_ocr.configured() else None)
+    early = [t for t in (early_arb, vision_task) if t]
+    for task in early:  # if cancelled or never awaited (no sign), an error must not be logged as unhandled
+        task.add_done_callback(lambda tk: tk.cancelled() or tk.exception())
 
     # ---- reader 1 on every frame, streamed as each one finishes
     t = time.perf_counter()
-    yield stage("read", "running", frames=len(jpegs), model=s.reader_model)
+    yield stage("read", "running", frames=len(jpegs), model=", ".join((s.reader_models or (s.reader_model,))[:len(jpegs)]))
 
     async def one(k: int):
         try:
-            return k, await sign_reader.read_frame(jpegs[k]), None
+            models = s.reader_models or (s.reader_model,)
+            return k, await sign_reader.read_frame(jpegs[k], models[k % len(models)]), None
         except GeminiError as e:
             return k, None, str(e)
 
@@ -142,8 +117,8 @@ async def run_read(frames: list[bytes], lang: str, mode: str = "standard", reads
             yield stage("read", "progress", frame=k, error=err)
     timings["read"] = round((time.perf_counter() - t) * 1000)
     if not records:
-        if early_arb:
-            early_arb.cancel()
+        for task in early:
+            task.cancel()
         yield {"type": "error", "code": "reader_unavailable", "message": errors[0] if errors else "reader failed"}
         return
     recs = [records[k] for k in sorted(records)]
@@ -156,24 +131,22 @@ async def run_read(frames: list[bytes], lang: str, mode: str = "standard", reads
     if any_sign:
         box = consensus_box(recs)
         crop = images.crop_box(imgs[best], box) if box else images.fit(imgs[best], images.MAX_SIDE_READER)
-        langs = sorted({l for r in recs for l in r.get("languages_present", [])})
-        route_crops = [images.crop_box(imgs[best], b, pad=0.3, min_side=200) for b in _route_boxes(recs, records.get(best))]
         yield stage("second_reader", "running", model=s.arbiter_model, crop=bool(box) and not early_arb,
-                    route_crops=len(route_crops))
+                    ocr=[n for n, on in (("cloud_vision", bool(vision_task)), ("paddleocr", s.enable_paddleocr)) if on])
         arb_task = early_arb or asyncio.create_task(
             sign_reader.arbiter_read(images.encode_jpeg(images.fit(crop, images.MAX_SIDE_READER))))
-        ocr_task = asyncio.create_task(_ocr(crop, route_crops, langs))
         paddle_task = asyncio.create_task(_paddle(crop)) if s.enable_paddleocr else None
         try:
             ev.arbiter = await arb_task
             ev.arbiter_ran = True
         except GeminiError as e:
             ev.notes.append(f"arbiter failed: {e}")
-        try:
-            ocr_text, ocr_langs = await ocr_task
-            ev.ocr_text, ev.ocr_ran = ocr_text, bool(ocr_langs)
-        except (AnuvaadError, AnuvaadUnavailable) as e:
-            ev.notes.append(f"ocr failed: {e}")
+        if vision_task:
+            words = await vision_task
+            ev.ocr_text = vision_ocr.text_in_box(words, box)
+            ev.ocr_ran = bool(words)  # Vision answered (it may rightly find no words in the box)
+            if not words:
+                ev.notes.append("cloud vision: no answer")
         if paddle_task:
             ptxt = await paddle_task
             if ptxt:
@@ -187,8 +160,8 @@ async def run_read(frames: list[bytes], lang: str, mode: str = "standard", reads
                              ("failed" if not ev.arbiter_ran else "nothing extra")),
                     ocr=(ev.ocr_text[:80] if ev.ocr_ran else "not configured"))
     else:
-        if early_arb:
-            early_arb.cancel()
+        for task in early:
+            task.cancel()
         yield stage("second_reader", "skipped", reason="no sign in any frame")
 
     # ---- verify + guidance

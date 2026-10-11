@@ -281,6 +281,18 @@
       "en": "Back camera. Point the back of the phone at the sign.",
       "hi": "पीछे का कैमरा। फ़ोन का पिछला हिस्सा बोर्ड की तरफ़ कीजिए।",
       "te": "వెనుక కెమెరా. ఫోన్ వెనుక భాగాన్ని బోర్డు వైపు చూపండి."
+    },
+    {
+      "id": "service_busy",
+      "en": "The reading service is busy right now. Please try again in a few seconds.",
+      "hi": "पढ़ने की सेवा अभी व्यस्त है। कुछ सेकंड बाद फिर कोशिश कीजिए।",
+      "te": "చదివే సేవ ఇప్పుడు బిజీగా ఉంది. కొన్ని సెకన్ల తర్వాత మళ్ళీ ప్రయత్నించండి."
+    },
+    {
+      "id": "auto_paused",
+      "en": "I could not find a sign. Tap the screen or say read when you are ready.",
+      "hi": "कोई बोर्ड नहीं मिला। तैयार हों तो स्क्रीन छुएँ या पढ़ो कहें।",
+      "te": "బోర్డు కనిపించలేదు. సిద్ధంగా ఉన్నప్పుడు స్క్రీన్‌ను తాకండి లేదా చదువు అని చెప్పండి."
     }
   ]
 }

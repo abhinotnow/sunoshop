@@ -179,3 +179,12 @@ html, body { overflow-x: hidden; }
 @keyframes camflip { from { transform: perspective(900px) rotateY(-80deg); opacity: 0.3; } to { transform: none; opacity: 1; } }
 :root[data-contrast="high"] .cam-flip { background: #000; border: 2px solid #fff; box-shadow: none; }
 @media (max-width: 420px) { .cam-flip span { display: none; } .stage-badges { right: 70px; } }
+
+/* ---------- phone blocked sound: one huge button that unlocks it and replays ---------- */
+.tap-to-hear {
+  position: fixed; left: 16px; right: 16px; bottom: calc(88px + var(--safe-bottom)); z-index: 60;
+  min-height: 96px; border-radius: 28px; font-size: var(--fs-5); font-weight: 800; color: var(--accent-ink);
+  background: var(--accent); box-shadow: 0 8px 0 #0d6f61, 0 24px 60px -10px rgba(46, 230, 197, 0.7);
+  animation: breathe 1.6s ease-in-out infinite;
+}
+:root[data-contrast="high"] .tap-to-hear { background: #ffd400; color: #000; box-shadow: none; }

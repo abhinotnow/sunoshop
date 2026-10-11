@@ -12,8 +12,31 @@ import { api } from "./api";
 import { LANG_NAMES } from "../i18n/ui";
 import type { Lang } from "../types";
 
-const SILENT_WAV =
-  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=";
+/** 0.2 s of real silence. (A WAV with zero samples is rejected by Safari, which left the element locked.) */
+function silentWavUrl(): string {
+  const samples = 1600; // 8 kHz mono 16-bit
+  const buf = new ArrayBuffer(44 + samples * 2);
+  const v = new DataView(buf);
+  const str = (o: number, t: string) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  str(0, "RIFF"); v.setUint32(4, 36 + samples * 2, true); str(8, "WAVE"); str(12, "fmt ");
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true);
+  v.setUint32(28, 16000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, "data");
+  v.setUint32(40, samples * 2, true);
+  return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+}
+
+type AudioSessionNav = Navigator & { audioSession?: { type: string } };
+
+/** iOS 17+: "playback" sends sound to the loudspeaker; "play-and-record" (while the mic is open) uses the
+ *  quiet earpiece. Oriel switches to play-and-record only while recording. */
+export function setAudioSession(type: "playback" | "play-and-record"): void {
+  try {
+    const nav = navigator as AudioSessionNav;
+    if (nav.audioSession) nav.audioSession.type = type;
+  } catch {
+    /* not supported */
+  }
+}
 
 export interface SpeakItem {
   text: string;
@@ -31,6 +54,11 @@ class AudioEngine {
   private generation = 0;
   private listeners = new Set<Listener>();
   private clipManifest: Record<string, Partial<Record<Lang, string>>> = {};
+  private silent = "";
+  private lastItems: SpeakItem[] = [];
+  /** true when the phone refused to play sound without a new tap (the UI then shows "Tap to hear") */
+  blocked = false;
+  private blockedListeners = new Set<(b: boolean) => void>();
   rate = 1;
   muted = false; // screen-reader mode: captions only
 
@@ -40,19 +68,58 @@ class AudioEngine {
     (this.el as HTMLAudioElement & { playsInline?: boolean }).playsInline = true;
   }
 
-  async unlock(): Promise<void> {
+  onBlocked(fn: (b: boolean) => void): () => void {
+    this.blockedListeners.add(fn);
+    return () => this.blockedListeners.delete(fn);
+  }
+
+  private setBlocked(b: boolean) {
+    if (this.blocked === b) return;
+    this.blocked = b;
+    this.blockedListeners.forEach((fn) => fn(b));
+  }
+
+  /**
+   * Call SYNCHRONOUSLY inside a tap (no await before it). Unlocks the <audio> element and the phone's own
+   * voice: iOS only allows speechSynthesis if its first speak() happens in a user gesture.
+   */
+  unlock(): Promise<void> {
+    setAudioSession("playback");
+    if (!this.silent) this.silent = silentWavUrl();
+    const played = (() => {
+      try {
+        this.el.muted = false;
+        this.el.src = this.silent;
+        return this.el.play().then(() => {
+          this.setBlocked(false);
+        }).catch(() => undefined);
+      } catch {
+        return Promise.resolve();
+      }
+    })();
     try {
-      this.el.src = SILENT_WAV;
-      await this.el.play();
-      this.el.pause();
-    } catch {
-      /* will retry on the next gesture */
-    }
-    try {
-      window.speechSynthesis?.getVoices(); // warm the voice list (Safari loads it lazily)
+      const synth = window.speechSynthesis;
+      if (synth) {
+        synth.getVoices(); // warm the voice list (Safari loads it lazily)
+        const u = new SpeechSynthesisUtterance(" ");
+        u.volume = 0;
+        synth.speak(u);
+      }
     } catch {
       /* no speech synthesis */
     }
+    return played.then(() => this.loadClips());
+  }
+
+  /** "Tap to hear": unlock again inside this tap and replay what was being said. */
+  retryAfterTap(): void {
+    const items = this.lastItems;
+    void this.unlock();
+    if (items.length) void this.say(items, true);
+  }
+
+  private async loadClips(): Promise<void> {
+    if (Object.keys(this.clipManifest).length) return;
     try {
       const res = await fetch("/audio/guidance/manifest.json", { cache: "no-cache" });
       if (res.ok) this.clipManifest = await res.json();
@@ -93,6 +160,7 @@ class AudioEngine {
   /** Speak items in order. Resolves when all are done (or when stop() interrupts). */
   async say(items: SpeakItem[], interrupt = true): Promise<void> {
     if (interrupt) this.stop();
+    this.lastItems = items;
     this.queue.push(...items.filter((i) => i.text || i.clipId));
     if (this.playing) return this.waitIdle();
     const gen = this.generation;
@@ -152,7 +220,10 @@ class AudioEngine {
       el.playbackRate = this.rate;
       (el as HTMLAudioElement & { preservesPitch?: boolean; webkitPreservesPitch?: boolean }).preservesPitch = true;
       (el as HTMLAudioElement & { webkitPreservesPitch?: boolean }).webkitPreservesPitch = true;
-      el.play().catch(() => done(false));
+      el.play().then(() => this.setBlocked(false)).catch((e: Error) => {
+        if (e?.name === "NotAllowedError") this.setBlocked(true);
+        done(false);
+      });
     });
   }
 

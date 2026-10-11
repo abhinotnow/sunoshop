@@ -48,6 +48,7 @@ const UI = {
   youAsked: { en: "You asked", hi: "आपने पूछा", te: "మీరు అడిగింది" },
   answer: { en: "Answer", hi: "जवाब", te: "సమాధానం" },
   upload: { en: "Use a photo", hi: "फ़ोटो चुनें", te: "ఫోటో ఎంచుకోండి" },
+  tapToHear: { en: "Tap to hear", hi: "सुनने के लिए छुएँ", te: "వినడానికి తాకండి" },
   switchCamera: { en: "Switch camera", hi: "कैमरा बदलें", te: "కెమెరా మార్చండి" },
   frontCamera: { en: "Front camera", hi: "सामने का कैमरा", te: "ముందు కెమెరా" },
   backCamera: { en: "Back camera", hi: "पीछे का कैमरा", te: "వెనుక కెమెరా" },

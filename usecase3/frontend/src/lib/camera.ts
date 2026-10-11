@@ -8,7 +8,7 @@ export type Facing = "environment" | "user";
 
 /** Longest side of a frame sent to the server. Reader 1 gets a 1600 px copy; the second reader and OCR crop the
  *  sign out of this full frame, so sending more keeps small Telugu and Hindi glyphs readable. */
-export const CAPTURE_MAX_SIDE = 2400;
+export const CAPTURE_MAX_SIDE = 1600; // ~300 KB per frame: fast on 4G; the second reader uses ultra-high detail
 
 export async function startCamera(video: HTMLVideoElement, facing: Facing): Promise<MediaStream> {
   const stream = await navigator.mediaDevices.getUserMedia({
@@ -61,7 +61,7 @@ export function grabFrame(video: HTMLVideoElement, maxSide = 1600, box?: number[
   return canvas;
 }
 
-export function canvasToJpeg(canvas: HTMLCanvasElement, quality = 0.92): Promise<Blob> {
+export function canvasToJpeg(canvas: HTMLCanvasElement, quality = 0.85): Promise<Blob> {
   return new Promise((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode failed"))), "image/jpeg", quality),
   );

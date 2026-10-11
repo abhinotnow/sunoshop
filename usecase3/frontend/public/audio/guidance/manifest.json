@@ -1,0 +1,242 @@
+{
+ "aim_down": {
+  "en": "/audio/guidance/en/aim_down.wav",
+  "hi": "/audio/guidance/hi/aim_down.wav",
+  "te": "/audio/guidance/te/aim_down.wav"
+ },
+ "aim_left": {
+  "en": "/audio/guidance/en/aim_left.wav",
+  "hi": "/audio/guidance/hi/aim_left.wav",
+  "te": "/audio/guidance/te/aim_left.wav"
+ },
+ "aim_right": {
+  "en": "/audio/guidance/en/aim_right.wav",
+  "hi": "/audio/guidance/hi/aim_right.wav",
+  "te": "/audio/guidance/te/aim_right.wav"
+ },
+ "aim_up": {
+  "en": "/audio/guidance/en/aim_up.wav",
+  "hi": "/audio/guidance/hi/aim_up.wav",
+  "te": "/audio/guidance/te/aim_up.wav"
+ },
+ "ask_prompt": {
+  "en": "/audio/guidance/en/ask_prompt.wav",
+  "hi": "/audio/guidance/hi/ask_prompt.wav",
+  "te": "/audio/guidance/te/ask_prompt.wav"
+ },
+ "ask_someone": {
+  "en": "/audio/guidance/en/ask_someone.wav",
+  "hi": "/audio/guidance/hi/ask_someone.wav",
+  "te": "/audio/guidance/te/ask_someone.wav"
+ },
+ "auto_paused": {
+  "en": "/audio/guidance/en/auto_paused.wav",
+  "hi": "/audio/guidance/hi/auto_paused.wav",
+  "te": "/audio/guidance/te/auto_paused.wav"
+ },
+ "camera_back": {
+  "en": "/audio/guidance/en/camera_back.wav",
+  "hi": "/audio/guidance/hi/camera_back.wav",
+  "te": "/audio/guidance/te/camera_back.wav"
+ },
+ "camera_blocked": {
+  "en": "/audio/guidance/en/camera_blocked.wav",
+  "hi": "/audio/guidance/hi/camera_blocked.wav",
+  "te": "/audio/guidance/te/camera_blocked.wav"
+ },
+ "camera_front": {
+  "en": "/audio/guidance/en/camera_front.wav",
+  "hi": "/audio/guidance/hi/camera_front.wav",
+  "te": "/audio/guidance/te/camera_front.wav"
+ },
+ "did_that_help": {
+  "en": "/audio/guidance/en/did_that_help.wav",
+  "hi": "/audio/guidance/hi/did_that_help.wav",
+  "te": "/audio/guidance/te/did_that_help.wav"
+ },
+ "didnt_catch": {
+  "en": "/audio/guidance/en/didnt_catch.wav",
+  "hi": "/audio/guidance/hi/didnt_catch.wav",
+  "te": "/audio/guidance/te/didnt_catch.wav"
+ },
+ "gestures_on": {
+  "en": "/audio/guidance/en/gestures_on.wav",
+  "hi": "/audio/guidance/hi/gestures_on.wav",
+  "te": "/audio/guidance/te/gestures_on.wav"
+ },
+ "glare": {
+  "en": "/audio/guidance/en/glare.wav",
+  "hi": "/audio/guidance/hi/glare.wav",
+  "te": "/audio/guidance/te/glare.wav"
+ },
+ "hold_still": {
+  "en": "/audio/guidance/en/hold_still.wav",
+  "hi": "/audio/guidance/hi/hold_still.wav",
+  "te": "/audio/guidance/te/hold_still.wav"
+ },
+ "keep_still": {
+  "en": "/audio/guidance/en/keep_still.wav",
+  "hi": "/audio/guidance/hi/keep_still.wav",
+  "te": "/audio/guidance/te/keep_still.wav"
+ },
+ "level_phone": {
+  "en": "/audio/guidance/en/level_phone.wav",
+  "hi": "/audio/guidance/hi/level_phone.wav",
+  "te": "/audio/guidance/te/level_phone.wav"
+ },
+ "listening": {
+  "en": "/audio/guidance/en/listening.wav",
+  "hi": "/audio/guidance/hi/listening.wav",
+  "te": "/audio/guidance/te/listening.wav"
+ },
+ "mic_blocked": {
+  "en": "/audio/guidance/en/mic_blocked.wav",
+  "hi": "/audio/guidance/hi/mic_blocked.wav",
+  "te": "/audio/guidance/te/mic_blocked.wav"
+ },
+ "mode_kept": {
+  "en": "/audio/guidance/en/mode_kept.wav",
+  "hi": "/audio/guidance/hi/mode_kept.wav",
+  "te": "/audio/guidance/te/mode_kept.wav"
+ },
+ "mode_on": {
+  "en": "/audio/guidance/en/mode_on.wav",
+  "hi": "/audio/guidance/hi/mode_on.wav",
+  "te": "/audio/guidance/te/mode_on.wav"
+ },
+ "move_closer": {
+  "en": "/audio/guidance/en/move_closer.wav",
+  "hi": "/audio/guidance/hi/move_closer.wav",
+  "te": "/audio/guidance/te/move_closer.wav"
+ },
+ "move_down": {
+  "en": "/audio/guidance/en/move_down.wav",
+  "hi": "/audio/guidance/hi/move_down.wav",
+  "te": "/audio/guidance/te/move_down.wav"
+ },
+ "move_left": {
+  "en": "/audio/guidance/en/move_left.wav",
+  "hi": "/audio/guidance/hi/move_left.wav",
+  "te": "/audio/guidance/te/move_left.wav"
+ },
+ "move_right": {
+  "en": "/audio/guidance/en/move_right.wav",
+  "hi": "/audio/guidance/hi/move_right.wav",
+  "te": "/audio/guidance/te/move_right.wav"
+ },
+ "move_up": {
+  "en": "/audio/guidance/en/move_up.wav",
+  "hi": "/audio/guidance/hi/move_up.wav",
+  "te": "/audio/guidance/te/move_up.wav"
+ },
+ "network_offline": {
+  "en": "/audio/guidance/en/network_offline.wav",
+  "hi": "/audio/guidance/hi/network_offline.wav",
+  "te": "/audio/guidance/te/network_offline.wav"
+ },
+ "network_slow": {
+  "en": "/audio/guidance/en/network_slow.wav",
+  "hi": "/audio/guidance/hi/network_slow.wav",
+  "te": "/audio/guidance/te/network_slow.wav"
+ },
+ "no_sign": {
+  "en": "/audio/guidance/en/no_sign.wav",
+  "hi": "/audio/guidance/hi/no_sign.wav",
+  "te": "/audio/guidance/te/no_sign.wav"
+ },
+ "no_sign_try": {
+  "en": "/audio/guidance/en/no_sign_try.wav",
+  "hi": "/audio/guidance/hi/no_sign_try.wav",
+  "te": "/audio/guidance/te/no_sign_try.wav"
+ },
+ "nothing_more": {
+  "en": "/audio/guidance/en/nothing_more.wav",
+  "hi": "/audio/guidance/hi/nothing_more.wav",
+  "te": "/audio/guidance/te/nothing_more.wav"
+ },
+ "offer_ageing": {
+  "en": "/audio/guidance/en/offer_ageing.wav",
+  "hi": "/audio/guidance/hi/offer_ageing.wav",
+  "te": "/audio/guidance/te/offer_ageing.wav"
+ },
+ "offer_hand_motor": {
+  "en": "/audio/guidance/en/offer_hand_motor.wav",
+  "hi": "/audio/guidance/hi/offer_hand_motor.wav",
+  "te": "/audio/guidance/te/offer_hand_motor.wav"
+ },
+ "offer_visual": {
+  "en": "/audio/guidance/en/offer_visual.wav",
+  "hi": "/audio/guidance/hi/offer_visual.wav",
+  "te": "/audio/guidance/te/offer_visual.wav"
+ },
+ "reading": {
+  "en": "/audio/guidance/en/reading.wav",
+  "hi": "/audio/guidance/hi/reading.wav",
+  "te": "/audio/guidance/te/reading.wav"
+ },
+ "ready": {
+  "en": "/audio/guidance/en/ready.wav",
+  "hi": "/audio/guidance/hi/ready.wav",
+  "te": "/audio/guidance/te/ready.wav"
+ },
+ "say_more": {
+  "en": "/audio/guidance/en/say_more.wav",
+  "hi": "/audio/guidance/hi/say_more.wav",
+  "te": "/audio/guidance/te/say_more.wav"
+ },
+ "say_yes_no": {
+  "en": "/audio/guidance/en/say_yes_no.wav",
+  "hi": "/audio/guidance/hi/say_yes_no.wav",
+  "te": "/audio/guidance/te/say_yes_no.wav"
+ },
+ "service_busy": {
+  "en": "/audio/guidance/en/service_busy.wav",
+  "hi": "/audio/guidance/hi/service_busy.wav",
+  "te": "/audio/guidance/te/service_busy.wav"
+ },
+ "several_signs": {
+  "en": "/audio/guidance/en/several_signs.wav",
+  "hi": "/audio/guidance/hi/several_signs.wav",
+  "te": "/audio/guidance/te/several_signs.wav"
+ },
+ "step_back": {
+  "en": "/audio/guidance/en/step_back.wav",
+  "hi": "/audio/guidance/hi/step_back.wav",
+  "te": "/audio/guidance/te/step_back.wav"
+ },
+ "stop": {
+  "en": "/audio/guidance/en/stop.wav",
+  "hi": "/audio/guidance/hi/stop.wav",
+  "te": "/audio/guidance/te/stop.wav"
+ },
+ "sweep_left": {
+  "en": "/audio/guidance/en/sweep_left.wav",
+  "hi": "/audio/guidance/hi/sweep_left.wav",
+  "te": "/audio/guidance/te/sweep_left.wav"
+ },
+ "sweep_right": {
+  "en": "/audio/guidance/en/sweep_right.wav",
+  "hi": "/audio/guidance/hi/sweep_right.wav",
+  "te": "/audio/guidance/te/sweep_right.wav"
+ },
+ "tilt_down": {
+  "en": "/audio/guidance/en/tilt_down.wav",
+  "hi": "/audio/guidance/hi/tilt_down.wav",
+  "te": "/audio/guidance/te/tilt_down.wav"
+ },
+ "tilt_up": {
+  "en": "/audio/guidance/en/tilt_up.wav",
+  "hi": "/audio/guidance/hi/tilt_up.wav",
+  "te": "/audio/guidance/te/tilt_up.wav"
+ },
+ "too_dark": {
+  "en": "/audio/guidance/en/too_dark.wav",
+  "hi": "/audio/guidance/hi/too_dark.wav",
+  "te": "/audio/guidance/te/too_dark.wav"
+ },
+ "zooming_in": {
+  "en": "/audio/guidance/en/zooming_in.wav",
+  "hi": "/audio/guidance/hi/zooming_in.wav",
+  "te": "/audio/guidance/te/zooming_in.wav"
+ }
+}

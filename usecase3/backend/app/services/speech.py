@@ -21,12 +21,10 @@ from .safe_translate import UnsafeTranslation, translate_protected
 log = logging.getLogger("oriel.speech")
 
 
-async def synthesize(text: str, lang: str, gender: str | None = None) -> dict:
-    mt = anuvaad_client()
-    g = gender or mt.gender
-    aid = audio_store.audio_id(text, lang, g)
-    if audio_store.get(aid) is not None:
-        return {"audio_url": audio_store.url(aid), "provider": "cache"}
+_inflight: dict[str, asyncio.Task] = {}  # one TTS request per line, shared by everyone waiting for it
+
+
+async def _tts_and_store(mt, text: str, lang: str, g: str, aid: str) -> dict:
     try:
         wav = await mt.tts(text, lang, g)
     except AnuvaadUnavailable:
@@ -34,8 +32,22 @@ async def synthesize(text: str, lang: str, gender: str | None = None) -> dict:
     except AnuvaadError as e:
         log.warning("TTS failed: %s", e)
         return {"audio_url": None, "provider": "device", "error": str(e)}
+    finally:
+        _inflight.pop(aid, None)
     audio_store.put(aid, wav)
     return {"audio_url": audio_store.url(aid), "provider": "anuvaad"}
+
+
+async def synthesize(text: str, lang: str, gender: str | None = None) -> dict:
+    mt = anuvaad_client()
+    g = gender or mt.gender
+    aid = audio_store.audio_id(text, lang, g)
+    if audio_store.get(aid) is not None:
+        return {"audio_url": audio_store.url(aid), "provider": "cache"}
+    task = _inflight.get(aid)
+    if task is None:
+        task = _inflight[aid] = asyncio.create_task(_tts_and_store(mt, text, lang, g, aid))
+    return await asyncio.shield(task)  # a caller giving up never cancels the request others may be waiting on
 
 
 async def fill_names(verified: dict, lang: str) -> None:
@@ -89,15 +101,28 @@ async def finalize(speech: dict, lang: str) -> list[dict]:
     return trace
 
 
-async def attach_audio(lines: list[dict], lang: str) -> str:
-    """Synthesize audio for lines in parallel. Returns the provider used ('anuvaad', 'cache', 'device')."""
-    results = await asyncio.gather(*[synthesize(ln["text"], ln.get("lang_fallback", lang)) for ln in lines if ln.get("text")])
+async def attach_audio(lines: list[dict], lang: str, budget_s: float = 2.5) -> str:
+    """Synthesize audio for lines in parallel, waiting at most `budget_s` so the result is never held back by a
+    slow TTS. Lines not ready in time get no audio_url: the phone asks /api/speak, which joins the request still
+    running here. Returns the provider used ('anuvaad', 'cache', 'device', or 'pending')."""
+    spoken = [ln for ln in lines if ln.get("text")]
+    tasks = [asyncio.ensure_future(synthesize(ln["text"], ln.get("lang_fallback", lang))) for ln in spoken]
+    if not tasks:
+        return "device"
+    await asyncio.wait(tasks, timeout=budget_s)
     providers = set()
-    for ln, res in zip([ln for ln in lines if ln.get("text")], results):
+    for ln, task in zip(spoken, tasks):
+        if not task.done():
+            ln["audio_url"] = None
+            providers.add("pending")
+            continue
+        res = task.result()
         ln["audio_url"] = res.get("audio_url")
         providers.add(res.get("provider"))
     if "anuvaad" in providers:
         return "anuvaad"
     if "cache" in providers:
         return "cache"
+    if "pending" in providers:
+        return "pending"
     return "device"

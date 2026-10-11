@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .routers import ask, health, read, speech
-from .services import anuvaad, gemini
+from .services import anuvaad, gemini, vision_ocr
 from .settings import FRONTEND_DIST, ROOT, get_settings
 
 FRONTEND_PUBLIC = ROOT / "frontend" / "public"
@@ -31,6 +31,11 @@ async def lifespan(app: FastAPI):
     s = get_settings()
     log.info("Gemini: %s (reader %s, arbiter %s)", "configured" if gemini.configured() else "MISSING KEY",
              s.reader_model, s.arbiter_model)
+    if s.enable_paddleocr:
+        import asyncio
+        from .services import paddle
+        asyncio.get_running_loop().run_in_executor(None, paddle.warm_up)  # in the background: startup stays fast
+    log.info("Cloud Vision OCR: %s", "configured" if vision_ocr.configured() else "not configured")
     st = anuvaad.status()
     for kind, models in st.items():
         ready = [k for k, ok in models.items() if ok]

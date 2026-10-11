@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { load, save } from "../lib/storage";
 import type { Facing } from "../lib/camera";
+import { isIOS } from "../lib/platform";
 import type { Lang, Mode } from "../types";
 
 export interface Settings {
@@ -28,7 +29,8 @@ export const DEFAULTS: Settings = {
   speechRate: 1,
   textScale: 1,
   autoCapture: true,
-  handsFree: true,
+  // iPhone: an always-open microphone sends Oriel's voice to the quiet earpiece, so hands-free starts off there
+  handsFree: !isIOS,
   headGestures: false,
   simpleWords: false,
   highContrast: false,
@@ -41,9 +43,9 @@ export const DEFAULTS: Settings = {
 
 /** What changes when a mode is chosen. The user can still change any single setting afterwards. */
 export const MODE_PRESETS: Record<Mode, Partial<Settings>> = {
-  visual: { autoCapture: true, handsFree: true, speechRate: 1, textScale: 1, simpleWords: false },
-  ageing: { autoCapture: false, handsFree: true, speechRate: 0.85, textScale: 1.4, simpleWords: true },
-  hand_motor: { autoCapture: true, handsFree: true, speechRate: 1, textScale: 1.2, headGestures: true },
+  visual: { autoCapture: true, handsFree: !isIOS, speechRate: 1, textScale: 1, simpleWords: false },
+  ageing: { autoCapture: false, handsFree: !isIOS, speechRate: 0.85, textScale: 1.4, simpleWords: true },
+  hand_motor: { autoCapture: true, handsFree: !isIOS, speechRate: 1, textScale: 1.2, headGestures: true },
 };
 
 interface Ctx {

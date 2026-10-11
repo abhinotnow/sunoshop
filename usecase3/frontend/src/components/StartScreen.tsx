@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { api } from "../lib/api";
 import { Beacon3D } from "./Beacon3D";
 import { LANG_NAMES, t } from "../i18n/ui";
 import { useSettings } from "../state/settings";
@@ -13,6 +15,10 @@ const MODES: { id: Mode; key: "modeVisual" | "modeAgeing" | "modeHandMotor" }[] 
 
 export function StartScreen({ onStart }: { onStart: () => void }) {
   const { settings, update, setMode } = useSettings();
+  // Wake the server while the user picks a language (free hosting sleeps and needs ~30-60 s to start).
+  useEffect(() => {
+    void api.health().catch(() => undefined);
+  }, []);
   const lang = settings.outLang;
   const tilt = useTilt<HTMLElement>(4);
 

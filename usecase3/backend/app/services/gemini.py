@@ -1,13 +1,24 @@
-"""Thin async wrapper around the Gemini Interactions API with retries and timeouts."""
+"""Gemini calls: structured JSON via generateContent, with timeouts and a model fallback chain.
+
+Why generateContent and not the Interactions API: measured on 11 Oct 2026, the Interactions API hung until our
+timeout when a model was out of quota (it never returned the 429), and took 6-7 s for a one-word answer.
+generateContent answers the same image read in ~1.7 s and returns a 429 in under a second.
+
+Fallback: every model has its own free-tier daily quota. When a model answers 429 (quota), 404 (not available
+for this key) or keeps timing out, it is parked for a while and the call moves on to the next model in
+GEMINI_FALLBACK_MODELS at once, so one exhausted model never stalls a read.
+"""
 
 from __future__ import annotations
 
 import asyncio
-import base64
 import json
 import logging
+import re
+import time
 
 from google import genai
+from google.genai import types
 
 from ..settings import get_settings
 
@@ -18,74 +29,169 @@ class GeminiError(RuntimeError):
     pass
 
 
-_client: genai.Client | None = None
+_clients: dict[int, genai.Client] = {}
+_parked: dict[tuple[int, str], float] = {}  # (key index, model) -> time.monotonic() until which it is skipped
 
 
-def client() -> genai.Client:
-    global _client
-    if _client is None:
-        key = get_settings().gemini_api_key
-        if not key:
-            raise GeminiError("GEMINI_API_KEY is not set in backend/.env")
-        _client = genai.Client(api_key=key)
-    return _client
+def keys() -> list[str]:
+    s = get_settings()
+    return [k for k in (s.gemini_api_key, *s.gemini_extra_keys) if k]
+
+
+def client(key_index: int = 0) -> genai.Client:
+    ks = keys()
+    if not ks:
+        raise GeminiError("GEMINI_API_KEY is not set in backend/.env")
+    if key_index not in _clients:
+        _clients[key_index] = genai.Client(api_key=ks[key_index])
+    return _clients[key_index]
 
 
 def configured() -> bool:
-    return bool(get_settings().gemini_api_key)
+    return bool(keys())
 
 
-def _image_part(data: bytes, mime: str = "image/jpeg", resolution: str = "") -> dict:
-    part = {"type": "image", "data": base64.b64encode(data).decode("ascii"), "mime_type": mime}
-    if resolution:
-        part["resolution"] = resolution  # low | medium | high | ultra_high: more image tokens = small text survives
+def park(model: str, seconds: float, key_index: int = 0) -> None:
+    _parked[(key_index, model)] = time.monotonic() + seconds
+
+
+def parked(model: str, key_index: int = 0) -> bool:
+    return _parked.get((key_index, model), 0) > time.monotonic()
+
+
+def model_chain(first: str) -> list[tuple[int, str]]:
+    """(key, model) pairs to try: the requested model, then the fallbacks, on the first key, then on each extra
+    key. Parked pairs go last (never dropped: a parked model may have recovered)."""
+    models: list[str] = []
+    for m in [first, *get_settings().gemini_fallback_models]:
+        if m and m not in models:
+            models.append(m)
+    chain = [(k, m) for k in range(len(keys()) or 1) for m in models]
+    return [c for c in chain if not parked(c[1], c[0])] + [c for c in chain if parked(c[1], c[0])]
+
+
+_RES = {"low": "MEDIA_RESOLUTION_LOW", "medium": "MEDIA_RESOLUTION_MEDIUM", "high": "MEDIA_RESOLUTION_HIGH",
+        "ultra_high": "MEDIA_RESOLUTION_ULTRA_HIGH"}
+
+
+def _image_part(data: bytes, mime: str = "image/jpeg", resolution: str = "") -> types.Part:
+    part = types.Part.from_bytes(data=data, mime_type=mime)
+    if resolution in _RES:  # more image tokens = small Telugu/Hindi glyphs survive
+        part.media_resolution = types.PartMediaResolution(level=_RES[resolution])
     return part
+
+
+def _retry_after(msg: str) -> float:
+    m = re.search(r"retryDelay'?\"?:\s*'?\"?(\d+)", msg)
+    return min(3600.0, float(m.group(1))) if m else 600.0
+
+
+class _Skip(Exception):
+    """This (key, model) cannot answer now (quota, not available, hung): move on to the next one."""
+
+
+async def _attempt(k: int, m: str, parts: list, images: list[bytes], schema: dict, res: str, level: str) -> dict:
+    """One model on one key. Options the model rejects (thinking level, resolution) are dropped and retried here."""
+    s = get_settings()
+    use_res, use_level = bool(res), bool(level)
+    for _ in range(3):
+        contents = parts + [_image_part(img, resolution=res if use_res else "") for img in images]
+        cfg = types.GenerateContentConfig(response_mime_type="application/json", response_json_schema=schema)
+        if use_level:
+            cfg.thinking_config = types.ThinkingConfig(thinking_level=level.upper())
+        try:
+            r = await asyncio.wait_for(client(k).aio.models.generate_content(model=m, contents=contents, config=cfg),
+                                       timeout=s.gemini_timeout_s)
+            if not r.text:
+                raise GeminiError("empty response")
+            return json.loads(r.text)
+        except Exception as e:  # noqa: BLE001 - classified below
+            msg = str(e)
+            low = msg.lower()
+            if use_level and "thinking" in low and ("400" in low or "invalid" in low or "support" in low):
+                use_level = False
+                continue
+            if use_res and "resolution" in low and ("400" in low or "invalid" in low or "support" in low):
+                use_res = False
+                continue
+            if "429" in low or "resource_exhausted" in low or "quota" in low:
+                park(m, _retry_after(msg), k)
+                log.warning("Gemini %s (key %d) out of quota, parked", m, k)
+                raise _Skip(msg) from e
+            if "404" in low or "not found" in low or "not supported" in low:
+                park(m, 3600, k)
+                raise _Skip(msg) from e
+            if isinstance(e, asyncio.TimeoutError):
+                park(m, 60, k)  # a hung model is skipped for a minute
+                raise _Skip("timeout") from e
+            if isinstance(e, json.JSONDecodeError) or any(
+                    t in low for t in ("500", "502", "503", "504", "unavailable", "overloaded", "deadline")):
+                park(m, 30, k)  # "high demand": give it half a minute
+                raise _Skip(msg) from e
+            raise
+    raise _Skip("options rejected")
 
 
 async def generate_json(model: str, prompt: str, schema: dict, images: list[bytes] | None = None,
                         extra_text: str | None = None, retries: int = 2,
                         resolution: str | None = None, thinking_level: str | None = None) -> dict:
-    """Structured JSON from Gemini. Text goes before the image (Gemini docs recommendation)."""
-    s = get_settings()
-    parts: list[dict] = [{"type": "text", "text": prompt}]
-    if extra_text:
-        parts.append({"type": "text", "text": extra_text})
-    res = s.image_resolution if resolution is None else resolution
-    for img in images or []:
-        parts.append(_image_part(img, resolution=res))
-    kwargs: dict = {
-        "model": model,
-        "input": parts,
-        "response_format": {"type": "text", "mime_type": "application/json", "schema": schema},
-    }
-    level = s.thinking_level if thinking_level is None else thinking_level
-    if level:
-        kwargs["generation_config"] = {"thinking_level": level}
+    """Structured JSON from Gemini. Text goes before the image (Gemini docs recommendation).
 
+    Hedged: `model` is asked first; if it has not answered after GEMINI_HEDGE_S, the next model in the chain is
+    asked too and the first good answer wins (the free tier sometimes holds a request instead of refusing it).
+    A model that fails (quota, busy, unavailable, hung) is replaced by the next one at once, until the chain is
+    used up or GEMINI_DEADLINE_S passes. At most 2 requests run at the same time. `retries` is kept for callers
+    that want fewer models: retries=0 means only the first model and one hedge."""
+    s = get_settings()
+    res = s.image_resolution if resolution is None else resolution
+    level = s.thinking_level if thinking_level is None else thinking_level
+    parts: list = [prompt] + ([extra_text] if extra_text else [])
+    chain = model_chain(model)
+    if retries == 0:
+        chain = chain[:2]
+    deadline = time.monotonic() + s.gemini_deadline_s
+    running: dict[asyncio.Task, str] = {}
     last_err: Exception | None = None
-    attempt = 0
-    while True:
-        try:
-            result = await asyncio.wait_for(client().aio.interactions.create(**kwargs), timeout=s.gemini_timeout_s)
-            text = result.output_text
-            if not text:
-                raise GeminiError("empty response")
-            return json.loads(text)
-        except Exception as e:  # noqa: BLE001 - we classify below
-            msg = str(e).lower()
-            # Unsupported options are dropped and retried at once; that does not use up a retry.
-            if "generation_config" in kwargs and "think" in msg:
-                kwargs.pop("generation_config")  # model does not support this thinking_level
+    nxt = 0
+
+    def launch() -> bool:
+        nonlocal nxt
+        if nxt >= len(chain):
+            return False
+        k, m = chain[nxt]
+        nxt += 1
+        running[asyncio.create_task(_attempt(k, m, parts, images or [], schema, res, level))] = m
+        return True
+
+    launch()
+    try:
+        while running:
+            left = deadline - time.monotonic()
+            if left <= 0:
+                last_err = last_err or GeminiError("deadline")
+                break
+            done, _ = await asyncio.wait(running, timeout=min(s.gemini_hedge_s, left), return_when=asyncio.FIRST_COMPLETED)
+            if not done:  # slow: hedge with the next model, keep waiting for both
+                if len(running) < 2:
+                    launch()
                 continue
-            if "resolution" in msg and [p.pop("resolution") for p in parts if "resolution" in p]:
-                continue  # model does not accept a per-image resolution: use its default
-            last_err = e
-            retryable = isinstance(e, (asyncio.TimeoutError, json.JSONDecodeError)) or any(
-                k in msg for k in ("429", "500", "502", "503", "504", "unavailable", "overloaded", "deadline", "timeout"))
-            if attempt < retries and retryable:
-                await asyncio.sleep(0.8 * (2 ** attempt))
-                attempt += 1
-                continue
-            break
+            for task in done:
+                m = running.pop(task)
+                try:
+                    out = task.result()
+                    if m != model:
+                        log.info("Gemini %s answered for %s", m, model)
+                    return out
+                except _Skip as e:
+                    last_err = e
+                    if len(running) < 2:
+                        launch()
+                except Exception as e:  # noqa: BLE001 - a hard error (e.g. bad key): give up
+                    last_err = e
+                    running.clear()
+                    break
+    finally:
+        for task in running:
+            task.cancel()
     log.warning("Gemini %s failed: %s", model, last_err)
-    raise GeminiError(f"{model}: {type(last_err).__name__}: {last_err}")
+    raise GeminiError(f"{model}: {type(last_err).__name__}: {str(last_err)[:300]}")

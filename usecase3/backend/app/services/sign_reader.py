@@ -30,9 +30,9 @@ def normalize_record(rec: dict) -> dict:
     return out
 
 
-async def read_frame(jpeg: bytes) -> dict:
+async def read_frame(jpeg: bytes, model: str | None = None) -> dict:
     s = get_settings()
-    rec = await gemini.generate_json(s.reader_model, prompt("read_sign"), schema("sign_record"), images=[jpeg])
+    rec = await gemini.generate_json(model or s.reader_model, prompt("read_sign"), schema("sign_record"), images=[jpeg])
     return normalize_record(rec)
 
 

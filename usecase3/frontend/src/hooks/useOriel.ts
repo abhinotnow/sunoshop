@@ -69,6 +69,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const [faceBlur, setFaceBlur] = useState<"loading" | "on" | "off">("loading");
   const [errorFlash, setErrorFlash] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(false);
 
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -89,6 +90,9 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const scanSince = useRef(0);
   const goodSince = useRef(0);
   const askStartedAt = useRef(0);
+  const emptyReads = useRef(0);        // reads in a row that found no sign
+  const autoPaused = useRef(false);    // zero-tap paused until the user taps or says "read" (saves quota)
+  const lastReadEnd = useRef(0);
   const conditions = useRef(new ConditionInference(() => S.current.mode, () => S.current.offersSeen));
 
   // ------------------------------------------------------------------ speech
@@ -105,6 +109,13 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   useEffect(() => {
     audio.rate = settings.speechRate;
   }, [settings.speechRate]);
+
+  useEffect(() => audio.onBlocked(setAudioBlocked), []);
+
+  /** "Tap to hear": the phone blocked sound; this tap unlocks it and replays the last lines. */
+  const tapToHear = useCallback(() => {
+    audio.retryAfterTap();
+  }, []);
 
   useEffect(() => {
     if (!speaking) {
@@ -221,6 +232,16 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
     const key = res.speech.key;
     const anyConfirmed = key.some((l) => l.status === "confirmed");
 
+    emptyReads.current = res.verified.sign_found ? 0 : emptyReads.current + 1;
+    if (step.action === "guide" && emptyReads.current >= 2) {
+      // two empty reads in a row: stop auto-reading until the user is ready (every read costs quota and time)
+      autoPaused.current = true;
+      setFocusBox(null);
+      setPhase("scan");
+      await sayPhrases(["auto_paused"]);
+      lastGuidanceAt.current = performance.now();
+      return;
+    }
     if (step.action === "reread" || step.action === "guide") {
       if (step.action === "guide") conditions.current.noteAimFailure();
       setFocusBox(step.focus_box);
@@ -280,17 +301,24 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
       flashError();
       setPhase(resultRef.current ? "result" : "scan");
       scanSince.current = performance.now();
-      await sayPhrases([err.code === "offline" ? "network_offline" : "network_slow"]);
+      const phrase = err.code === "offline" ? "network_offline"
+        : err.code === "timeout" || err.code === "network" ? "network_slow" : "service_busy";
+      await sayPhrases([phrase]);
       lastGuidanceAt.current = performance.now();
     } finally {
       busyRef.current = false;
+      lastReadEnd.current = performance.now();
       setBusy(false);
     }
   }, [applyStage, handleResult, sayPhrases]);
 
-  const readNow = useCallback(() => {
+  const readNow = useCallback((auto = false) => {
     const video = videoRef.current;
     if (!video || phaseRef.current === "start") return;
+    if (!auto) {
+      autoPaused.current = false;
+      emptyReads.current = 0;
+    }
     if (phaseRef.current === "result" && facing !== S.current.scanCamera) {
       // coming from gesture mode: back to the reading camera first
       setFacing(S.current.scanCamera);
@@ -340,13 +368,13 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
         void sayPhrases(["glare"]);
         return;
       }
-      if (!S.current.autoCapture) return;
+      if (!S.current.autoCapture || autoPaused.current || now - lastReadEnd.current < 2500) return;
       const steady = motion.isSteady();
       if (isGoodFrame(q) && steady !== false && !tilt) {
         goodSince.current ||= now;
         if (now - goodSince.current > 550) {
           goodSince.current = 0;
-          readNow();
+          readNow(true);
         }
       } else {
         goodSince.current = 0;
@@ -418,6 +446,8 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
   const newSign = useCallback(() => {
     audio.stop();
     readsUsed.current = 0;
+    autoPaused.current = false;
+    emptyReads.current = 0;
     setFocusBox(null);
     setResult(null);
     setAskResult(null);
@@ -638,8 +668,8 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
 
   const start = useCallback(async () => {
     // Everything that needs a user gesture on iPhone starts in this tap, before any await.
-    const motionP = motion.requestPermission();
     const unlockP = audio.unlock();
+    const motionP = motion.requestPermission();
     await Promise.all([motionP, unlockP]);
     setPhase("scan");
     void faceDetector().then((d) => setFaceBlur(d ? "on" : "off"));
@@ -675,7 +705,7 @@ export function useOriel(videoRef: RefObject<HTMLVideoElement | null>) {
 
   return {
     phase, beacon, level, caption, pipeline, result, askResult, dialog, focusBox, cameraError, online, health,
-    facing, pose, lastGesture, faceBlur, speaking, listening, busy, showSettings,
+    facing, pose, lastGesture, faceBlur, speaking, listening, busy, showSettings, audioBlocked, tapToHear,
     setShowSettings, start, readNow, readFiles, again, more, spell, simpler, stop, finishListening, newSign, startAsk, askText,
     setOutLang, runCommand, changeRate, flipCamera, setScanCamera,
   };
